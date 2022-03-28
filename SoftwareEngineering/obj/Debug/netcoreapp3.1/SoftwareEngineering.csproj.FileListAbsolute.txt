@@ -1,0 +1,4 @@
+C:\Users\Jt4d\Source\Repos\SoftwareEngineering\SoftwareEngineering\obj\Debug\netcoreapp3.1\SoftwareEngineering.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Jt4d\Source\Repos\SoftwareEngineering\SoftwareEngineering\obj\Debug\netcoreapp3.1\SoftwareEngineering.AssemblyInfoInputs.cache
+C:\Users\Jt4d\Source\Repos\SoftwareEngineering\SoftwareEngineering\obj\Debug\netcoreapp3.1\SoftwareEngineering.AssemblyInfo.cs
+C:\Users\Jt4d\Source\Repos\SoftwareEngineering\SoftwareEngineering\obj\Debug\netcoreapp3.1\SoftwareEngineering.csproj.CoreCompileInputs.cache
