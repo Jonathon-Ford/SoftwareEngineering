@@ -60,7 +60,101 @@ namespace SoftwareEngineering
                      break;
                 }
             }
-
+            string command = "";
+            while (!String.Equals(command, "q"))//Until the user logs out, print the options and read what they would like to do
+            {
+                Console.WriteLine("Input your desired function (1 - 15) or q to log out:");
+                Console.WriteLine("1  - Make a reservation");
+                Console.WriteLine("2  - Edit a reservaation");
+                Console.WriteLine("3  - Cancel a reservation");
+                Console.WriteLine("4  - Check reservation details");
+                Console.WriteLine("5  - Confirm reservation");
+                Console.WriteLine("6  - Check availability");
+                Console.WriteLine("7  - Check in guest");
+                Console.WriteLine("8  - Check out guest");
+                Console.WriteLine("9  - Generate daily emails");
+                Console.WriteLine("10 - Generate daily arivals report");
+                Console.WriteLine("11 - Generate daily occupancy report");
+                /*if(String.Equals(currentUser.role, "Management")
+                Console.WriteLine("12 - Generate 30 day occupancy report");
+                Console.WriteLine("13 - Generate 30 day expected income report");
+                Console.WriteLine("14 - Generate 30 day incentive loss report");
+                Console.WriteLine("15 - Set base rate");
+                */
+                command = Console.ReadLine();
+                switch (command)
+                {
+                    case "1":
+                        //MakeReservation();
+                        break;
+                    case "2":
+                        //EditReservation();
+                        break;
+                    case "3":
+                        //CancelReservation();
+                        break;
+                    case "4":
+                        //FindReservation();
+                        break;
+                    case "5":
+                        //ConfirmReservation();
+                        break;
+                    case "6":
+                        //CheckAvailability();
+                        break;
+                    case "7":
+                        //CheckInGuest();
+                        break;
+                    case "8":
+                        //CheckOutGuest();
+                        break;
+                    case "9":
+                        //GenerateDailyEmails();
+                        break;
+                    case "10":
+                        //GenerateDailyArrivalsReport();
+                        break;
+                    case "11":
+                        //GenerateDailyOccupancyReport();
+                        break;
+                    case "12":
+                        //if(String.Equals(currentUser.role, "Management"){
+                        //  GenerateExpectedOccupancyReport();
+                        //}
+                        break;
+                    case "13":
+                        //if(String.Equals(currentUser.role, "Management"){
+                        //  GenerateExpectedOccupancyReport();
+                        //}
+                        break;
+                    case "14":
+                        //if(String.Equals(currentUser.role, "Management"){
+                        //  GenerateExpectedOccupancyReport();
+                        //}
+                        break;
+                    case "15":
+                        //if(String.Equals(currentUser.role, "Management"){
+                        //  GenerateExpectedOccupancyReport();
+                        //}
+                        break;
+                    case "q":
+                        Console.WriteLine("Are you sure you want to log out? y/n");
+                        string input = Console.ReadLine();
+                        if (String.Equals(input, "y"))//if they are sure do nothing
+                        {
+                            break;
+                        }
+                        else //if they change their mind change command so you do not break out the loop
+                        {
+                            command = "";
+                            break;
+                        }
+                        
+                    default:
+                        Console.WriteLine("Invalid input, try again");
+                        break;
+                }
+            }
 
 
         }
