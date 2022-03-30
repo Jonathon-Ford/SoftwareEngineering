@@ -167,5 +167,33 @@ namespace SoftwareEngineering
             //TODO, check if the credentials match a user if so currentUser == to the specified user
             return true;
         }
+        /*This function checks in a guest by updating the database
+         * 
+         */
+        static void CheckInGuest()
+        {
+
+        }
+        /*This function checks out a guest at the end of their stay
+         * 
+         */
+        static void CheckOutGuest()
+        {
+
+        }
+        /*This function produces a bill for the customer and "charges their card"
+         * 
+         */
+        static void ProcessPayment()
+        {
+
+        }
+        /*This function configures base rate
+         * 
+         */
+        static void ConfigureBaseRate()
+        {
+
+        }
     }
 }
