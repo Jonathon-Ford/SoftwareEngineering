@@ -6,36 +6,42 @@ namespace SoftwareEngineering.Models
 {
     public class Users
     {
-        int userID { get; set; }
-        string username { get; set; }
-        string password { get; set; }
+        public int userID { get; set; }// Not null
+        public string username { get; set; }// Not null
+        public string password { get; set; }// Not null
     }
     public class UserRoles
     {
-        int userID { get; set; }
-        int roleID { get; set; }
+        public Users userID { get; set; }// Not null
+        public Roles roleID { get; set; }// Not null
     }
     public class Roles
     {
-        int roleID { get; set; }
-        string roleName { get; set; }
+        public int roleID { get; set; }// Not null
+        public string roleName { get; set; }// Not null
     }
     public class Reservations
     {
-        int reservationID { get; set; }
-        string LastName { get; set; }
-        string FirstName { get; set; }
-        string Email { get; set; }
-        int cardNum { get; set; }
-        int reservationType { get; set; }
-        int price { get; set; }
-        int roomNum { get; set; }
-
-
+        public int reservationID { get; set; }//Not null
+        public string LastName { get; set; }// Not null
+        public string FirstName { get; set; }// Not null
+        public string Email { get; set; }
+        public CreditCards cardNum { get; set; }
+        public ReservationTypes reservationType { get; set; }// Not null
+        public int price { get; set; }// Not null
+        public int roomNum { get; set; }
+        public DateTime startDate { get; set; }// Not null
+        public DateTime endDate { get; set; }// Not null
+        public bool isCanceled { get; set; }// Not null
+        public DateTime dateCanceled { get; set; }
+        public bool paid { get; set; }// Not null
+        public bool confirmed { get; set; }// Not null
+        public bool checkedIn { get; set; }// Not null
+        public bool checkedOut { get; set; }// Not null
     }
     public class Payments
     {
-
+        public int paymentID { get; set; }// Not null
     }
     public class ReservationTypes
     {
