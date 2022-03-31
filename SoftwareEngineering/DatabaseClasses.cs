@@ -1,4 +1,10 @@
-﻿using System;
+﻿/* Author Jonathon Ford
+ * 
+ * This page contains all of the classes Entity Framework will use to model our database
+ * These classes are also used for data manipulation within the code
+ * 
+ */
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -35,24 +41,39 @@ namespace SoftwareEngineering.Models
         public bool isCanceled { get; set; }// Not null
         public DateTime dateCanceled { get; set; }
         public bool paid { get; set; }// Not null
+        public DateTime paymentDate { get; set; }
         public bool confirmed { get; set; }// Not null
         public bool checkedIn { get; set; }// Not null
         public bool checkedOut { get; set; }// Not null
+
+        public virtual Payments Payments { get; set; }// I believe this is nessasary to have a list of resos in payments (stackoverflow.com/questions/4407969/how-to-specify-a-list-of-foreign-keys-in-entity-framework)
     }
     public class Payments
     {
         public int paymentID { get; set; }// Not null
+        public virtual ICollection<Reservations> reservationID { get; set; }// Not null
+        public DateTime paymentDate { get; set; }
+        public string description { get; set; }
+        public float price { get; set; }// Not null
+        public CreditCards cardNum { get; set; }// Not null
     }
     public class ReservationTypes
     {
-
+        public int reservationID { get; set; }// Not null
+        public string description { get;  set; }// Not null
+        public float percentOfBase { get; set; }// Not null
     }
     public class CreditCards
     {
-
+        public int cardNum { get; set; }// Key also Not null
+        public int CVVNum { get; set; }// Not null
+        public DateTime goodTill { get; set; }// Not null
     }
     public class BaseRates
     {
-
+        public int baseRateID { get; set; }//Not null
+        public float rate { get; set; }// Not null
+        public DateTime startDate { get; set; }// Not null
+        public DateTime endDate { get; set; }// Not null
     }
 }
