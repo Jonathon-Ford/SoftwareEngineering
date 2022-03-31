@@ -45,13 +45,11 @@ namespace SoftwareEngineering.Models
         public bool confirmed { get; set; }// Not null
         public bool checkedIn { get; set; }// Not null
         public bool checkedOut { get; set; }// Not null
-
-        public virtual Payments Payments { get; set; }// I believe this is nessasary to have a list of resos in payments (stackoverflow.com/questions/4407969/how-to-specify-a-list-of-foreign-keys-in-entity-framework)
     }
     public class Payments
     {
         public int paymentID { get; set; }// Not null
-        public virtual ICollection<Reservations> reservationID { get; set; }// Not null
+        public List<Reservations> reservationID { get; set; }// Not null
         public DateTime paymentDate { get; set; }
         public string description { get; set; }
         public float price { get; set; }// Not null
