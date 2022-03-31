@@ -9,6 +9,15 @@ namespace SoftwareEngineering.Models
         int userID { get; set; }
         string username { get; set; }
         string password { get; set; }
+    }
+    public class UserRoles
+    {
+        int userID { get; set; }
+        int roleID { get; set; }
+    }
+    public class Roles
+    {
+        int roleID { get; set; }
         string roleName { get; set; }
     }
     public class Reservations
