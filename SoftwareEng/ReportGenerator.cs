@@ -8,6 +8,16 @@ namespace SoftwareEng
 {
     public class ReportGenerator
     {
+        public static int Average(List<int> array)
+        {
+            int sum = 0;
+            for(int i = 0; i < array.Count; i++)
+            {
+                sum += array[i];
+            }
+
+            return sum/ array.Count;
+        }
         /*
          * 
          */
@@ -26,6 +36,7 @@ namespace SoftwareEng
 
             Console.WriteLine("Occupancy Report ----- Generated: " + curDate.ToString("MM/dd/yyyy h:mm tt"));
 
+            List<int> totals = new List<int>();
 
             String data = String.Format("{0,-10} {1,-10} {2,-10} {3, -10} {4, -10} {5, -10} \n",
                     "Date", "Prepaid", "60 Day", "Conventional", "incentive", "Total");
@@ -43,6 +54,7 @@ namespace SoftwareEng
                 int conventionalNum = occupancies[i][2];
                 int incentiveNum = occupancies[i][3];
                 int total = prepaidNum + sixtyDayNum + conventionalNum + incentiveNum;
+                totals.Add(total);
 
                 
                 data += String.Format("{0,-10} {1,-10} {2,-10} {3, -10} {4, -10} {5, -10} \n",
@@ -50,6 +62,11 @@ namespace SoftwareEng
 
                 curDate.AddDays(1);
             }
+
+            int average = Average(totals);
+
+            data += "Average occupancy: " + average;
+
             Console.WriteLine($"\n{data}");
 
             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -59,14 +76,19 @@ namespace SoftwareEng
                     outputFile.WriteLine($"\n{data}");
             }
         }
-        /*
+        /* This function prints the daily occupancy report to the screen, and saves it to a file in documents
          * 
+         * The report takes the form...
+         * Room      Name                                 Departure Date
+         * #         *name                                today
+         * #         name                                 somedate after today
+         * #         name 
          */
         public static void GenerateDailyOccupancyReport()
         {
             List<Reservations> dailyOccupancy = PreparedStatements.GetTodaysOccupancies();
 
-            String data = String.Format("{0,-10} {1,-10} {2,-10} \n",
+            String data = String.Format("{0,-10} {1,-50} {2,-10} \n",
                     "Room", "Name", "Departure Date");
 
             for (int i = 0; i < dailyOccupancy.Count; i++)
@@ -92,7 +114,7 @@ namespace SoftwareEng
                 }
 
 
-                data += String.Format("{0,-10} {1,-10} {2,-10} \n",
+                data += String.Format("{0,-10} {1,-50} {2,-10} \n",
                     roomNum, name, date);
             }
 
