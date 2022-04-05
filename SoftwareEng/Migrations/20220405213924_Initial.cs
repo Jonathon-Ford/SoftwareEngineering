@@ -53,26 +53,14 @@ namespace SoftwareEng.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Roles",
-                columns: table => new
-                {
-                    RoleID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RoleName = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Roles", x => x.RoleID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
                     UserID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Username = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false)
+                    Password = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    RoleName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -120,25 +108,26 @@ namespace SoftwareEng.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserRoles",
+                name: "BaseRatesReservations",
                 columns: table => new
                 {
-                    UserID = table.Column<int>(type: "int", nullable: false),
-                    RoleID = table.Column<int>(type: "int", nullable: false)
+                    BaseRatesBaseRateID = table.Column<int>(type: "int", nullable: false),
+                    ReservationsReservationID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
+                    table.PrimaryKey("PK_BaseRatesReservations", x => new { x.BaseRatesBaseRateID, x.ReservationsReservationID });
                     table.ForeignKey(
-                        name: "FK_UserRoles_Roles_RoleID",
-                        column: x => x.RoleID,
-                        principalTable: "Roles",
-                        principalColumn: "RoleID",
+                        name: "FK_BaseRatesReservations_BaseRates_BaseRatesBaseRateID",
+                        column: x => x.BaseRatesBaseRateID,
+                        principalTable: "BaseRates",
+                        principalColumn: "BaseRateID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserRoles_Users_UserID",
-                        column: x => x.UserID,
-                        principalTable: "Users",
-                        principalColumn: "UserID",
+                        name: "FK_BaseRatesReservations_Reservations_ReservationsReservationID",
+                        column: x => x.ReservationsReservationID,
+                        principalTable: "Reservations",
+                        principalColumn: "ReservationID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -163,22 +152,6 @@ namespace SoftwareEng.Migrations
                         principalTable: "Reservations",
                         principalColumn: "ReservationID",
                         onDelete: ReferentialAction.NoAction);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DayRates",
-                columns: table => new
-                {
-                    ReservationID = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.ForeignKey(
-                        name: "FK_DayRates_Reservations_ReservationID",
-                        column: x => x.ReservationID,
-                        principalTable: "Reservations",
-                        principalColumn: "ReservationID",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -211,6 +184,11 @@ namespace SoftwareEng.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_BaseRatesReservations_ReservationsReservationID",
+                table: "BaseRatesReservations",
+                column: "ReservationsReservationID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ChangedTo_NewReservationReservationID",
                 table: "ChangedTo",
                 column: "NewReservationReservationID");
@@ -219,11 +197,6 @@ namespace SoftwareEng.Migrations
                 name: "IX_ChangedTo_OldReservationReservationID",
                 table: "ChangedTo",
                 column: "OldReservationReservationID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DayRates_ReservationID",
-                table: "DayRates",
-                column: "ReservationID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_CardNum",
@@ -244,43 +217,27 @@ namespace SoftwareEng.Migrations
                 name: "IX_Reservations_ReservationTypeReservationID",
                 table: "Reservations",
                 column: "ReservationTypeReservationID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_RoleID",
-                table: "UserRoles",
-                column: "RoleID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_UserID",
-                table: "UserRoles",
-                column: "UserID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "BaseRates");
+                name: "BaseRatesReservations");
 
             migrationBuilder.DropTable(
                 name: "ChangedTo");
 
             migrationBuilder.DropTable(
-                name: "DayRates");
-
-            migrationBuilder.DropTable(
                 name: "Payments");
 
             migrationBuilder.DropTable(
-                name: "UserRoles");
+                name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "BaseRates");
 
             migrationBuilder.DropTable(
                 name: "Reservations");
-
-            migrationBuilder.DropTable(
-                name: "Roles");
-
-            migrationBuilder.DropTable(
-                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "CreditCards");

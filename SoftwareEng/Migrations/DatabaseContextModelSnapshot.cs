@@ -44,6 +44,21 @@ namespace SoftwareEng.Migrations
                     b.ToTable("BaseRates");
                 });
 
+            modelBuilder.Entity("BaseRatesReservations", b =>
+                {
+                    b.Property<int>("BaseRatesBaseRateID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReservationsReservationID")
+                        .HasColumnType("int");
+
+                    b.HasKey("BaseRatesBaseRateID", "ReservationsReservationID");
+
+                    b.HasIndex("ReservationsReservationID");
+
+                    b.ToTable("BaseRatesReservations");
+                });
+
             modelBuilder.Entity("ChangedTo", b =>
                 {
                     b.Property<int>("NewReservationReservationID")
@@ -76,16 +91,6 @@ namespace SoftwareEng.Migrations
                     b.HasKey("CardNum");
 
                     b.ToTable("CreditCards");
-                });
-
-            modelBuilder.Entity("DayRates", b =>
-                {
-                    b.Property<int>("ReservationID")
-                        .HasColumnType("int");
-
-                    b.HasIndex("ReservationID");
-
-                    b.ToTable("DayRates");
                 });
 
             modelBuilder.Entity("Payments", b =>
@@ -213,38 +218,6 @@ namespace SoftwareEng.Migrations
                     b.ToTable("ReservationTypes");
                 });
 
-            modelBuilder.Entity("Roles", b =>
-                {
-                    b.Property<int>("RoleID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoleID"), 1L, 1);
-
-                    b.Property<string>("RoleName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("RoleID");
-
-                    b.ToTable("Roles");
-                });
-
-            modelBuilder.Entity("UserRoles", b =>
-                {
-                    b.Property<int>("RoleID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserID")
-                        .HasColumnType("int");
-
-                    b.HasIndex("RoleID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("UserRoles");
-                });
-
             modelBuilder.Entity("Users", b =>
                 {
                     b.Property<int>("UserID")
@@ -258,6 +231,10 @@ namespace SoftwareEng.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<string>("RoleName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -266,6 +243,21 @@ namespace SoftwareEng.Migrations
                     b.HasKey("UserID");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("BaseRatesReservations", b =>
+                {
+                    b.HasOne("BaseRates", null)
+                        .WithMany()
+                        .HasForeignKey("BaseRatesBaseRateID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Reservations", null)
+                        .WithMany()
+                        .HasForeignKey("ReservationsReservationID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ChangedTo", b =>
@@ -285,17 +277,6 @@ namespace SoftwareEng.Migrations
                     b.Navigation("NewReservation");
 
                     b.Navigation("OldReservation");
-                });
-
-            modelBuilder.Entity("DayRates", b =>
-                {
-                    b.HasOne("Reservations", "Reservation")
-                        .WithMany()
-                        .HasForeignKey("ReservationID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Reservation");
                 });
 
             modelBuilder.Entity("Payments", b =>
@@ -334,25 +315,6 @@ namespace SoftwareEng.Migrations
                     b.Navigation("Card");
 
                     b.Navigation("ReservationType");
-                });
-
-            modelBuilder.Entity("UserRoles", b =>
-                {
-                    b.HasOne("Roles", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Users", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Role");
-
-                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

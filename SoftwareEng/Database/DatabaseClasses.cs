@@ -17,19 +17,6 @@ public class Users
     public string Username { get; set; }// Not null
     [Required, MaxLength(30)]
     public string Password { get; set; }// Not null
-}
-[Microsoft.EntityFrameworkCore.Keyless]
-public class UserRoles
-{
-    [Required]
-    public Users User { get; set; }// Not null
-    [Required]
-    public Roles Role { get; set; }// Not null
-}
-public class Roles
-{
-    [Key]
-    public int RoleID { get; set; }// Not null
     [Required]
     public string RoleName { get; set; }// Not null
 }
@@ -65,6 +52,8 @@ public class Reservations
     public bool CheckedIn { get; set; }// Not null
     [Required]
     public bool CheckedOut { get; set; }// Not null
+    [Required]
+    public ICollection<BaseRates> BaseRates { get; set; }// Not null
 }
 public class Payments
 {
@@ -108,6 +97,7 @@ public class BaseRates
     public DateTime EffectiveDate { get; set; }// Not null
     [Required]
     public DateTime DateSet { get; set; }
+    public ICollection<Reservations> Reservations { get; set; }
 }
 [Microsoft.EntityFrameworkCore.Keyless]
 public class ChangedTo
@@ -116,12 +106,4 @@ public class ChangedTo
     public Reservations OldReservation { get; set; }
     [Required]
     public Reservations NewReservation { get; set; }
-}
-[Microsoft.EntityFrameworkCore.Keyless]
-public class DayRates
-{
-    [Required]
-    public Reservations Reservation { get; set; }
-    [Required]
-    public virtual ICollection<BaseRates> Rates { get; set; }//Not null
 }

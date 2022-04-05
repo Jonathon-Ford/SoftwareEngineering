@@ -11,16 +11,12 @@ namespace SoftwareEng.DataModels
     public class DatabaseContext : DbContext
     {
         public DbSet<Users> Users { get; set; }
-        public DbSet<UserRoles> UserRoles { get; set; }
-        public DbSet<Roles> Roles { get; set; }
         public DbSet<Reservations> Reservations { get; set; }
         public DbSet<Payments> Payments { get; set; }
         public DbSet<ReservationTypes> ReservationTypes { get; set; }
         public DbSet<CreditCards> CreditCards { get; set; }
         public DbSet<BaseRates> BaseRates { get; set; }
         public DbSet<ChangedTo> ChangedTo { get; set; }
-        public DbSet<DayRates> DayRates { get; set; }
-
         public string DbPath { get; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)

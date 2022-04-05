@@ -273,14 +273,72 @@ namespace SoftwareEng
             DateTime curDate = DateTime.Now;
             for(int i = 0; i < 30; i++)
             {
-                var income = 
+                var income =
                     (
-                    from rate in db.BaseRates
-                    join validReso in db.DayRates
-                    )
+                    from br in db.BaseRates
+                    join dr in db.DayRates
+                    where dr.Rates.Where(e => e.Rate == br.Rate)
+                        )
 
             }
         }
         */
+        public static void AddReservationTest()
+        {
+            using DatabaseContext db = new DatabaseContext();
+
+            BaseRates br1 = new BaseRates()
+            {
+                BaseRateID = 1,
+                Rate = 10,
+                EffectiveDate = DateTime.Now.Date,
+                DateSet = DateTime.Now,
+            };
+            BaseRates br2 = new BaseRates()
+            {
+                BaseRateID = 2,
+                Rate = 10,
+                EffectiveDate = DateTime.Now.AddDays(1).Date,
+                DateSet = DateTime.Now,
+            };
+
+            db.BaseRates.Add(br1);
+            db.BaseRates.Add(br2);
+
+            List<BaseRates> baseRates = new List<BaseRates>() { br1, br2 };
+
+            Reservations reso = new Reservations()
+            {
+                ReservationID = 1,
+                LastName = "Bob",
+                FirstName = "Billy",
+                Email = "ThisIsFake@Fake.com",
+                ReservationType = new ReservationTypes() { ReservationID = 1, PercentOfBase = (float).8 },
+                Price = 20,
+                RoomNum = 1,
+                StartDate = DateTime.Now.Date,
+                EndDate = DateTime.Now.AddDays(2).Date,
+                IsCanceled = false,
+                Paid = true,
+                PaymentDate = DateTime.Now.Date,
+                Confirmed = false,
+                CheckedIn = true,
+                CheckedOut = false,
+                BaseRates = baseRates
+            };
+
+            db.Reservations.Add(reso);
+
+            var rates = db
+                .Reservations
+                .Where(r => r.ReservationID == 1)
+                .First();
+
+            for(int i = 0; i < rates.BaseRates.Count; i++)
+            {
+                Console.WriteLine("Rate " + i + " : " + rates.BaseRates.ToList()[i]);
+            }
+
+        }
     }
 }
