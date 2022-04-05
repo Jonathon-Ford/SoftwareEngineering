@@ -273,10 +273,11 @@ namespace SoftwareEng
             DateTime curDate = DateTime.Now;
             for(int i = 0; i < 30; i++)
             {
-                var income = db
-                    .Reservations
-                    .Where(r => r.StartDate.Date <= curDate.Date)
-                    .Where(r => r.EndDate.Date >= curDate.Date)
+                var income = 
+                    (
+                    from rate in db.BaseRates
+                    join validReso in db.DayRates
+                    )
 
             }
         }

@@ -18,6 +18,8 @@ namespace SoftwareEng.DataModels
         public DbSet<ReservationTypes> ReservationTypes { get; set; }
         public DbSet<CreditCards> CreditCards { get; set; }
         public DbSet<BaseRates> BaseRates { get; set; }
+        public DbSet<ChangedTo> ChangedTo { get; set; }
+        public DbSet<DayRates> DayRates { get; set; }
 
         public string DbPath { get; }
 
