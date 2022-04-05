@@ -109,7 +109,7 @@ public class BaseRates
     [Required]
     public DateTime DateSet { get; set; }
 }
-
+[Microsoft.EntityFrameworkCore.Keyless]
 public class ChangedTo
 {
     [Required]
@@ -117,7 +117,7 @@ public class ChangedTo
     [Required]
     public Reservations NewReservation { get; set; }
 }
-
+[Microsoft.EntityFrameworkCore.Keyless]
 public class DayRates
 {
     [Required]

@@ -12,7 +12,7 @@ using SoftwareEng.DataModels;
 namespace SoftwareEng.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20220405153245_Initial")]
+    [Migration("20220405162842_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,6 +46,21 @@ namespace SoftwareEng.Migrations
                     b.ToTable("BaseRates");
                 });
 
+            modelBuilder.Entity("ChangedTo", b =>
+                {
+                    b.Property<int>("NewReservationReservationID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OldReservationReservationID")
+                        .HasColumnType("int");
+
+                    b.HasIndex("NewReservationReservationID");
+
+                    b.HasIndex("OldReservationReservationID");
+
+                    b.ToTable("ChangedTo");
+                });
+
             modelBuilder.Entity("CreditCards", b =>
                 {
                     b.Property<int>("CardNum")
@@ -63,6 +78,16 @@ namespace SoftwareEng.Migrations
                     b.HasKey("CardNum");
 
                     b.ToTable("CreditCards");
+                });
+
+            modelBuilder.Entity("DayRates", b =>
+                {
+                    b.Property<int>("ReservationID")
+                        .HasColumnType("int");
+
+                    b.HasIndex("ReservationID");
+
+                    b.ToTable("DayRates");
                 });
 
             modelBuilder.Entity("Payments", b =>
@@ -243,6 +268,36 @@ namespace SoftwareEng.Migrations
                     b.HasKey("UserID");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("ChangedTo", b =>
+                {
+                    b.HasOne("Reservations", "NewReservation")
+                        .WithMany()
+                        .HasForeignKey("NewReservationReservationID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Reservations", "OldReservation")
+                        .WithMany()
+                        .HasForeignKey("OldReservationReservationID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("NewReservation");
+
+                    b.Navigation("OldReservation");
+                });
+
+            modelBuilder.Entity("DayRates", b =>
+                {
+                    b.HasOne("Reservations", "Reservation")
+                        .WithMany()
+                        .HasForeignKey("ReservationID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Reservation");
                 });
 
             modelBuilder.Entity("Payments", b =>

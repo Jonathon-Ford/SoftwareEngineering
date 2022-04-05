@@ -264,7 +264,7 @@ namespace SoftwareEng
         }
         /*
          * 
-         */
+         *
         public static List<int> GetThirtyDayIncomeInfo()
         {
             List<int> incomeList = new List<int>(30);
@@ -281,5 +281,6 @@ namespace SoftwareEng
 
             }
         }
+        */
     }
 }

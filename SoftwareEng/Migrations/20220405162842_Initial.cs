@@ -143,6 +143,45 @@ namespace SoftwareEng.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ChangedTo",
+                columns: table => new
+                {
+                    OldReservationReservationID = table.Column<int>(type: "int", nullable: false),
+                    NewReservationReservationID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.ForeignKey(
+                        name: "FK_ChangedTo_Reservations_NewReservationReservationID",
+                        column: x => x.NewReservationReservationID,
+                        principalTable: "Reservations",
+                        principalColumn: "ReservationID",
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_ChangedTo_Reservations_OldReservationReservationID",
+                        column: x => x.OldReservationReservationID,
+                        principalTable: "Reservations",
+                        principalColumn: "ReservationID",
+                        onDelete: ReferentialAction.NoAction);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DayRates",
+                columns: table => new
+                {
+                    ReservationID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.ForeignKey(
+                        name: "FK_DayRates_Reservations_ReservationID",
+                        column: x => x.ReservationID,
+                        principalTable: "Reservations",
+                        principalColumn: "ReservationID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Payments",
                 columns: table => new
                 {
@@ -170,6 +209,21 @@ namespace SoftwareEng.Migrations
                         principalColumn: "ReservationID",
                         onDelete: ReferentialAction.NoAction);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChangedTo_NewReservationReservationID",
+                table: "ChangedTo",
+                column: "NewReservationReservationID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChangedTo_OldReservationReservationID",
+                table: "ChangedTo",
+                column: "OldReservationReservationID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DayRates_ReservationID",
+                table: "DayRates",
+                column: "ReservationID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_CardNum",
@@ -206,6 +260,12 @@ namespace SoftwareEng.Migrations
         {
             migrationBuilder.DropTable(
                 name: "BaseRates");
+
+            migrationBuilder.DropTable(
+                name: "ChangedTo");
+
+            migrationBuilder.DropTable(
+                name: "DayRates");
 
             migrationBuilder.DropTable(
                 name: "Payments");
