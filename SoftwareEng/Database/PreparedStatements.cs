@@ -75,7 +75,7 @@ namespace SoftwareEng
          * 
          * 
          */
-        public static List<float> GetBaseRate(DateTime startDate, DateTime endDate)
+        public static List<float> GetBaseRates(DateTime startDate, DateTime endDate)
         {
             using DatabaseContext db = new DatabaseContext();
             List<float> rates = new List<float>();
@@ -84,8 +84,8 @@ namespace SoftwareEng
             {
                 var curPrice = db
                     .BaseRates
-                    .Where(br => br.StartDate.Date <= day.Date)
-                    .Where(br => br.EndDate.Date >= day.Date)
+                    .Where(br => br.EffectiveDate.Date == day.Date)
+                    .OrderByDescending(br => br.DateSet)
                     .First();
 
                 rates.Add(curPrice.Rate);
@@ -275,7 +275,9 @@ namespace SoftwareEng
             {
                 var income = db
                     .Reservations
-                    .Where(r => r.StartDate <= curDate)
+                    .Where(r => r.StartDate.Date <= curDate.Date)
+                    .Where(r => r.EndDate.Date >= curDate.Date)
+
             }
         }
     }

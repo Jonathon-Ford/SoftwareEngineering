@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SoftwareEngineering;
+using SoftwareEng.DataModels;
 
 #nullable disable
 
@@ -30,14 +30,14 @@ namespace SoftwareEng.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BaseRateID"), 1L, 1);
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime>("DateSet")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EffectiveDate")
                         .HasColumnType("datetime2");
 
                     b.Property<float>("Rate")
                         .HasColumnType("real");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("BaseRateID");
 
@@ -84,9 +84,14 @@ namespace SoftwareEng.Migrations
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
+                    b.Property<int>("ReservationID")
+                        .HasColumnType("int");
+
                     b.HasKey("PaymentID");
 
                     b.HasIndex("CardNum");
+
+                    b.HasIndex("ReservationID");
 
                     b.ToTable("Payments");
                 });
@@ -124,25 +129,22 @@ namespace SoftwareEng.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<bool>("IsCanceled")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<bool>("Paid")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int?>("PaymentsPaymentID")
-                        .HasColumnType("int");
 
                     b.Property<int>("Price")
                         .HasColumnType("int");
@@ -160,8 +162,6 @@ namespace SoftwareEng.Migrations
 
                     b.HasIndex("CardNum");
 
-                    b.HasIndex("PaymentsPaymentID");
-
                     b.HasIndex("ReservationTypeReservationID");
 
                     b.ToTable("Reservations");
@@ -177,8 +177,8 @@ namespace SoftwareEng.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<float>("PercentOfBase")
                         .HasColumnType("real");
@@ -230,13 +230,13 @@ namespace SoftwareEng.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("UserID");
 
@@ -251,7 +251,15 @@ namespace SoftwareEng.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Reservations", "Reservation")
+                        .WithMany()
+                        .HasForeignKey("ReservationID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Card");
+
+                    b.Navigation("Reservation");
                 });
 
             modelBuilder.Entity("Reservations", b =>
@@ -261,10 +269,6 @@ namespace SoftwareEng.Migrations
                         .HasForeignKey("CardNum")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Payments", null)
-                        .WithMany("Reservation")
-                        .HasForeignKey("PaymentsPaymentID");
 
                     b.HasOne("ReservationTypes", "ReservationType")
                         .WithMany()
@@ -294,11 +298,6 @@ namespace SoftwareEng.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Payments", b =>
-                {
-                    b.Navigation("Reservation");
                 });
 #pragma warning restore 612, 618
         }

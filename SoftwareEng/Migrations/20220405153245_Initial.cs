@@ -16,8 +16,8 @@ namespace SoftwareEng.Migrations
                     BaseRateID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Rate = table.Column<float>(type: "real", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    EffectiveDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateSet = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -44,7 +44,7 @@ namespace SoftwareEng.Migrations
                 {
                     ReservationID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     PercentOfBase = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
@@ -71,8 +71,8 @@ namespace SoftwareEng.Migrations
                 {
                     UserID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Username = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -80,24 +80,42 @@ namespace SoftwareEng.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Payments",
+                name: "Reservations",
                 columns: table => new
                 {
-                    PaymentID = table.Column<int>(type: "int", nullable: false)
+                    ReservationID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    LastName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    CardNum = table.Column<int>(type: "int", nullable: false),
+                    ReservationTypeReservationID = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<int>(type: "int", nullable: false),
+                    RoomNum = table.Column<int>(type: "int", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsCanceled = table.Column<bool>(type: "bit", nullable: false),
+                    DateCanceled = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Paid = table.Column<bool>(type: "bit", nullable: false),
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Price = table.Column<float>(type: "real", nullable: false),
-                    CardNum = table.Column<int>(type: "int", nullable: false)
+                    Confirmed = table.Column<bool>(type: "bit", nullable: false),
+                    CheckedIn = table.Column<bool>(type: "bit", nullable: false),
+                    CheckedOut = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Payments", x => x.PaymentID);
+                    table.PrimaryKey("PK_Reservations", x => x.ReservationID);
                     table.ForeignKey(
-                        name: "FK_Payments_CreditCards_CardNum",
+                        name: "FK_Reservations_CreditCards_CardNum",
                         column: x => x.CardNum,
                         principalTable: "CreditCards",
                         principalColumn: "CardNum",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Reservations_ReservationTypes_ReservationTypeReservationID",
+                        column: x => x.ReservationTypeReservationID,
+                        principalTable: "ReservationTypes",
+                        principalColumn: "ReservationID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -125,49 +143,32 @@ namespace SoftwareEng.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Reservations",
+                name: "Payments",
                 columns: table => new
                 {
-                    ReservationID = table.Column<int>(type: "int", nullable: false)
+                    PaymentID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CardNum = table.Column<int>(type: "int", nullable: false),
-                    ReservationTypeReservationID = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<int>(type: "int", nullable: false),
-                    RoomNum = table.Column<int>(type: "int", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsCanceled = table.Column<bool>(type: "bit", nullable: false),
-                    DateCanceled = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Paid = table.Column<bool>(type: "bit", nullable: false),
+                    ReservationID = table.Column<int>(type: "int", nullable: false),
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Confirmed = table.Column<bool>(type: "bit", nullable: false),
-                    CheckedIn = table.Column<bool>(type: "bit", nullable: false),
-                    CheckedOut = table.Column<bool>(type: "bit", nullable: false),
-                    PaymentsPaymentID = table.Column<int>(type: "int", nullable: true)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Price = table.Column<float>(type: "real", nullable: false),
+                    CardNum = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Reservations", x => x.ReservationID);
+                    table.PrimaryKey("PK_Payments", x => x.PaymentID);
                     table.ForeignKey(
-                        name: "FK_Reservations_CreditCards_CardNum",
+                        name: "FK_Payments_CreditCards_CardNum",
                         column: x => x.CardNum,
                         principalTable: "CreditCards",
                         principalColumn: "CardNum",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Reservations_Payments_PaymentsPaymentID",
-                        column: x => x.PaymentsPaymentID,
-                        principalTable: "Payments",
-                        principalColumn: "PaymentID");
-                    table.ForeignKey(
-                        name: "FK_Reservations_ReservationTypes_ReservationTypeReservationID",
-                        column: x => x.ReservationTypeReservationID,
-                        principalTable: "ReservationTypes",
+                        name: "FK_Payments_Reservations_ReservationID",
+                        column: x => x.ReservationID,
+                        principalTable: "Reservations",
                         principalColumn: "ReservationID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateIndex(
@@ -176,14 +177,14 @@ namespace SoftwareEng.Migrations
                 column: "CardNum");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Payments_ReservationID",
+                table: "Payments",
+                column: "ReservationID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Reservations_CardNum",
                 table: "Reservations",
                 column: "CardNum");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Reservations_PaymentsPaymentID",
-                table: "Reservations",
-                column: "PaymentsPaymentID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reservations_ReservationTypeReservationID",
@@ -207,16 +208,13 @@ namespace SoftwareEng.Migrations
                 name: "BaseRates");
 
             migrationBuilder.DropTable(
-                name: "Reservations");
+                name: "Payments");
 
             migrationBuilder.DropTable(
                 name: "UserRoles");
 
             migrationBuilder.DropTable(
-                name: "Payments");
-
-            migrationBuilder.DropTable(
-                name: "ReservationTypes");
+                name: "Reservations");
 
             migrationBuilder.DropTable(
                 name: "Roles");
@@ -226,6 +224,9 @@ namespace SoftwareEng.Migrations
 
             migrationBuilder.DropTable(
                 name: "CreditCards");
+
+            migrationBuilder.DropTable(
+                name: "ReservationTypes");
         }
     }
 }
