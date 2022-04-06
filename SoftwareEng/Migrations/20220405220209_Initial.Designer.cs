@@ -12,7 +12,7 @@ using SoftwareEng.DataModels;
 namespace SoftwareEng.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20220405213924_Initial")]
+    [Migration("20220405220209_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

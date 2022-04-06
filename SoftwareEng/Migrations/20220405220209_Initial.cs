@@ -140,6 +140,7 @@ namespace SoftwareEng.Migrations
                 },
                 constraints: table =>
                 {
+                    table.PrimaryKey("PK_ChangedTo", x => new { x.NewReservationReservationID, x.OldReservationReservationID });
                     table.ForeignKey(
                         name: "FK_ChangedTo_Reservations_NewReservationReservationID",
                         column: x => x.NewReservationReservationID,
