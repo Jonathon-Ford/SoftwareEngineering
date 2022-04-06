@@ -107,3 +107,11 @@ public class ChangedTo
     [Required]
     public Reservations NewReservation { get; set; }
 }
+[Microsoft.EntityFrameworkCore.Keyless]
+public class BaseRatesReservations
+{
+    [Required]
+    public Reservations Reservations { get; set; }
+    [Required]
+    public BaseRates BaseRates { get; set; }
+}

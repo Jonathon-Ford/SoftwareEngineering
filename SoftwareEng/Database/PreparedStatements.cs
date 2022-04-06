@@ -264,10 +264,10 @@ namespace SoftwareEng
         }
         /*
          * 
-         *
-        public static List<int> GetThirtyDayIncomeInfo()
+         */
+        public static List<float> GetThirtyDayIncomeInfo()
         {
-            List<int> incomeList = new List<int>(30);
+            List<float> incomeList = new List<float>(30);
             using DatabaseContext db = new DatabaseContext();
 
             DateTime curDate = DateTime.Now;
@@ -275,14 +275,20 @@ namespace SoftwareEng
             {
                 var income =
                     (
-                    from br in db.BaseRates
-                    join dr in db.DayRates
-                    where dr.Rates.Where(e => e.Rate == br.Rate)
-                        )
+                        from br in db.BaseRates
+                        join brr in db.BaseRatesReservations on br.BaseRateID equals brr.BaseRates.BaseRateID
+                        join r in db.Reservations on brr.Reservations.ReservationID equals r.ReservationID
+                        where r.StartDate.Date <= curDate.Date
+                        where r.EndDate.Date >= curDate.Date
+                        select br.Rate
+                    ).Sum();
 
+                incomeList.Add(income);
             }
+
+            return incomeList;
         }
-        */
+        
         public static void AddReservationTest()
         {
             using DatabaseContext db = new DatabaseContext();

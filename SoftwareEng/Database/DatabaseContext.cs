@@ -17,6 +17,7 @@ namespace SoftwareEng.DataModels
         public DbSet<CreditCards> CreditCards { get; set; }
         public DbSet<BaseRates> BaseRates { get; set; }
         public DbSet<ChangedTo> ChangedTo { get; set; }
+        public DbSet<BaseRatesReservations> BaseRatesReservations{ get; set; }
         public string DbPath { get; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
