@@ -117,7 +117,7 @@ namespace SoftwareEng
             using DatabaseContext db = new DatabaseContext();
             List<BaseRates> rates = new List<BaseRates>();
 
-            for (var day = startDate; day <= endDate; day.AddDays(1))
+            for (var day = startDate.Date; day < endDate.Date; day.AddDays(1))
             {
                 var curPrice = db
                     .BaseRates
@@ -129,6 +129,7 @@ namespace SoftwareEng
             }
             return rates;
         }
+
         /* This function updates a reservation record
          *
          * Takes in the edited reservation (note you must have found the reservation with the correct key) 
@@ -141,6 +142,7 @@ namespace SoftwareEng
             db.Entry(editedReso).State = EntityState.Modified;
             db.SaveChanges();
         }
+
         /* This function adds a reservation to the reservation table
          * Takes: the reservation to add
          */
@@ -150,6 +152,7 @@ namespace SoftwareEng
             db.Reservations.Add(resoToAdd);
             db.SaveChanges();
         }
+
         /* This function marks the reservation given as canceled and sets the date it was canceled to the current day
          * 
          * 
@@ -163,6 +166,7 @@ namespace SoftwareEng
             db.Entry(toCancel).State = EntityState.Modified;
             db.SaveChanges();
         }
+
         /* This function updates the database so a reservation is checked in
          * 
          */
@@ -174,6 +178,7 @@ namespace SoftwareEng
             db.Entry(toCheckIn).State = EntityState.Modified;
             db.SaveChanges();
         }
+
         /* This function updates the database so a reservation is checked out
          * 
          */
@@ -185,6 +190,7 @@ namespace SoftwareEng
             db.Entry(toCheckOut).State = EntityState.Modified;
             db.SaveChanges();
         }
+
         /* This function gives you the availability for the day
          * 
          */
@@ -195,10 +201,12 @@ namespace SoftwareEng
                 .Reservations
                 .Where(r => r.StartDate.Date <= day.Date)
                 .Where(r => r.EndDate.Date >= day.Date)
+                .Where(r => r.IsCanceled == false)
                 .Count();
 
             return 45 - count;
         }
+
         /* Marks a reservation as being changed to the new reso
          * 
          * Takes: The old reservation (this will ensure it is canceled)
@@ -393,7 +401,7 @@ namespace SoftwareEng
 
             for(int i = 0; i < rates.BaseRates.Count; i++)
             {
-                Console.WriteLine("Rate " + i + " : " + rates.BaseRates.ToList()[i].Rate);
+                Console.WriteLine("Rate " + i + ": " + rates.BaseRates.ToList()[i].Rate);
             }
 
         }
