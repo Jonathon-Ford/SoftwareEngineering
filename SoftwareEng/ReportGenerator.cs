@@ -7,6 +7,7 @@
  * 
  * Average - Calculates the average of an array of ints
  * AveragePrice - Calculates the average of an array of floats
+ * PrintToConsoleAndSaveToDocs - This prints whatever string is sent to console and saves it to a file in documents with the name passed
  * GenerateIncentiveReport - Prints the incentive report and creates a text file with the information
  * GenerateThirtyDayOccupancyReport - Prints the 30 day occupancy report and creates a text file with the information
  * GenerateOccupancyReport - Prints the names and room numbers of everyone staying at the hotel
