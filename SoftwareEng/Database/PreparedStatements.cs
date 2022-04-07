@@ -393,7 +393,7 @@ namespace SoftwareEng
 
             for(int i = 0; i < rates.BaseRates.Count; i++)
             {
-                Console.WriteLine("Rate " + i + " : " + rates.BaseRates.ToList()[i]);
+                Console.WriteLine("Rate " + i + " : " + rates.BaseRates.ToList()[i].Rate);
             }
 
         }
