@@ -1,4 +1,13 @@
-﻿using System;
+﻿/* Author Jonathon Ford
+ * 
+ * This Class contains all comunication between the database and the code
+ * You can add and remove data using only these functions to insure that faulty data does not get put in the system
+ * 
+ * 
+ * 
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
@@ -28,11 +37,12 @@ namespace SoftwareEng
             if (user == null)
             {
                 errno = 1;
-                return new Users(); //Return an empty user class to show it was not found
+                return user; //Return an empty user class to show it was not found
             }
             errno = 0;
             return user; //Return the correct user
         }
+
         /* Adds a new base rate, if there is already a base rate for that day it is ok, this will be used in the future
          * 
          */
@@ -272,6 +282,7 @@ namespace SoftwareEng
 
             return dailyArrivals.Concat(lateArrivals).ToList();
         }
+
         /* Returns a list of reservations where they are checked in but not checked out (ordered by room num)
          * 
          */
@@ -286,6 +297,7 @@ namespace SoftwareEng
                 .ToList();
             return todaysOccupancies;
         }
+
         /* returns a list of a list of a list of reservations in the form:
          * 
          * object[day][reservation_type - 1] = count 
@@ -317,6 +329,7 @@ namespace SoftwareEng
 
             return occupancyInfo;
         }
+
         /* This query gets 30 days of income from the current date
          * 
          */
@@ -345,9 +358,37 @@ namespace SoftwareEng
 
             return incomeList;
         }
-        
-        //*******TEST STATEMENTS********************************************************
 
+        /*
+         * 
+         */
+        public static List<float> GetIncentiveReportInfo()
+        {
+            List<float> losses = new List<float>(30);
+
+            using DatabaseContext db = new DatabaseContext();
+
+            DateTime curDate = DateTime.Now.Date;
+            for(int i = 0; i < 30; i++)
+            {
+                var loss = (
+                        from br in db.BaseRates
+                        join brr in db.BaseRatesReservations on br.BaseRateID equals brr.BaseRates.BaseRateID
+                        join r in db.Reservations on brr.Reservations.ReservationID equals r.ReservationID
+                        where r.StartDate.Date <= curDate.Date
+                        where r.EndDate.Date >= curDate.Date
+                        where r.IsCanceled == false
+                        where r.ReservationType.ReservationID == 4 //4 is incentive
+                        where br.EffectiveDate.Date == curDate.Date
+                        select br.Rate
+                    ).Sum();
+
+                loss *= (float)0.2; // 20% of base rate is equal to the amount lost due to incentive rate
+                losses.Add(loss);
+            }
+            return losses;
+        }
+        //*******TEST STATEMENTS********************************************************
         public static void AddReservationTest()
         {
             using DatabaseContext db = new DatabaseContext();

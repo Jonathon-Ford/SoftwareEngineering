@@ -23,6 +23,9 @@ namespace SoftwareEng
 {
     public class ReportGenerator
     {
+        /* Takes an array of ints
+         * Returns the average of the array 
+         */
         public static int Average(List<int> array)
         {
             int sum = 0;
@@ -33,6 +36,9 @@ namespace SoftwareEng
 
             return sum/ array.Count;
         }
+        /* Takes an array of floats
+         * Returns the average of the array
+         */
         public static float AveragePrice(List<float> array)
         {
             float sum = 0;
@@ -44,12 +50,49 @@ namespace SoftwareEng
             return sum / array.Count;
         }
 
-        /*
+        /* Takes data to print and save, and name with no .txt on end. this adds .txt for you
+         * 
+         */
+        public static void PrintToConsoleAndSaveToDocs(String data, string name)
+        {
+            Console.WriteLine($"\n{data}");
+
+            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, name +".txt")))
+            {
+                outputFile.WriteLine($"\n{data}");
+            }
+        }
+
+        /* This function writes the 30 day incentive report to console and saves it to a file in documents
          * 
          */
         public static void GenerateInsentiveReport()
         {
+            String data = "Incentive Report ----- Generated: " + DateTime.Now.ToString("MM/dd/yyyy h:mm tt") + "\n";
+            List<float> losses = PreparedStatements.GetIncentiveReportInfo();
+            data += String.Format("{0,-10} {1,-10} \n",
+                    "Date", "Total loss");
 
+            float complete_total = 0;
+            DateTime curDate = DateTime.Now.Date;
+            for (int i = 0;i < 30; i++)
+            {
+                float total = losses[i];
+
+                string date = curDate.ToString("dd/MM/yyyy");
+
+                data += String.Format("{0,-10} {1,-10} \n",
+                    date, total);
+                curDate.AddDays(1);
+                complete_total += total;
+            }
+            float avg = AveragePrice(losses);
+
+            data += "Total loss over all 30 days: " + complete_total;
+            data += "Average loss over 30 days: " + avg;
+
+            PrintToConsoleAndSaveToDocs(data, "IncentiveReport");
         }
 
         /* This function writes the 30 day expected occupancy report and saves it to a file
@@ -64,11 +107,11 @@ namespace SoftwareEng
 
             DateTime curDate = DateTime.Now;
 
-            Console.WriteLine("Occupancy Report ----- Generated: " + curDate.ToString("MM/dd/yyyy h:mm tt"));
+            String data = "30 Day Occupancy Report ----- Generated: " + curDate.ToString("MM/dd/yyyy h:mm tt") + "\n";
 
             List<int> totals = new List<int>();
 
-            String data = String.Format("{0,-10} {1,-10} {2,-10} {3, -10} {4, -10} {5, -10} \n",
+            data += String.Format("{0,-15} {1,-15} {2,-15} {3, -15} {4, -15} {5, -15} \n",
                     "Date", "Prepaid", "60 Day", "Conventional", "Incentive", "Total");
             for (int i = 0; i < 30; i++)
             {
@@ -87,7 +130,7 @@ namespace SoftwareEng
                 totals.Add(total);
 
                 
-                data += String.Format("{0,-10} {1,-10} {2,-10} {3, -10} {4, -10} {5, -10} \n",
+                data += String.Format("{0,-15} {1,-15} {2,-15} {3, -15} {4, -15} {5, -15} \n",
                     date, prepaidNum, sixtyDayNum, conventionalNum, incentiveNum, total);
 
                 curDate.AddDays(1);
@@ -97,14 +140,7 @@ namespace SoftwareEng
 
             data += "Average occupancy: " + average;
 
-            Console.WriteLine($"\n{data}");
-
-            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "ThirtyDayOccupancy.txt")))
-            {
-                    outputFile.WriteLine($"\n{data}");
-            }
+            PrintToConsoleAndSaveToDocs(data, "ThirtyDayOccupancyReport");
         }
 
         /* This function prints the daily occupancy report to the screen, and saves it to a file in documents
@@ -119,7 +155,8 @@ namespace SoftwareEng
         {
             List<Reservations> dailyOccupancy = PreparedStatements.GetTodaysOccupancies();
 
-            String data = String.Format("{0,-10} {1,-50} {2,-15} \n",
+            String data = "Daily Occupancy Report ----- Generated: " + DateTime.Now.ToString("MM/dd/yyyy h:mm tt") + "\n";
+            data += String.Format("{0,-10} {1,-50} {2,-15} \n",
                     "Room", "Name", "Departure Date");
 
             for (int i = 0; i < dailyOccupancy.Count; i++)
@@ -149,14 +186,7 @@ namespace SoftwareEng
                     roomNum, name, date);
             }
 
-            Console.WriteLine($"\n{data}");
-
-            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "DailyOccupancy.txt")))
-            {
-                outputFile.WriteLine($"\n{data}");
-            }
+            PrintToConsoleAndSaveToDocs(data, "DailyOccupancyReport");
         }
 
         /*This function prints the daily arrivals report to the screen and saves it to a file in documents
@@ -167,7 +197,8 @@ namespace SoftwareEng
          */
         public static void GenerateDailyArrivalsReport()
         {
-            String data = String.Format("{0,-50} {1,-20} {2,-15} {3, -15} \n",
+            String data = "Daily Arrivals Report ----- Generated: " + DateTime.Now.ToString("MM/dd/yyyy h:mm tt") + "\n";
+            data += String.Format("{0,-50} {1,-20} {2,-15} {3, -15} \n",
                     "Name", "Reservation Type", "Room Number", "Departure Date");
 
             List<Reservations> reservations = PreparedStatements.GetDailyArrivals();
@@ -192,22 +223,43 @@ namespace SoftwareEng
                     name, reso, roomNum, endTime);
 
 
-                Console.WriteLine($"\n{data}");
-
-                string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "DailyArrivals.txt")))
-                {
-                    outputFile.WriteLine($"\n{data}");
-                }
+                PrintToConsoleAndSaveToDocs(data, "DailyArrivalsReport");
             }
         }
 
-        /* 
+        /* This function prints the 30 day incentive report to the console and saves it to a file in documents
          * 
+         * Report takes the form:
+         * Date             Income
          */
         public static void GenerateThirtyDayIncomeReport()
         {
+            String data = "30 Day Income Report ----- Generated: " + DateTime.Now.ToString("MM/dd/yyyy h:mm tt") + "\n";
 
+            data += String.Format("{0,-20} {1,-20} \n",
+                    "Date", "Total Income");
+
+            List<float> income = PreparedStatements.GetThirtyDayIncomeInfo();
+
+            DateTime curDate = DateTime.Now.Date;
+            float total = 0;
+            foreach (float x in income)
+            {
+                total += x;
+
+                string date = curDate.ToString("dd/MM/yyyy");
+
+                data += String.Format("{0,-20} {1,-20} \n",
+                    date, x);
+                curDate.AddDays(1);
+            }
+
+            float avg = AveragePrice(income);
+
+            data += "Total expected income: " + total;
+            data += "Average daily income: " + avg;
+
+            PrintToConsoleAndSaveToDocs(data, "ExpectedIncomeReport");
         }
     }
 }
