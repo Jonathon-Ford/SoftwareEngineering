@@ -9,11 +9,48 @@ namespace SoftwareEng
     public class PreparedStatements
     {
         public static int errno = 0;
+
+        //******HOTEL SYSTEM STATEMENTS***********************************************************
+
+        /* Attempts to send back a user if the username and password match a record in the database, if not it returns an empty user class
+         * and sets the errno to 1
+         */
+        public static Users ValidateUser(string username, string password)
+        {
+            using DatabaseContext db = new DatabaseContext();
+
+            var user = db
+                .Users
+                .Where(u => u.Username == username)
+                .Where(u => u.Password == password)
+                .SingleOrDefault();
+
+            if (user == null)
+            {
+                errno = 1;
+                return new Users(); //Return an empty user class to show it was not found
+            }
+            errno = 0;
+            return user; //Return the correct user
+        }
+        /* Adds a new base rate, if there is already a base rate for that day it is ok, this will be used in the future
+         * 
+         */
+        public static void AddBaseRate(BaseRates baserate)
+        {
+            using DatabaseContext db = new DatabaseContext();
+            db.BaseRates.Add(baserate);
+            db.SaveChanges();
+        }
+
+
+        //******RESERVATION STATEMENTS************************************************************
+
         /* This function finds a reservation with 3 levels of specificity
          * First it will look for reservations with the desired name, if they have more than one res it will try to specify the search
          * with the optional parameters of card num / email and start date
          */
-        public static List<Reservations> FindReservation(string FName, string LName, int? lastFourOfCard = null, string? email = null, DateTime startDate = default(DateTime))
+        public static List<Reservations> FindReservation(string FName, string LName, int? lastFourOfCard = null, string? email = default, DateTime startDate = default(DateTime))
         {
             using DatabaseContext db = new DatabaseContext();
             var curReservations = db
@@ -75,10 +112,10 @@ namespace SoftwareEng
          * 
          * 
          */
-        public static List<float> GetBaseRates(DateTime startDate, DateTime endDate)
+        public static List<BaseRates> GetBaseRates(DateTime startDate, DateTime endDate)
         {
             using DatabaseContext db = new DatabaseContext();
-            List<float> rates = new List<float>();
+            List<BaseRates> rates = new List<BaseRates>();
 
             for (var day = startDate; day <= endDate; day.AddDays(1))
             {
@@ -88,13 +125,15 @@ namespace SoftwareEng
                     .OrderByDescending(br => br.DateSet)
                     .First();
 
-                rates.Add(curPrice.Rate);
+                rates.Add(curPrice);
             }
             return rates;
         }
         /* This function updates a reservation record
          *
          * Takes in the edited reservation (note you must have found the reservation with the correct key) 
+         * 
+         * *****WARNING : You should not change the date with this function, use change reservation date func****
          */
         public static void UpdateReservation(Reservations editedReso)
         {
@@ -123,27 +162,6 @@ namespace SoftwareEng
             using DatabaseContext db = new DatabaseContext();
             db.Entry(toCancel).State = EntityState.Modified;
             db.SaveChanges();
-        }
-        /* Attempts to send back a user if the username and password match a record in the database, if not it returns an empty user class
-         * and sets the errno to 1
-         */
-        public static Users ValidateUser(string username, string password)
-        {
-            using DatabaseContext db = new DatabaseContext();
-
-            var user = db
-                .Users
-                .Where(u => u.Username == username)
-                .Where(u => u.Password == password)
-                .SingleOrDefault();
-
-            if(user == null)
-            {
-                errno = 1;
-                return new Users(); //Return an empty user class to show it was not found
-            }
-            errno = 0;
-            return user; //Return the correct user
         }
         /* This function updates the database so a reservation is checked in
          * 
@@ -181,7 +199,29 @@ namespace SoftwareEng
 
             return 45 - count;
         }
-        /*
+        /* Marks a reservation as being changed to the new reso
+         * 
+         * Takes: The old reservation (this will ensure it is canceled)
+         *        A new reservation
+         */
+        public static void ChangeReservationDate(Reservations oldReso, Reservations newReso)
+        {
+            MarkReservationAsCanceled(oldReso);
+            AddReservation(newReso);
+
+            using DatabaseContext db = new DatabaseContext();
+
+            db.ChangedTo.Add(new ChangedTo
+            {
+                OldReservation = oldReso,
+                NewReservation = newReso
+            });
+            db.SaveChanges();
+        }
+
+        //******EMAIL STATEMENTS*******************************************************
+
+        /* Returns all 60 day reservations that have not paid, have not been canceled and that have 45 days or less left until the start date 
          * 
          */
         public static List<Reservations> GetReservationsForEmail()
@@ -191,10 +231,14 @@ namespace SoftwareEng
                 .Reservations
                 .Where(r => r.ReservationType.ReservationID == 2) //2 is for 60 day reservations
                 .Where(r => r.Paid == false)
+                .Where(r => r.IsCanceled == false)
                 .Where(r => (r.StartDate - DateTime.Now).Days <= 45)
                 .ToList();
             return toEmailList;
         }
+
+        //******REPORT STATEMENTS******************************************************
+
         /* Returns a list of reservations that are expected to arrive today
          * 
          */
@@ -204,6 +248,8 @@ namespace SoftwareEng
             var dailyArrivals = db
                 .Reservations
                 .Where(r => r.StartDate.Date == DateTime.Now.Date)
+                .Where(r => r.IsCanceled == false)
+                .OrderBy(r => r.FirstName)
                 .ToList();
 
             var lateArrivals = db
@@ -213,11 +259,12 @@ namespace SoftwareEng
                 .Where(r => r.EndDate.Date >= DateTime.Now.Date)
                 .Where(r => r.CheckedIn == false)
                 .Where(r => r.IsCanceled == false)
+                .OrderBy(r => r.FirstName)
                 .ToList();
 
             return dailyArrivals.Concat(lateArrivals).ToList();
         }
-        /*
+        /* Returns a list of reservations where they are checked in but not checked out (ordered by room num)
          * 
          */
         public static List<Reservations> GetTodaysOccupancies()
@@ -262,7 +309,7 @@ namespace SoftwareEng
 
             return occupancyInfo;
         }
-        /*
+        /* This query gets 30 days of income from the current date
          * 
          */
         public static List<float> GetThirtyDayIncomeInfo()
@@ -271,7 +318,7 @@ namespace SoftwareEng
             using DatabaseContext db = new DatabaseContext();
 
             DateTime curDate = DateTime.Now;
-            for(int i = 0; i < 30; i++)
+            for(int i = 0; i < 30; i++)// For thrity days
             {
                 var income =
                     (
@@ -280,8 +327,10 @@ namespace SoftwareEng
                         join r in db.Reservations on brr.Reservations.ReservationID equals r.ReservationID
                         where r.StartDate.Date <= curDate.Date
                         where r.EndDate.Date >= curDate.Date
+                        where r.IsCanceled == false
+                        where br.EffectiveDate.Date == curDate.Date
                         select br.Rate
-                    ).Sum();
+                    ).Sum(); //join base rates with reservations via the many to many table base rates reservations, get the daily rate from the reservations that are for that day
 
                 incomeList.Add(income);
             }
@@ -289,6 +338,8 @@ namespace SoftwareEng
             return incomeList;
         }
         
+        //*******TEST STATEMENTS********************************************************
+
         public static void AddReservationTest()
         {
             using DatabaseContext db = new DatabaseContext();
