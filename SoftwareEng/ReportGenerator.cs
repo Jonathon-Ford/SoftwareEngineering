@@ -33,6 +33,16 @@ namespace SoftwareEng
 
             return sum/ array.Count;
         }
+        public static float AveragePrice(List<float> array)
+        {
+            float sum = 0;
+            for (int i = 0; i < array.Count; i++)
+            {
+                sum += array[i];
+            }
+
+            return sum / array.Count;
+        }
 
         /*
          * 
@@ -181,15 +191,23 @@ namespace SoftwareEng
                 data += String.Format("{0,-50} {1,-20} {2,-15} {3, -15} \n",
                     name, reso, roomNum, endTime);
 
+
                 Console.WriteLine($"\n{data}");
 
                 string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
                 using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "DailyArrivals.txt")))
                 {
                     outputFile.WriteLine($"\n{data}");
                 }
             }
+        }
+
+        /* 
+         * 
+         */
+        public static void GenerateThirtyDayIncomeReport()
+        {
+
         }
     }
 }

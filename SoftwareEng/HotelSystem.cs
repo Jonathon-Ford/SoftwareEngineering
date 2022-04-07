@@ -194,6 +194,5 @@ static void ConfigureBaseRate()
 {
 
 }
-SoftwareEng.PreparedStatements.AddReservationTest();
 
 Main();
