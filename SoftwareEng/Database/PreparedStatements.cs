@@ -53,7 +53,6 @@ namespace SoftwareEng
             db.SaveChanges();
         }
 
-
         //******RESERVATION STATEMENTS************************************************************
 
         /* This function finds a reservation with 3 levels of specificity
@@ -439,6 +438,8 @@ namespace SoftwareEng
                 .Reservations
                 .Where(r => r.ReservationID == 1)
                 .First();
+
+            db.SaveChanges();
 
             for(int i = 0; i < rates.BaseRates.Count; i++)
             {
