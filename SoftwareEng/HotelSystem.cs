@@ -23,8 +23,9 @@ using System;
 using System.Threading;
 
 
-//User currentUser;
-static void Main()
+
+Users currentUser = new Users { Password= "", Username = "", RoleName = ""}; // An empty user to keep the compiler happy
+static void Main(Users currentUser)
 {
     int remainingAttempts;
     string username;
@@ -37,7 +38,7 @@ static void Main()
         username = Console.ReadLine();
         Console.WriteLine("Please input your password");
         password = Console.ReadLine();
-        while (!LogInUser(username, password) && remainingAttempts > 0)//if the user is not logged in and they have remaining attempts
+        while (!LogInUser(username, password, currentUser) && remainingAttempts > 0)//if the user is not logged in and they have remaining attempts
         {
             Console.WriteLine("Invalid log in, try again");
             Console.WriteLine("Please input your username:");
@@ -53,8 +54,9 @@ static void Main()
             Console.WriteLine("Too many attempts, locking for 5 min");
             Thread.Sleep(300000);
         }
-        else//If they made it here because of being a valid user
+        else//If they made it here its because of being a valid user
         {
+            password = "";
             break;
         }
     }
@@ -73,11 +75,14 @@ static void Main()
         Console.WriteLine("9  - Generate daily emails");
         Console.WriteLine("10 - Generate daily arivals report");
         Console.WriteLine("11 - Generate daily occupancy report");
-        /*if(String.Equals(currentUser.role, "Management")
-        Console.WriteLine("12 - Generate 30 day occupancy report");
-        Console.WriteLine("13 - Generate 30 day expected income report");
-        Console.WriteLine("14 - Generate 30 day incentive loss report");
-        Console.WriteLine("15 - Set base rate");
+        /*if(String.Equals(currentUser.role, "Management"){
+            Console.WriteLine("12 - Generate 30 day occupancy report");
+            Console.WriteLine("13 - Generate 30 day expected income report");
+            Console.WriteLine("14 - Generate 30 day incentive loss report");
+            Console.WriteLine("15 - Set base rate");
+            Console.WriteLine("16 - Create new user");
+            Console.WriteLine("17 - Delete old user");
+        }
         */
         command = Console.ReadLine();
         switch (command)
@@ -161,10 +166,18 @@ static void Main()
 /*This function queries the database for employees with given username and password, if it matches one it returns true
  * and sets the global user with the credentials
  */
-static bool LogInUser(string username, string password)
+static bool LogInUser(string username, string password, Users currentUser)
 {
-    //TODO, check if the credentials match a user if so currentUser == to the specified user
-    return true;
+    Users user = SoftwareEng.PreparedStatements.ValidateUser(username, password);
+    if(user == null)
+    {
+        return false;
+    }
+    else
+    {
+        currentUser = user;
+        return true;
+    }
 }
 /*This function checks in a guest by updating the database
  * 
@@ -195,4 +208,4 @@ static void ConfigureBaseRate()
 
 }
 
-Main();
+Main(currentUser);

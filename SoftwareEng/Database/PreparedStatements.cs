@@ -53,6 +53,30 @@ namespace SoftwareEng
             db.SaveChanges();
         }
 
+        /* This function updates the database so a reservation is checked in
+         * 
+         */
+        public static void MarkReservationAsCheckedIn(Reservations toCheckIn)
+        {
+            toCheckIn.CheckedIn = true;
+
+            using DatabaseContext db = new DatabaseContext();
+            db.Entry(toCheckIn).State = EntityState.Modified;
+            db.SaveChanges();
+        }
+
+        /* This function updates the database so a reservation is checked out
+         * 
+         */
+        public static void MarkReservationAsCheckedOut(Reservations toCheckOut)
+        {
+            toCheckOut.CheckedOut = true;
+
+            using DatabaseContext db = new DatabaseContext();
+            db.Entry(toCheckOut).State = EntityState.Modified;
+            db.SaveChanges();
+        }
+
         //******RESERVATION STATEMENTS************************************************************
 
         /* This function finds a reservation with 3 levels of specificity
@@ -173,30 +197,6 @@ namespace SoftwareEng
 
             using DatabaseContext db = new DatabaseContext();
             db.Entry(toCancel).State = EntityState.Modified;
-            db.SaveChanges();
-        }
-
-        /* This function updates the database so a reservation is checked in
-         * 
-         */
-        public static void MarkReservationAsCheckedIn(Reservations toCheckIn)
-        {
-            toCheckIn.CheckedIn = true;
-
-            using DatabaseContext db = new DatabaseContext();
-            db.Entry(toCheckIn).State = EntityState.Modified;
-            db.SaveChanges();
-        }
-
-        /* This function updates the database so a reservation is checked out
-         * 
-         */
-        public static void MarkReservationAsCheckedOut(Reservations toCheckOut)
-        {
-            toCheckOut.CheckedOut = true;
-
-            using DatabaseContext db = new DatabaseContext();
-            db.Entry(toCheckOut).State = EntityState.Modified;
             db.SaveChanges();
         }
 
@@ -358,7 +358,7 @@ namespace SoftwareEng
             return incomeList;
         }
 
-        /*
+        /* Returns the amount of money lost each day over a period of 30 days from today
          * 
          */
         public static List<float> GetIncentiveReportInfo()
