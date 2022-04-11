@@ -44,7 +44,17 @@ static void Main(Users currentUser)
             Console.WriteLine("Please input your username:");
             username = Console.ReadLine();
             Console.WriteLine("Please input your password");
-            password = Console.ReadLine();
+            System.Console.Write("password: ");
+
+            //Hidden read
+            password = null;
+            while (true)
+            {
+                var key = System.Console.ReadKey(true);
+                if (key.Key == ConsoleKey.Enter)
+                    break;
+                password += key.KeyChar;
+            }
 
             remainingAttempts--;
         }
