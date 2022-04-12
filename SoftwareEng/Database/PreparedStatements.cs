@@ -387,6 +387,39 @@ namespace SoftwareEng
             }
             return losses;
         }
+
+        /*
+         * 
+         */
+        public static List<Reservations> GetAllResosToBeBilled(Payments payment)
+        {
+            using DatabaseContext db = new DatabaseContext();
+            List<Reservations> ressos = new List<Reservations>();
+
+            ressos.Add(payment.Reservation);
+
+            int curResID = payment.Reservation.ReservationID;
+            while (true)
+            {
+                var reso = (
+                    from ct in db.ChangedTo
+                    join r in db.Reservations on ct.OldReservation equals r
+                    where ct.NewReservation.ReservationID == curResID
+                    select r).SingleOrDefault();
+                    
+                if(reso == null)
+                {
+                    break;
+                }
+                else
+                {
+                    ressos.Add(reso);
+                    curResID = reso.ReservationID;
+                }
+            }
+            return ressos;
+
+        }
         //*******TEST STATEMENTS********************************************************
         public static void AddReservationTest()
         {

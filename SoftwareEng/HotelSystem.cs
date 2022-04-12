@@ -66,7 +66,7 @@ static void Main(Users currentUser)
         }
         else//If they made it here its because of being a valid user
         {
-            password = "";
+            password = ""; // For security reasons scrub the password
             break;
         }
     }

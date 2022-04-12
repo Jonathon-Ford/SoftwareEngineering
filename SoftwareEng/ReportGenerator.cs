@@ -262,5 +262,67 @@ namespace SoftwareEng
 
             PrintToConsoleAndSaveToDocs(data, "ExpectedIncomeReport");
         }
+
+        /* This function prints a customers bill to the console 
+         * Takes in: A payment
+         * Outputs: A bill for that payment, includes all changes made to the reservation and each days price
+         * 
+         * ***Warning this function has not been tested as well as the others***
+         * 
+         */
+        public static void GenerateBill(Payments payment)
+        {
+            List<Reservations> billableResos = PreparedStatements.GetAllResosToBeBilled(payment);
+
+            String data = "Bill Generated: " + DateTime.Now.ToString("MM/dd/yyyy h:mm tt") + "\n";
+            bool changeFee = false;
+
+            if(billableResos.Count > 1)//If the reservation was changed to another date at least once, print the old dates and old price
+            {
+                changeFee = true;
+
+                data += "Origonal reservation:\n";
+                for(int i = billableResos.Count - 1; i >= 1; i--)
+                {
+                    DateTime start = billableResos[i].StartDate.Date;
+                    DateTime end = billableResos[i].EndDate.Date;
+                    float price = billableResos[i].Price;
+
+                    data += "-----------------------------------------------"
+                        + "Old start date: " + start.ToString("dd/MM/yyyy") + "\n"
+                        + "Old end date: " + end.ToString("dd/MM/yyyy") + "\n"
+                        + "Old total price (not billed): " + price + "\n"
+                        + "Changed To:\n" 
+                        + "----------------------------------------------";
+                }
+            }
+
+            data += "Final Reservation:\n";
+            data += String.Format("{0,-20} {1,-20} {2,-20} {3,-20}\n",
+                    "Date", "Base Rate", "Discount/Fee", "Price");
+            for (int i = 0; i < billableResos[0].BaseRates.Count; i++)
+            {
+                float dis_fee;
+                if (changeFee)
+                {
+                    dis_fee = (float)1.1;
+                }
+                else
+                {
+                    dis_fee = billableResos[0].ReservationType.PercentOfBase;
+                }
+
+                float price = dis_fee * billableResos[0].BaseRates.ElementAt(i).Rate;
+
+                data += String.Format("{0,-20} {1,-20} {2,-20} {3,-20}\n",
+                    billableResos[0].BaseRates.ElementAt(i).EffectiveDate.ToString("dd/MM/yyyy"),
+                    billableResos[0].BaseRates.ElementAt(i).Rate,
+                    dis_fee, price);
+            }
+
+            data += "Total: " + billableResos[0].Price;
+
+            PrintToConsoleAndSaveToDocs(data, "MostRecentBill");
+        }
     }
 }
