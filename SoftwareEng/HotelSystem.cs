@@ -182,7 +182,7 @@ static void Main(Users currentUser)
                     Console.WriteLine("Please input the username of the user you want to delete");
                     deleteUsername = Console.ReadLine();
 
-                    bool success = SoftwareEng.UserFunctions.DeleteUser(username);
+                    bool success = SoftwareEng.UserFunctions.DeleteUser(deleteUsername);
 
                     if (success)
                     {

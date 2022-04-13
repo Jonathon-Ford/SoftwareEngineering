@@ -108,8 +108,10 @@ namespace SoftwareEng
             if (user != null)
             {
                 db.Users.Remove(user);
+                db.SaveChanges();
                 return true;
-            } else
+            }
+            else
             {
                 return false;
             }
