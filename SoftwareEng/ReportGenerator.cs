@@ -288,12 +288,12 @@ namespace SoftwareEng
                     DateTime end = billableResos[i].EndDate.Date;
                     float price = billableResos[i].Price;
 
-                    data += "-----------------------------------------------"
+                    data += "-----------------------------------------------\n"
                         + "Old start date: " + start.ToString("dd/MM/yyyy") + "\n"
                         + "Old end date: " + end.ToString("dd/MM/yyyy") + "\n"
                         + "Old total price (not billed): " + price + "\n"
                         + "Changed To:\n" 
-                        + "----------------------------------------------";
+                        + "----------------------------------------------\n";
                 }
             }
 
