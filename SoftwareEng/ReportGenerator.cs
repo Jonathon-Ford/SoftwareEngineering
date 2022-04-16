@@ -68,7 +68,7 @@ namespace SoftwareEng
         /* This function writes the 30 day incentive report to console and saves it to a file in documents
          * 
          */
-        public static void GenerateInsentiveReport()
+        public static void GenerateIncentiveReport()
         {
             String data = "Incentive Report ----- Generated: " + DateTime.Now.ToString("MM/dd/yyyy h:mm tt") + "\n";
             List<float> losses = PreparedStatements.GetIncentiveReportInfo();
@@ -281,7 +281,7 @@ namespace SoftwareEng
             {
                 changeFee = true;
 
-                data += "Origonal reservation:\n";
+                data += "Original reservation:\n";
                 for(int i = billableResos.Count - 1; i >= 1; i--)
                 {
                     DateTime start = billableResos[i].StartDate;

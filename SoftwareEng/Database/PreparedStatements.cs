@@ -1,6 +1,6 @@
 ﻿/* Author Jonathon Ford
  * 
- * This Class contains all comunication between the database and the code
+ * This Class contains all communication between the database and the code
  * You can add and remove data using only these functions to insure that faulty data does not get put in the system
  * 
  * 
