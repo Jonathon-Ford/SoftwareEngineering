@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\schaf\\source\\repos\\SoftwareEngineering\\SoftwareEng\\SoftwareEng.csproj": {}
+    "D:\\schaf\\source\\repos\\SoftwareEngineering\\SoftwareEngineering\\SoftwareEngineering.csproj": {}
   },
   "projects": {
-    "D:\\schaf\\source\\repos\\SoftwareEngineering\\SoftwareEng\\SoftwareEng.csproj": {
+    "D:\\schaf\\source\\repos\\SoftwareEngineering\\SoftwareEngineering\\SoftwareEngineering.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\schaf\\source\\repos\\SoftwareEngineering\\SoftwareEng\\SoftwareEng.csproj",
-        "projectName": "SoftwareEng",
-        "projectPath": "D:\\schaf\\source\\repos\\SoftwareEngineering\\SoftwareEng\\SoftwareEng.csproj",
+        "projectUniqueName": "D:\\schaf\\source\\repos\\SoftwareEngineering\\SoftwareEngineering\\SoftwareEngineering.csproj",
+        "projectName": "SoftwareEngineering",
+        "projectPath": "D:\\schaf\\source\\repos\\SoftwareEngineering\\SoftwareEngineering\\SoftwareEngineering.csproj",
         "packagesPath": "C:\\Users\\schaf\\.nuget\\packages\\",
-        "outputPath": "D:\\schaf\\source\\repos\\SoftwareEngineering\\SoftwareEng\\obj\\",
+        "outputPath": "D:\\schaf\\source\\repos\\SoftwareEngineering\\SoftwareEngineering\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -44,33 +44,17 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "Microsoft.AspNetCore.JsonPatch": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[6.0.3, )"
             },
-            "Microsoft.EntityFrameworkCore.Abstractions": {
+            "Microsoft.Extensions.Caching.Abstractions": {
               "target": "Package",
-              "version": "[6.0.3, )"
-            },
-            "Microsoft.EntityFrameworkCore.Design": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[6.0.3, )"
-            },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
-              "target": "Package",
-              "version": "[6.0.3, )"
-            },
-            "Microsoft.EntityFrameworkCore.Tools": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[6.0.3, )"
-            },
-            "System.Data.Entity.Repository": {
-              "target": "Package",
-              "version": "[2.0.0.1, )"
+              "version": "[6.0.0, )"
             }
           },
           "imports": [
