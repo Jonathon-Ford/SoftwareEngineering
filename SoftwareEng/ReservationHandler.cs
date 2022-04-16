@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace SoftwareEng
 {
-    internal class ReservationHandler
+    public class ReservationHandler
     {
+
     }
 }
