@@ -11,7 +11,7 @@ namespace SoftwareEng
     {
         public const int TOTAL_ROOMS = 45;
 
-        private enum ReservationType
+        public enum ReservationTypeCode
         {
             Prepaid = 1,
             SixtyDay = 2,
@@ -108,7 +108,7 @@ namespace SoftwareEng
                     Console.WriteLine("Invalid email; please try again");
             }
 
-            if (newReservation.ReservationType.Description != ReservationType.SixtyDay.ToString())
+            if (newReservation.ReservationType.Description != ReservationTypeCode.SixtyDay.ToString())
             {
                 Console.WriteLine("Please enter payment information");
                 Console.WriteLine("Credit card number:");
@@ -323,25 +323,25 @@ namespace SoftwareEng
 
         //}
 
-        private static ReservationType DetermineReservationType(List<int> dailyOccupancies, DateTime startDate)
+        private static ReservationTypeCode DetermineReservationType(List<int> dailyOccupancies, DateTime startDate)
         {
             var daysOut = (startDate - DateTime.Now).Days;
 
             if(daysOut >= 90)
             {
-                return ReservationType.Prepaid;
+                return ReservationTypeCode.Prepaid;
             }
             else if(daysOut >= 60)
             {
-                return ReservationType.SixtyDay;
+                return ReservationTypeCode.SixtyDay;
             }
             else if(daysOut >= 30 && dailyOccupancies.Average()/TOTAL_ROOMS > 0.6)
             {
-                return ReservationType.Conventional;
+                return ReservationTypeCode.Conventional;
             }
             else
             {
-                return ReservationType.Incentive;
+                return ReservationTypeCode.Incentive;
             }
         }
 
