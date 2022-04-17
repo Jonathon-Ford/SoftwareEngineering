@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using SoftwareEng.DataModels;
+using static SoftwareEng.ReservationHandler;
 
 namespace SoftwareEng
 {
@@ -21,9 +22,13 @@ namespace SoftwareEng
 
         //******HOTEL SYSTEM STATEMENTS***********************************************************
 
-        /* Attempts to send back a user if the username and password match a record in the database, if not it returns an empty user class
-         * and sets the errno to 1
-         */
+        /// <summary>
+        /// Attempts to send back a user if the username and password match a record in the database, if not it returns an empty user class
+        /// and sets the errno to 1
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns>Users</returns>
         public static Users ValidateUser(string username, string password)
         {
             using DatabaseContext db = new DatabaseContext();
@@ -121,6 +126,10 @@ namespace SoftwareEng
         /* Adds a new base rate, if there is already a base rate for that day it is ok, this will be used in the future
          * 
          */
+        /// <summary>
+        /// Adds a new base rate, if there is already a base rate for that day it is ok, this will be used in the future
+        /// </summary>
+        /// <param name="baserate"></param>
         public static void AddBaseRate(BaseRates baserate)
         {
             using DatabaseContext db = new DatabaseContext();
@@ -128,9 +137,10 @@ namespace SoftwareEng
             db.SaveChanges();
         }
 
-        /* This function updates the database so a reservation is checked in
-         * 
-         */
+        /// <summary>
+        /// This function updates the database so a reservation is checked in
+        /// </summary>
+        /// <param name="toCheckIn"></param>
         public static void MarkReservationAsCheckedIn(Reservations toCheckIn)
         {
             toCheckIn.CheckedIn = true;
@@ -142,9 +152,10 @@ namespace SoftwareEng
             db.SaveChanges();
         }
 
-        /* This function updates the database so a reservation is checked out
-         * 
-         */
+        /// <summary>
+        /// This function updates the database so a reservation is checked out
+        /// </summary>
+        /// <param name="toCheckOut"></param>
         public static void MarkReservationAsCheckedOut(Reservations toCheckOut)
         {
             toCheckOut.CheckedOut = true;
@@ -158,10 +169,18 @@ namespace SoftwareEng
 
         //******RESERVATION STATEMENTS************************************************************
 
-        /* This function finds a reservation with 3 levels of specificity
-         * First it will look for reservations with the desired name, if they have more than one res it will try to specify the search
-         * with the optional parameters of card num / email and start date
-         */
+        /*          */
+        /// <summary>
+        /// This function finds a reservation with 3 levels of specificity
+        ///  First it will look for reservations with the desired name, if they have more than one res it will try to specify the search
+        ///  with the optional parameters of card num / email and start date
+        /// </summary>
+        /// <param name="FName"></param>
+        /// <param name="LName"></param>
+        /// <param name="lastFourOfCard"></param>
+        /// <param name="email"></param>
+        /// <param name="startDate"></param>
+        /// <returns>List(Reservations)</returns>
         public static List<Reservations> FindReservation(string FName, string LName, int? lastFourOfCard = null, string? email = default, DateTime startDate = default(DateTime))
         {
             using DatabaseContext db = new DatabaseContext();
@@ -210,10 +229,13 @@ namespace SoftwareEng
             }
             return curReservations;
         }
-        /* This function gets a list for all of the base rates for each day of a stay
-         * 
-         * 
-         */
+
+        /// <summary>
+        /// This function gets a list for all of the base rates for each day of a stay
+        /// </summary>
+        /// <param name="startDate"></param>
+        /// <param name="endDate"></param>
+        /// <returns>List(BaseRates)</returns>
         public static List<BaseRates> GetBaseRates(DateTime startDate, DateTime endDate)
         {
             using DatabaseContext db = new DatabaseContext();
@@ -232,12 +254,12 @@ namespace SoftwareEng
             return rates;
         }
 
-        /* This function updates a reservation record
-         *
-         * Takes in the edited reservation (note you must have found the reservation with the correct key) 
-         * 
-         * *****WARNING : You should not change the date with this function, use change reservation date func****
-         */
+        /// <summary>
+        /// This function updates a reservation record.
+        /// Takes in the edited reservation (note you must have found the reservation with the correct key)
+        /// *****WARNING : You should not change the date with this function, use change reservation date func*****
+        /// </summary>
+        /// <param name="editedReso"></param>
         public static void UpdateReservation(Reservations editedReso)
         {
             using DatabaseContext db = new DatabaseContext();
@@ -245,9 +267,14 @@ namespace SoftwareEng
             db.SaveChanges();
         }
 
-        /* This function adds a reservation to the reservation table
+        /* 
          * Takes: the reservation to add
          */
+        /// <summary>
+        /// This function adds a reservation to the reservation table. 
+        /// Takes: the reservation to add
+        /// </summary>
+        /// <param name="resoToAdd"></param>
         public static void AddReservation(Reservations resoToAdd)
         {
             using DatabaseContext db = new DatabaseContext();
@@ -259,10 +286,10 @@ namespace SoftwareEng
             db.SaveChanges();
         }
 
-        /* This function marks the reservation given as canceled and sets the date it was canceled to the current day
-         * 
-         * 
-         */
+        /// <summary>
+        /// This function marks the reservation given as canceled and sets the date it was canceled to the current day
+        /// </summary>
+        /// <param name="toCancel"></param>
         public static void MarkReservationAsCanceled(Reservations toCancel)
         {
             toCancel.IsCanceled = true;
@@ -276,9 +303,11 @@ namespace SoftwareEng
             db.SaveChanges();
         }
 
-        /* This function gives you the availability for the day
-         * 
-         */
+        /// <summary>
+        /// This function gives you the availability for the day
+        /// </summary>
+        /// <param name="day"></param>
+        /// <returns>int</returns>
         public static int GetAvailability(DateTime day)
         {
             using DatabaseContext db = new DatabaseContext();
@@ -292,11 +321,18 @@ namespace SoftwareEng
             return 45 - count;
         }
 
-        /* Marks a reservation as being changed to the new reso
+        /* 
          * 
-         * Takes: The old reservation (this will ensure it is canceled)
-         *        A new reservation
+         * 
+         *        
          */
+        /// <summary>
+        /// Marks a reservation as being changed to the new reso. 
+        /// Takes: The old reservation (this will ensure it is canceled) and
+        /// a new reservation
+        /// </summary>
+        /// <param name="oldReso"></param>
+        /// <param name="newReso"></param>
         public static void ChangeReservationDate(Reservations oldReso, Reservations newReso)
         {
             MarkReservationAsCanceled(oldReso);
@@ -316,9 +352,10 @@ namespace SoftwareEng
 
         //******EMAIL STATEMENTS*******************************************************
 
-        /* Returns all 60 day reservations that have not paid, have not been canceled and that have 45 days or less left until the start date 
-         * 
-         */
+        /// <summary>
+        /// Returns all 60 day reservations that have not paid, have not been canceled and that have 45 days or less left until the start date 
+        /// </summary>
+        /// <returns>List(Reserations)</returns>
         public static List<Reservations> GetReservationsForEmail()
         {
             using DatabaseContext db = new DatabaseContext();
@@ -330,15 +367,34 @@ namespace SoftwareEng
                 .Where(r => r.Paid == false)
                 .Where(r => r.IsCanceled == false)
                 .Where(r => (r.StartDate - DateTime.Now).Days <= 45)
+                .Where(r => (r.StartDate - DateTime.Now).Days >= 30)
+                .ToList();
+            return toEmailList;
+        }
+
+        /// <summary>
+        /// Returns all 60 day reservations that have not paid, have not been cancelled, and start in less than 30 days
+        /// </summary>
+        /// <returns>List(Reservations)</returns>
+        public static List<Reservations> GetReservationsToCancelForEmail()
+        {
+            using DatabaseContext db = new DatabaseContext();
+            var toEmailList = db
+                .Reservations
+                .Where(r => r.ReservationType.ReservationID == (int)ReservationTypeCode.SixtyDay)
+                .Where(r => r.Paid == false)
+                .Where(r => r.IsCanceled == false)
+                .Where(r => (r.StartDate - DateTime.Now).Days < 30)
                 .ToList();
             return toEmailList;
         }
 
         //******REPORT STATEMENTS******************************************************
 
-        /* Returns a list of reservations that are expected to arrive today
-         * 
-         */
+        /// <summary>
+        /// Returns a list of reservations that are expected to arrive today
+        /// </summary>
+        /// <returns>List(Reservations)</returns>
         public static List<Reservations> GetDailyArrivals()
         {
             using DatabaseContext db = new DatabaseContext();
@@ -366,9 +422,10 @@ namespace SoftwareEng
             return dailyArrivals.Concat(lateArrivals).ToList();
         }
 
-        /* Returns a list of reservations where they are checked in but not checked out (ordered by room num)
-         * 
-         */
+        /// <summary>
+        /// Returns a list of reservations where they are checked in but not checked out (ordered by room num)
+        /// </summary>
+        /// <returns>List(Reservations)</returns>
         public static List<Reservations> GetTodaysOccupancies()
         {
             using DatabaseContext db = new DatabaseContext();
@@ -383,11 +440,11 @@ namespace SoftwareEng
             return todaysOccupancies;
         }
 
-        /* returns a list of a list of a list of reservations in the form:
-         * 
-         * object[day][reservation_type - 1] = count 
-         * 
-         */
+        /// <summary>
+        /// returns a list of a list of a list of reservations in the form:
+        /// object[day][reservation_type - 1] = count
+        /// </summary>
+        /// <returns>List(List(int))</returns>
         public static List<List<int>> GetThirtyDayOccupancyInfo()
         {
             List<List<int>> occupancyInfo = new List<List<int>>();
@@ -417,9 +474,10 @@ namespace SoftwareEng
             return occupancyInfo;
         }
 
-        /* This query gets 30 days of income from the current date
-         * 
-         */
+        /// <summary>
+        /// This query gets 30 days of income from the current date
+        /// </summary>
+        /// <returns>List(float)</returns>
         public static List<float> GetThirtyDayIncomeInfo()
         {
             List<float> incomeList = new List<float>(30);
@@ -446,9 +504,10 @@ namespace SoftwareEng
             return incomeList;
         }
 
-        /* Returns the amount of money lost each day over a period of 30 days from today
-         * 
-         */
+        /// <summary>
+        /// Returns the amount of money lost each day over a period of 30 days from today
+        /// </summary>
+        /// <returns>List(float)</returns>
         public static List<float> GetIncentiveReportInfo()
         {
             List<float> losses = new List<float>(30);
@@ -476,17 +535,19 @@ namespace SoftwareEng
             return losses;
         }
 
-        /*
-         * 
-         */
-        public static List<Reservations> GetAllResosToBeBilled(Payments payment)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reservation"></param>
+        /// <returns>List(Reservations)</returns>
+        public static List<Reservations> GetAllResosToBeBilled(Reservations reservation)
         {
             using DatabaseContext db = new DatabaseContext();
             List<Reservations> ressos = new List<Reservations>();
 
-            ressos.Add(payment.Reservation);
+            ressos.Add(reservation);
 
-            int curResID = payment.Reservation.ReservationID;
+            int curResID = reservation.ReservationID;
             while (true)
             {
                 var reso = (

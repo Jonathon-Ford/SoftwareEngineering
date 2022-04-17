@@ -272,17 +272,25 @@ namespace SoftwareEng
          */
         public static void GenerateBill(Payments payment)
         {
-            List<Reservations> billableResos = PreparedStatements.GetAllResosToBeBilled(payment);
+            List<Reservations> billableResos = PreparedStatements.GetAllResosToBeBilled(payment.Reservation);
 
             String data = "Bill Generated: " + DateTime.Now.ToString("MM/dd/yyyy h:mm tt") + "\n";
-            bool changeFee = false;
 
-            if(billableResos.Count > 1)//If the reservation was changed to another date at least once, print the old dates and old price
+            data += GenerateReservationHistory(billableResos);            
+
+            PrintToConsoleAndSaveToDocs(data, "MostRecentBill");
+        }
+
+        public static string GenerateReservationHistory(List<Reservations> billableResos)
+        {
+            bool changeFee = false;
+            string data = "";
+            if (billableResos.Count > 1)//If the reservation was changed to another date at least once, print the old dates and old price
             {
                 changeFee = true;
 
                 data += "Original reservation:\n";
-                for(int i = billableResos.Count - 1; i >= 1; i--)
+                for (int i = billableResos.Count - 1; i >= 1; i--)
                 {
                     DateTime start = billableResos[i].StartDate;
                     DateTime end = billableResos[i].EndDate;
@@ -292,7 +300,7 @@ namespace SoftwareEng
                         + "Old start date: " + start.ToString("dd/MM/yyyy") + "\n"
                         + "Old end date: " + end.ToString("dd/MM/yyyy") + "\n"
                         + "Old total price (not billed): " + price + "\n"
-                        + "Changed To:\n" 
+                        + "Changed To:\n"
                         + "----------------------------------------------\n";
                 }
             }
@@ -322,7 +330,7 @@ namespace SoftwareEng
 
             data += "Total: " + billableResos[0].Price;
 
-            PrintToConsoleAndSaveToDocs(data, "MostRecentBill");
+            return data;
         }
     }
 }
