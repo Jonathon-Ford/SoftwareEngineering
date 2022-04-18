@@ -43,6 +43,80 @@ namespace SoftwareEng
             return user; //Return the correct user
         }
 
+        /* Attempts to find a user if the username and password match a record in the database, if not it returns an empty user class
+         * and sets the errno to 1
+         * Borrow code from ValidateUser but not get password parameter because users could have same password but not same username
+         */
+        public static Users FindUser(string username)
+        {
+            using DatabaseContext db = new DatabaseContext();
+
+            var user = db
+                .Users
+                .Where(u => u.Username == username)
+                .SingleOrDefault();
+
+            if (user == null)
+            {
+                errno = 0;
+                return user; //Return an empty user class to show it was not found
+            }
+            errno = 1;
+            return user;
+        }
+
+        /* Add a user with username, password, and role
+         */
+        public static Users AddUser(String username, String password, String role)
+        {
+            using DatabaseContext db = new DatabaseContext();
+            Users newUser = new Users { Username = username, Password = password, RoleName = role };
+            db.Users.Add(newUser);
+            db.SaveChanges();
+
+            return newUser;
+        }
+
+        /* Update a user with username, password, and role
+         */
+        public static void UpdateUser(String username, String password, String role)
+        {
+            using DatabaseContext db = new DatabaseContext();
+
+            var user = db
+                .Users
+                .Where(u => u.Username == username)
+                .SingleOrDefault();
+
+            user.Username = username;
+            user.Password = password;
+            user.RoleName = role;
+            db.SaveChanges();
+        }
+
+        /* Delete a user with username, password, and role
+         */
+        public static bool DeleteUser(String username)
+        {
+            using DatabaseContext db = new DatabaseContext();
+
+            var user = db
+                .Users
+                .Where(u => u.Username == username)
+                .SingleOrDefault();
+
+            if (user != null)
+            {
+                db.Users.Remove(user);
+                db.SaveChanges();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         /* Adds a new base rate, if there is already a base rate for that day it is ok, this will be used in the future
          * 
          */

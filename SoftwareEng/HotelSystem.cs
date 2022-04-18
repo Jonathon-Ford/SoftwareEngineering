@@ -85,7 +85,7 @@ static void Main(Users currentUser)
         Console.WriteLine("9  - Generate daily emails");
         Console.WriteLine("10 - Generate daily arivals report");
         Console.WriteLine("11 - Generate daily occupancy report");
-        /*if(String.Equals(currentUser.role, "Management"){
+        if (String.Equals(currentUser.RoleName, "Management")){
             Console.WriteLine("12 - Generate 30 day occupancy report");
             Console.WriteLine("13 - Generate 30 day expected income report");
             Console.WriteLine("14 - Generate 30 day incentive loss report");
@@ -93,7 +93,7 @@ static void Main(Users currentUser)
             Console.WriteLine("16 - Create new user");
             Console.WriteLine("17 - Delete old user");
         }
-        */
+
         command = Console.ReadLine();
         switch (command)
         {
@@ -150,6 +150,49 @@ static void Main(Users currentUser)
                 //  GenerateExpectedOccupancyReport();
                 //}
                 break;
+            case "16":
+                if (String.Equals(currentUser.RoleName, "Management")){
+                    string newUsername;
+                    string newPassword;
+                    string newRole;
+
+                    Console.WriteLine("Please input the username of the new user:");
+                    newUsername = Console.ReadLine();
+                    Console.WriteLine("Please input the password of the new user");
+                    newPassword = Console.ReadLine();
+                    Console.WriteLine("Please input the role of the new user");
+                    newRole = Console.ReadLine();
+
+                    Users newUser = SoftwareEng.UserFunctions.AddUser(newUsername, newPassword, newRole);
+
+                    if (newUser != null)
+                    {
+                        Console.WriteLine("New user has been added.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Username has existed. Please try again with different username.");
+                    }
+                }
+                break;
+            case "17":
+                if (String.Equals(currentUser.RoleName, "Management")){
+                    string deleteUsername;
+
+                    Console.WriteLine("Please input the username of the user you want to delete");
+                    deleteUsername = Console.ReadLine();
+
+                    bool success = SoftwareEng.UserFunctions.DeleteUser(deleteUsername);
+
+                    if (success)
+                    {
+                        Console.WriteLine("User has been deleted");
+                    } else
+                    {
+                        Console.WriteLine("User is not existsed. Cannot be deleted.");
+                    }
+                }
+                break;
             case "q":
                 Console.WriteLine("Are you sure you want to log out? y/n");
                 string input = Console.ReadLine();
@@ -178,14 +221,18 @@ static void Main(Users currentUser)
  */
 static bool LogInUser(string username, string password, Users currentUser)
 {
-    Users user = SoftwareEng.PreparedStatements.ValidateUser(username, password);
-    if(user == null)
+    Users user = SoftwareEng.UserFunctions.ValidateUser(username, password);
+    if (user == null)
     {
         return false;
     }
     else
     {
-        currentUser = user;
+        // if we put currentUser = user, static variable will not be overwritten, hence when return from this function currentUser still remains null - soybean
+        currentUser.UserID = user.UserID;
+        currentUser.Username = user.Username;
+        currentUser.Password = user.Password;
+        currentUser.RoleName = user.RoleName;
         return true;
     }
 }
