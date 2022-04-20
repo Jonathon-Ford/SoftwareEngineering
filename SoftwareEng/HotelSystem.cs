@@ -37,7 +37,16 @@ static void Main(Users currentUser)
         Console.WriteLine("Hello please input your username:");
         username = Console.ReadLine();
         Console.WriteLine("Please input your password");
-        password = Console.ReadLine();
+        //Hidden read
+        password = null;
+        while (true)
+        {
+            var key = System.Console.ReadKey(true);
+            if (key.Key == ConsoleKey.Enter)
+                break;
+            password += key.KeyChar;
+        }
+
         while (!LogInUser(username, password, currentUser) && remainingAttempts > 0)//if the user is not logged in and they have remaining attempts
         {
             Console.WriteLine("Invalid log in, try again");
@@ -46,7 +55,6 @@ static void Main(Users currentUser)
             Console.WriteLine("Please input your password");
             System.Console.Write("password: ");
 
-            //Hidden read
             password = null;
             while (true)
             {
@@ -85,7 +93,7 @@ static void Main(Users currentUser)
         Console.WriteLine("9  - Generate daily emails");
         Console.WriteLine("10 - Generate daily arivals report");
         Console.WriteLine("11 - Generate daily occupancy report");
-        if (String.Equals(currentUser.RoleName, "Management")){
+        if (String.Equals(currentUser.RoleName, "Management") || (String.Equals(currentUser.RoleName, "management"))){
             Console.WriteLine("12 - Generate 30 day occupancy report");
             Console.WriteLine("13 - Generate 30 day expected income report");
             Console.WriteLine("14 - Generate 30 day incentive loss report");
@@ -119,21 +127,22 @@ static void Main(Users currentUser)
                 CheckInGuest();
                 break;
             case "8":
-                //CheckOutGuest();
+                CheckOutGuest();
                 break;
             case "9":
                 //GenerateDailyEmails();
                 break;
             case "10":
-                //GenerateDailyArrivalsReport();
+                GenerateDailyArrivalsReport();
                 break;
             case "11":
-                //GenerateDailyOccupancyReport();
+                GenerateDailyOccupancyReport();
                 break;
             case "12":
-                //if(String.Equals(currentUser.role, "Management"){
-                //  GenerateExpectedOccupancyReport();
-                //}
+                if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
+                {
+                    GenerateThirtyDayOccupancyReport();
+                }
                 break;
             case "13":
                 //if(String.Equals(currentUser.role, "Management"){
@@ -151,46 +160,15 @@ static void Main(Users currentUser)
                 //}
                 break;
             case "16":
-                if (String.Equals(currentUser.RoleName, "Management")){
-                    string newUsername;
-                    string newPassword;
-                    string newRole;
-
-                    Console.WriteLine("Please input the username of the new user:");
-                    newUsername = Console.ReadLine();
-                    Console.WriteLine("Please input the password of the new user");
-                    newPassword = Console.ReadLine();
-                    Console.WriteLine("Please input the role of the new user");
-                    newRole = Console.ReadLine();
-
-                    Users newUser = SoftwareEng.UserFunctions.AddUser(newUsername, newPassword, newRole);
-
-                    if (newUser != null)
-                    {
-                        Console.WriteLine("New user has been added.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Username has existed. Please try again with different username.");
-                    }
+                if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
+                {
+                    AddUser();
                 }
                 break;
             case "17":
-                if (String.Equals(currentUser.RoleName, "Management")){
-                    string deleteUsername;
-
-                    Console.WriteLine("Please input the username of the user you want to delete");
-                    deleteUsername = Console.ReadLine();
-
-                    bool success = SoftwareEng.UserFunctions.DeleteUser(deleteUsername);
-
-                    if (success)
-                    {
-                        Console.WriteLine("User has been deleted");
-                    } else
-                    {
-                        Console.WriteLine("User is not existsed. Cannot be deleted.");
-                    }
+                if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
+                {
+                    DeleteUser();                    
                 }
                 break;
             case "q":
@@ -366,6 +344,82 @@ static void CheckOutGuest()
             }
         }
     } while (String.Equals(correct, "n") || String.Equals(correct, "N"));
+}
+/*This function adds a user with provided username, password, and role
+ * 
+ */
+static void AddUser()
+{
+    string newUsername;
+    string newPassword;
+    string newRole;
+
+    Console.WriteLine("Please input the username of the new user:");
+    newUsername = Console.ReadLine();
+    Console.WriteLine("Please input the password of the new user");
+    newPassword = Console.ReadLine();
+    Console.WriteLine("Please input the role of the new user (Employee or Management)");
+    newRole = Console.ReadLine();
+
+     while (String.Equals(newRole, "Employee") != true && String.Equals(newRole, "Management") != true && String.Equals(newRole, "employee") != true && String.Equals(newRole, "management") != true)
+     {
+        Console.WriteLine("Please input the role of the new user (Employee or Management)");
+        newRole = Console.ReadLine();
+     }
+    
+
+    Users newUser = SoftwareEng.UserFunctions.AddUser(newUsername, newPassword, newRole);
+
+    if (newUser != null)
+    {
+        Console.WriteLine("New user has been added.");
+    }
+    else
+    {
+        Console.WriteLine("Username has existed. Please try again with different username.");
+    }
+}
+/*This function adds a user with provided username, password, and role
+ * 
+ */
+static void DeleteUser()
+{
+    string deleteUsername;
+
+    Console.WriteLine("Please input the username of the user you want to delete");
+    deleteUsername = Console.ReadLine();
+
+    bool success = SoftwareEng.UserFunctions.DeleteUser(deleteUsername);
+
+    if (success)
+    {
+        Console.WriteLine("User has been deleted");
+    }
+    else
+    {
+        Console.WriteLine("User is not existsed. Cannot be deleted.");
+    }
+}
+/*This function generates daily arrival report when a Manager chose this option
+ * 
+ */
+static void GenerateDailyArrivalsReport()
+{
+    SoftwareEng.ReportGenerator.GenerateDailyArrivalsReport();
+}
+/*This function generates daily occupancy report when a Manager chose this option
+ * 
+ */
+static void GenerateDailyOccupancyReport()
+{
+    SoftwareEng.ReportGenerator.GenerateDailyOccupancyReport();
+}
+/*This function generates daily occupancy report when a Manager chose this option
+ * 
+ */
+static void GenerateThirtyDayOccupancyReport()
+{
+    SoftwareEng.ReportGenerator.GenerateThirtyDayOccupancyReport();
 }
 /*This function produces a bill for the customer and "charges their card"
  * 
