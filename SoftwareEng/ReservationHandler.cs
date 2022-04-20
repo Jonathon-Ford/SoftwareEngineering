@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SoftwareEng
@@ -20,8 +21,8 @@ namespace SoftwareEng
  
         public static void MakeReservation()
         {
-            bool invalidStartDate = true, invalidEndDate = true, full = true;
-            string dateString;
+            bool invalidStartDate = true, invalidEndDate = true, invalidEmail = true, full = true;
+            string dateString, emailString;
             int roomsLeft;
             DateTime startDate = new DateTime(), endDate = new DateTime();
             List<int> dailyOccupancies = new List<int>();
@@ -52,12 +53,16 @@ namespace SoftwareEng
                     if (IsDateValid(dateString))
                     {
                         endDate = Convert.ToDateTime(dateString);
-                        invalidEndDate = false;
+
+                        if (endDate > startDate)
+                            invalidEndDate = false;
+                        else
+                            Console.WriteLine("End date must be after start date");
                     }
                 }
 
                 full = false;
-                for (var i = startDate; i < endDate; i.AddDays(1))
+                for (var i = startDate; i < endDate; i = i.AddDays(1))
                 {
                     roomsLeft = PreparedStatements.GetAvailability(i);
                     dailyOccupancies.Add(TOTAL_ROOMS - roomsLeft);
@@ -81,14 +86,25 @@ namespace SoftwareEng
             newReservation.FirstName = Console.ReadLine();
             Console.WriteLine("Last name:");
             newReservation.LastName = Console.ReadLine();
-            Console.WriteLine("Email:");
-            newReservation.Email = Console.ReadLine();
+
+            while (invalidEmail)
+            {
+                Console.WriteLine("Email:");
+                emailString = Console.ReadLine();
+                if (IsEmailValid(emailString))
+                {
+                    newReservation.Email = emailString;
+                    invalidEmail = false;
+                }
+                else
+                    Console.WriteLine("Invalid email; please try again");
+            }
 
             if (newReservation.ReservationType.Description != ReservationType.SixtyDay.ToString())
             {
                 Console.WriteLine("Please enter payment information");
                 Console.WriteLine("Credit card number:");
-                newReservation.Card.CardNum = int.Parse(Console.ReadLine());
+                newReservation.Card.CardNum = long.Parse(Console.ReadLine());
                 Console.WriteLine("CVV:");
                 newReservation.Card.CVVNum = int.Parse(Console.ReadLine());
                 //loop until the expiration date is valid
@@ -102,14 +118,15 @@ namespace SoftwareEng
                         newReservation.Card.ExpiryDate = Convert.ToDateTime(dateString);
                         break;
                     }
-                    else
-                    {
-                        Console.WriteLine("Invalid date format");
-                    }
                 }
             }
             
             PreparedStatements.AddReservation(newReservation);
+
+            if (PreparedStatements.errno == 1)
+                Console.WriteLine("Could not add reservation");
+            else
+                Console.WriteLine("Reservation added");
         }
 
         public static void EditReservation()
@@ -203,9 +220,14 @@ namespace SoftwareEng
                 lastName = Console.ReadLine();
                 Console.WriteLine("Please enter the first name for the reservation:");
                 firstName = Console.ReadLine();
-                var results = PreparedStatements.FindReservation(lastName, firstName);
+                var results = PreparedStatements.FindReservation(firstName, lastName);
 
-                if (results.Count > 1)
+                if(results.Count == 0)
+                {
+                    Console.WriteLine("Found no reservations that matched the criteria");
+                    continue;
+                }
+                else if (results.Count > 1)
                 {
                     Console.WriteLine("Please enter the start date of the reservation:");
                     startDate = Convert.ToDateTime(Console.ReadLine());
@@ -287,7 +309,20 @@ namespace SoftwareEng
             }
             catch (FormatException e)
             {
-                Console.WriteLine("Invalid date format; please try again.");
+                Console.WriteLine("Invalid date; please try again.");
+                return false;
+            }
+        }
+
+        private static bool IsEmailValid(string input)
+        {
+            Regex emailPattern = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
+            try
+            {
+                return emailPattern.Match(input).Success;
+            }
+            catch (Exception)
+            {
                 return false;
             }
         }
