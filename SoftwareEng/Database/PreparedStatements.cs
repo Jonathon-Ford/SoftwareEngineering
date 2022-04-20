@@ -28,6 +28,7 @@ namespace SoftwareEng
         {
             using DatabaseContext db = new DatabaseContext();
 
+            string connString = @"Data Source=" + dataSource + ";Initial Catalog=" + database + ";Integrated Security=False; Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;User=team14;Password=team14";
             var user = db
                 .Users
                 .Where(u => u.Username == username)
