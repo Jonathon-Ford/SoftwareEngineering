@@ -41,10 +41,6 @@ namespace SoftwareEng
                         startDate = Convert.ToDateTime(dateString);
                         invalidStartDate = false;
                     }
-                    else
-                    {
-                        Console.WriteLine("Invalid date format");
-                    }
                 }
 
                 //loop until the end date is valid
@@ -57,10 +53,6 @@ namespace SoftwareEng
                     {
                         endDate = Convert.ToDateTime(dateString);
                         invalidEndDate = false;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid date format");
                     }
                 }
 
@@ -278,9 +270,26 @@ namespace SoftwareEng
             }
         }
 
-        private static bool IsDateValid(string date)
+        private static bool IsDateValid(string input)
         {
-            return true;
+            try
+            {
+                var date = Convert.ToDateTime(input);
+                var curDate = DateTime.Now;
+
+                if (date >= curDate)
+                    return true;
+                else
+                {
+                    Console.WriteLine($"Date cannot be before {curDate.Month}/{curDate.Day}/{curDate.Year}");
+                    return false;
+                }
+            }
+            catch (FormatException e)
+            {
+                Console.WriteLine("Invalid date format; please try again.");
+                return false;
+            }
         }
     }
 }
