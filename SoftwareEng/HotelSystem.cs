@@ -122,7 +122,7 @@ static void Main(Users currentUser)
                 //ConfirmReservation();
                 break;
             case "6":
-                //CheckAvailability();
+                CheckAvailability();
                 break;
             case "7":
                 CheckInGuest();
@@ -385,6 +385,15 @@ static void AddUser()
     {
         Console.WriteLine("Username has existed. Please try again with different username.\n");
     }
+}
+/*This function adds a user with provided username, password, and role
+ * 
+ */
+static void CheckAvailability()
+{
+    DateTime now = DateTime.Now;
+    int emptyRoom = SoftwareEng.PreparedStatements.GetAvailability(now);
+    Console.WriteLine(emptyRoom);
 }
 /*This function updates a user with provided username, password, and role
  * 
