@@ -99,7 +99,8 @@ static void Main(Users currentUser)
             Console.WriteLine("14 - Generate 30 day incentive loss report");
             Console.WriteLine("15 - Set base rate");
             Console.WriteLine("16 - Create new user");
-            Console.WriteLine("17 - Delete old user");
+            Console.WriteLine("17 - Update old user");
+            Console.WriteLine("18 - Delete old user");
         }
 
         command = Console.ReadLine();
@@ -166,6 +167,12 @@ static void Main(Users currentUser)
                 }
                 break;
             case "17":
+                if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
+                {
+                    UpdateUser();
+                }
+                break;
+            case "18":
                 if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
                 {
                     DeleteUser();                    
@@ -372,14 +379,71 @@ static void AddUser()
 
     if (newUser != null)
     {
-        Console.WriteLine("New user has been added.");
+        Console.WriteLine("New user has been added.\n");
     }
     else
     {
-        Console.WriteLine("Username has existed. Please try again with different username.");
+        Console.WriteLine("Username has existed. Please try again with different username.\n");
     }
 }
-/*This function adds a user with provided username, password, and role
+/*This function updates a user with provided username, password, and role
+ * 
+ */
+static void UpdateUser()
+{
+    string newUsername;
+    string newPassword;
+    string newRole;
+    string command;
+    string oldUsername;
+
+    
+    Console.WriteLine("Please input the username of the user you want to update or press q to return to option");
+    oldUsername = Console.ReadLine();
+
+    if (String.Equals(oldUsername, "q") || String.Equals(oldUsername, "Q"))
+    {
+        return;
+    }
+    else
+    {
+        Users oldUser = SoftwareEng.UserFunctions.FindUser(oldUsername);
+
+        if (oldUser != null)
+        {
+            Console.WriteLine("Please input the new username");
+            newUsername = Console.ReadLine();
+            Console.WriteLine("Please input the new password");
+            newPassword = Console.ReadLine();
+            Console.WriteLine("Please input the new role (Employee or Management)");
+            newRole = Console.ReadLine();
+
+            while (String.Equals(newRole, "Employee") != true && String.Equals(newRole, "Management") != true && String.Equals(newRole, "employee") != true && String.Equals(newRole, "management") != true)
+            {
+                Console.WriteLine("Please input the new role (Employee or Management)");
+                newRole = Console.ReadLine();
+            }
+
+            bool success = SoftwareEng.UserFunctions.UpdateUser(oldUsername, newUsername, newPassword, newRole);
+
+            if (success == true)
+            {
+                Console.WriteLine("User has been updated");
+            }
+            else
+            {
+                Console.WriteLine("There is a problem. Please try again");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Username is not existed\n");
+        }
+    }
+
+    
+}
+/*This function deletes a user with provided username
  * 
  */
 static void DeleteUser()

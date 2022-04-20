@@ -26,19 +26,14 @@ namespace SoftwareEng
             }
         }
 
-        public static bool UpdateUser(String username, String password, String role)
+        public static bool UpdateUser(String oldUsername, String username, String password, String role)
         {
-            // find if user exists or note
-            Users existUser = SoftwareEng.UserFunctions.FindUser(username);
+            Users updateUser = SoftwareEng.PreparedStatements.UpdateUser(oldUsername, username, password, role);
 
-            // if user exists
-            if (existUser != null)
+            if (updateUser != null)
             {
-                // then update that user with provided username, password, and role
-                SoftwareEng.PreparedStatements.UpdateUser(username, password, role);
-                return true; 
-            }
-            else
+                return true;
+            } else
             {
                 return false;
             }

@@ -79,19 +79,20 @@ namespace SoftwareEng
 
         /* Update a user with username, password, and role
          */
-        public static void UpdateUser(String username, String password, String role)
+        public static Users UpdateUser(String oldUsername, String username, String password, String role)
         {
             using DatabaseContext db = new DatabaseContext();
 
             var user = db
                 .Users
-                .Where(u => u.Username == username)
+                .Where(u => u.Username == oldUsername)
                 .SingleOrDefault();
 
             user.Username = username;
             user.Password = password;
             user.RoleName = role;
             db.SaveChanges();
+            return user;
         }
 
         /* Delete a user with username, password, and role
