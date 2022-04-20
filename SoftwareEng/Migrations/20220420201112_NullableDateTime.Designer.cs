@@ -12,8 +12,8 @@ using SoftwareEng.DataModels;
 namespace SoftwareEng.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20220405220209_Initial")]
-    partial class Initial
+    [Migration("20220420201112_NullableDateTime")]
+    partial class NullableDateTime
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -54,11 +54,26 @@ namespace SoftwareEng.Migrations
                     b.Property<int>("ReservationsReservationID")
                         .HasColumnType("int");
 
-                    b.HasKey("BaseRatesBaseRateID", "ReservationsReservationID");
+                    b.HasIndex("BaseRatesBaseRateID");
 
                     b.HasIndex("ReservationsReservationID");
 
                     b.ToTable("BaseRatesReservations");
+                });
+
+            modelBuilder.Entity("BaseRatesReservations1", b =>
+                {
+                    b.Property<int>("BaseRatesBaseRateID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReservationsReservationID")
+                        .HasColumnType("int");
+
+                    b.HasKey("BaseRatesBaseRateID", "ReservationsReservationID");
+
+                    b.HasIndex("ReservationsReservationID");
+
+                    b.ToTable("BaseRatesReservations1");
                 });
 
             modelBuilder.Entity("ChangedTo", b =>
@@ -78,11 +93,8 @@ namespace SoftwareEng.Migrations
 
             modelBuilder.Entity("CreditCards", b =>
                 {
-                    b.Property<int>("CardNum")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CardNum"), 1L, 1);
+                    b.Property<long>("CardNum")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("CVVNum")
                         .HasColumnType("int");
@@ -103,8 +115,8 @@ namespace SoftwareEng.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentID"), 1L, 1);
 
-                    b.Property<int>("CardNum")
-                        .HasColumnType("int");
+                    b.Property<long>("CardNum")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -136,8 +148,8 @@ namespace SoftwareEng.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReservationID"), 1L, 1);
 
-                    b.Property<int>("CardNum")
-                        .HasColumnType("int");
+                    b.Property<long>("CardNum")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("CheckedIn")
                         .HasColumnType("bit");
@@ -148,7 +160,7 @@ namespace SoftwareEng.Migrations
                     b.Property<bool>("Confirmed")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("DateCanceled")
+                    b.Property<DateTime?>("DateCanceled")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
@@ -175,7 +187,7 @@ namespace SoftwareEng.Migrations
                     b.Property<bool>("Paid")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("PaymentDate")
+                    b.Property<DateTime?>("PaymentDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Price")
@@ -248,6 +260,25 @@ namespace SoftwareEng.Migrations
                 });
 
             modelBuilder.Entity("BaseRatesReservations", b =>
+                {
+                    b.HasOne("BaseRates", "BaseRates")
+                        .WithMany()
+                        .HasForeignKey("BaseRatesBaseRateID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Reservations", "Reservations")
+                        .WithMany()
+                        .HasForeignKey("ReservationsReservationID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BaseRates");
+
+                    b.Navigation("Reservations");
+                });
+
+            modelBuilder.Entity("BaseRatesReservations1", b =>
                 {
                     b.HasOne("BaseRates", null)
                         .WithMany()

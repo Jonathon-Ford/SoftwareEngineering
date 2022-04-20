@@ -19,6 +19,7 @@
  * 
  */
 
+using SoftwareEng;
 using System;
 using System.Threading;
 
@@ -41,12 +42,14 @@ static void Main(Users currentUser)
         password = null;
         while (true)
         {
-            var key = System.Console.ReadKey(true);
+            var key = Console.ReadKey(true);
             if (key.Key == ConsoleKey.Enter)
                 break;
+            Console.Write("*");
             password += key.KeyChar;
         }
 
+        Console.WriteLine("\nChecking credentials...");
         while (!LogInUser(username, password, currentUser) && remainingAttempts > 0)//if the user is not logged in and they have remaining attempts
         {
             Console.WriteLine("Invalid log in, try again");
@@ -58,9 +61,10 @@ static void Main(Users currentUser)
             password = null;
             while (true)
             {
-                var key = System.Console.ReadKey(true);
+                var key = Console.ReadKey(true);
                 if (key.Key == ConsoleKey.Enter)
                     break;
+                Console.Write("*");
                 password += key.KeyChar;
             }
 
@@ -83,7 +87,7 @@ static void Main(Users currentUser)
     {
         Console.WriteLine("Input your desired function (1 - 15) or q to log out:");
         Console.WriteLine("1  - Make a reservation");
-        Console.WriteLine("2  - Edit a reservaation");
+        Console.WriteLine("2  - Edit a reservation");
         Console.WriteLine("3  - Cancel a reservation");
         Console.WriteLine("4  - Check reservation details");
         Console.WriteLine("5  - Confirm reservation");
@@ -107,19 +111,19 @@ static void Main(Users currentUser)
         switch (command)
         {
             case "1":
-                //MakeReservation();
+                ReservationHandler.MakeReservation();
                 break;
             case "2":
-                //EditReservation();
+                ReservationHandler.EditReservation();
                 break;
             case "3":
-                //CancelReservation();
+                ReservationHandler.CancelReservation();
                 break;
             case "4":
-                //FindReservation();
+                ReservationHandler.FindReservation();
                 break;
             case "5":
-                //ConfirmReservation();
+                ReservationHandler.ConfirmReservation();
                 break;
             case "6":
                 CheckAvailability();

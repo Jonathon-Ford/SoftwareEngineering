@@ -28,8 +28,7 @@ namespace SoftwareEng.Migrations
                 name: "CreditCards",
                 columns: table => new
                 {
-                    CardNum = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CardNum = table.Column<long>(type: "bigint", nullable: false),
                     CVVNum = table.Column<int>(type: "int", nullable: false),
                     ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -76,16 +75,16 @@ namespace SoftwareEng.Migrations
                     LastName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    CardNum = table.Column<int>(type: "int", nullable: false),
+                    CardNum = table.Column<long>(type: "bigint", nullable: false),
                     ReservationTypeReservationID = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<int>(type: "int", nullable: false),
                     RoomNum = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsCanceled = table.Column<bool>(type: "bit", nullable: false),
-                    DateCanceled = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateCanceled = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Paid = table.Column<bool>(type: "bit", nullable: false),
-                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Confirmed = table.Column<bool>(type: "bit", nullable: false),
                     CheckedIn = table.Column<bool>(type: "bit", nullable: false),
                     CheckedOut = table.Column<bool>(type: "bit", nullable: false)
@@ -111,12 +110,11 @@ namespace SoftwareEng.Migrations
                 name: "BaseRatesReservations",
                 columns: table => new
                 {
-                    BaseRatesBaseRateID = table.Column<int>(type: "int", nullable: false),
-                    ReservationsReservationID = table.Column<int>(type: "int", nullable: false)
+                    ReservationsReservationID = table.Column<int>(type: "int", nullable: false),
+                    BaseRatesBaseRateID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BaseRatesReservations", x => new { x.BaseRatesBaseRateID, x.ReservationsReservationID });
                     table.ForeignKey(
                         name: "FK_BaseRatesReservations_BaseRates_BaseRatesBaseRateID",
                         column: x => x.BaseRatesBaseRateID,
@@ -125,6 +123,30 @@ namespace SoftwareEng.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_BaseRatesReservations_Reservations_ReservationsReservationID",
+                        column: x => x.ReservationsReservationID,
+                        principalTable: "Reservations",
+                        principalColumn: "ReservationID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BaseRatesReservations1",
+                columns: table => new
+                {
+                    BaseRatesBaseRateID = table.Column<int>(type: "int", nullable: false),
+                    ReservationsReservationID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BaseRatesReservations1", x => new { x.BaseRatesBaseRateID, x.ReservationsReservationID });
+                    table.ForeignKey(
+                        name: "FK_BaseRatesReservations1_BaseRates_BaseRatesBaseRateID",
+                        column: x => x.BaseRatesBaseRateID,
+                        principalTable: "BaseRates",
+                        principalColumn: "BaseRateID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BaseRatesReservations1_Reservations_ReservationsReservationID",
                         column: x => x.ReservationsReservationID,
                         principalTable: "Reservations",
                         principalColumn: "ReservationID",
@@ -165,7 +187,7 @@ namespace SoftwareEng.Migrations
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<float>(type: "real", nullable: false),
-                    CardNum = table.Column<int>(type: "int", nullable: false)
+                    CardNum = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -185,8 +207,18 @@ namespace SoftwareEng.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_BaseRatesReservations_BaseRatesBaseRateID",
+                table: "BaseRatesReservations",
+                column: "BaseRatesBaseRateID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BaseRatesReservations_ReservationsReservationID",
                 table: "BaseRatesReservations",
+                column: "ReservationsReservationID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BaseRatesReservations1_ReservationsReservationID",
+                table: "BaseRatesReservations1",
                 column: "ReservationsReservationID");
 
             migrationBuilder.CreateIndex(
@@ -224,6 +256,9 @@ namespace SoftwareEng.Migrations
         {
             migrationBuilder.DropTable(
                 name: "BaseRatesReservations");
+
+            migrationBuilder.DropTable(
+                name: "BaseRatesReservations1");
 
             migrationBuilder.DropTable(
                 name: "ChangedTo");

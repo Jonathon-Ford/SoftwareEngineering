@@ -28,7 +28,6 @@ namespace SoftwareEng
         {
             using DatabaseContext db = new DatabaseContext();
 
-            string connString = @"Data Source=" + dataSource + ";Initial Catalog=" + database + ";Integrated Security=False; Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;User=team14;Password=team14";
             var user = db
                 .Users
                 .Where(u => u.Username == username)
@@ -164,6 +163,8 @@ namespace SoftwareEng
             using DatabaseContext db = new DatabaseContext();
             var curReservations = db
                 .Reservations
+                .Include("Card")
+                .Include("ReservationType")
                 .Where(r => r.FirstName == FName)
                 .Where(r => r.LastName == LName)
                 .ToList();
@@ -258,8 +259,15 @@ namespace SoftwareEng
         public static void AddReservation(Reservations resoToAdd)
         {
             using DatabaseContext db = new DatabaseContext();
-            db.Reservations.Add(resoToAdd);
-            db.SaveChanges();
+            try
+            {
+                db.Reservations.Add(resoToAdd);
+                db.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                errno = 1;
+            }
         }
 
         /* This function marks the reservation given as canceled and sets the date it was canceled to the current day

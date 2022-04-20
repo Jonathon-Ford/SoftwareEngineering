@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 public class Users
 {
@@ -42,10 +43,10 @@ public class Reservations
     public DateTime EndDate { get; set; }// Not null
     [Required]
     public bool IsCanceled { get; set; }// Not null
-    public DateTime DateCanceled { get; set; }
+    public DateTime? DateCanceled { get; set; }
     [Required]
     public bool Paid { get; set; }// Not null
-    public DateTime PaymentDate { get; set; }
+    public DateTime? PaymentDate { get; set; }
     [Required]
     public bool Confirmed { get; set; }// Not null
     [Required]
@@ -80,8 +81,8 @@ public class ReservationTypes
 }
 public class CreditCards
 {
-    [Key]
-    public int CardNum { get; set; }// Key also Not null
+    [Key, DatabaseGeneratedAttribute(DatabaseGeneratedOption.None)]
+    public long CardNum { get; set; }// Key also Not null
     [Required]
     public int CVVNum { get; set; }// Not null
     [Required]
