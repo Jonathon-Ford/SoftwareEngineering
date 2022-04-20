@@ -116,7 +116,7 @@ static void Main(Users currentUser)
                 //CheckAvailability();
                 break;
             case "7":
-                //CheckInGuest();
+                CheckInGuest();
                 break;
             case "8":
                 //CheckOutGuest();
@@ -241,14 +241,131 @@ static bool LogInUser(string username, string password, Users currentUser)
  */
 static void CheckInGuest()
 {
+    string fname;
+    string lname;
+    string correct;
+    string ret;
 
+    do
+    {
+        Console.WriteLine("Input guest first name or press q to return to options");
+        fname = Console.ReadLine();
+
+        if (String.Equals(fname, "q") || String.Equals(fname, "Q"))
+        {
+            return;
+        }
+        else
+        {
+
+            Console.WriteLine("Input guest last name or press q to return to options");
+            lname = Console.ReadLine();
+
+            if (String.Equals(lname, "q") || String.Equals(lname, "Q"))
+            {
+                return;
+            }
+            else
+            {
+                List<Reservations> reservations = SoftwareEng.PreparedStatements.FindReservation(fname, lname);
+
+                for (int i = 0; i < reservations.Count; i++)
+                {
+                    Console.WriteLine("Reservation " + i);
+                    Console.WriteLine("First name: " + reservations[i].FirstName);
+                    Console.WriteLine("Last name: " + reservations[i].LastName);
+                    Console.WriteLine("Email: " + reservations[i].Email);
+                    Console.WriteLine("Start date: " + reservations[i].StartDate);
+                    Console.WriteLine("Last date: " + reservations[i].EndDate);
+                }
+
+                do
+                {
+                    Console.WriteLine("Is this the correct reservation? Y or N");
+                    correct = Console.ReadLine();
+
+                    if (String.Equals(correct, "y") || String.Equals(correct, "Y"))
+                    {
+                        for (int i = 0; i < reservations.Count; i++)
+                        {
+                            SoftwareEng.PreparedStatements.MarkReservationAsCheckedIn(reservations[i]);
+
+                            Console.WriteLine("Successfully checked in. Enjoy your stay. Press any key to continue.");
+                            ret = Console.ReadLine();
+
+                            return;
+                        }
+                    } else if (String.Equals(correct, "n")  || String.Equals(correct, "N"))
+                    {
+                        break;
+                    }
+                } while (String.Equals(correct, "n") != true || String.Equals(correct, "N") != true);                  
+            }
+        }
+    } while (String.Equals(correct, "n") || String.Equals(correct, "N"));
 }
 /*This function checks out a guest at the end of their stay
  * 
  */
 static void CheckOutGuest()
 {
+    string fname;
+    string lname;
+    string correct;
+    string ret;
 
+    do
+    {
+        Console.WriteLine("Input guest first name or press q to return to options");
+        fname = Console.ReadLine();
+
+        if (String.Equals(fname, "q") || String.Equals(fname, "Q"))
+        {
+            return;
+        }
+        else
+        {
+
+            Console.WriteLine("Input guest last name or press q to return to options");
+            lname = Console.ReadLine();
+
+            if (String.Equals(lname, "q") || String.Equals(lname, "Q"))
+            {
+                return;
+            }
+            else
+            {
+                List<Reservations> reservations = SoftwareEng.PreparedStatements.FindReservation(fname, lname);
+
+                for (int i = 0; i < reservations.Count; i++)
+                {
+                    Console.WriteLine("Reservation " + i);
+                }
+
+                do
+                {
+                    Console.WriteLine("Is this the correct reservation? Y or N");
+                    correct = Console.ReadLine();
+
+                    if (String.Equals(correct, "y") || String.Equals(correct, "Y"))
+                    {
+                        for (int i = 0; i < reservations.Count; i++)
+                        {
+                            SoftwareEng.PreparedStatements.MarkReservationAsCheckedOut(reservations[i]);
+
+                            // generate bill here
+
+                            return;
+                        }
+                    }
+                    else if (String.Equals(correct, "n")  || String.Equals(correct, "N"))
+                    {
+                        break;
+                    }
+                } while (String.Equals(correct, "n") != true || String.Equals(correct, "N") != true);
+            }
+        }
+    } while (String.Equals(correct, "n") || String.Equals(correct, "N"));
 }
 /*This function produces a bill for the customer and "charges their card"
  * 
