@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoftwareEng.DataModels;
 
@@ -11,9 +12,10 @@ using SoftwareEng.DataModels;
 namespace SoftwareEng.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20220421004835_MoreDatesWithoutTime")]
+    partial class MoreDatesWithoutTime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +54,7 @@ namespace SoftwareEng.Migrations
                     b.Property<int>("ReservationsReservationID")
                         .HasColumnType("int");
 
-                    b.HasKey("BaseRatesBaseRateID", "ReservationsReservationID");
+                    b.HasIndex("BaseRatesBaseRateID");
 
                     b.HasIndex("ReservationsReservationID");
 
@@ -76,15 +78,15 @@ namespace SoftwareEng.Migrations
 
             modelBuilder.Entity("ChangedTo", b =>
                 {
-                    b.Property<int>("OldReservationReservationID")
-                        .HasColumnType("int");
-
                     b.Property<int>("NewReservationReservationID")
                         .HasColumnType("int");
 
-                    b.HasKey("OldReservationReservationID", "NewReservationReservationID");
+                    b.Property<int>("OldReservationReservationID")
+                        .HasColumnType("int");
 
                     b.HasIndex("NewReservationReservationID");
+
+                    b.HasIndex("OldReservationReservationID");
 
                     b.ToTable("ChangedTo");
                 });

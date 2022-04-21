@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoftwareEng.DataModels;
 
@@ -11,9 +12,10 @@ using SoftwareEng.DataModels;
 namespace SoftwareEng.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20220420182517_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,10 +33,10 @@ namespace SoftwareEng.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BaseRateID"), 1L, 1);
 
                     b.Property<DateTime>("DateSet")
-                        .HasColumnType("Date");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("EffectiveDate")
-                        .HasColumnType("Date");
+                        .HasColumnType("datetime2");
 
                     b.Property<float>("Rate")
                         .HasColumnType("real");
@@ -52,7 +54,7 @@ namespace SoftwareEng.Migrations
                     b.Property<int>("ReservationsReservationID")
                         .HasColumnType("int");
 
-                    b.HasKey("BaseRatesBaseRateID", "ReservationsReservationID");
+                    b.HasIndex("BaseRatesBaseRateID");
 
                     b.HasIndex("ReservationsReservationID");
 
@@ -76,15 +78,15 @@ namespace SoftwareEng.Migrations
 
             modelBuilder.Entity("ChangedTo", b =>
                 {
-                    b.Property<int>("OldReservationReservationID")
-                        .HasColumnType("int");
-
                     b.Property<int>("NewReservationReservationID")
                         .HasColumnType("int");
 
-                    b.HasKey("OldReservationReservationID", "NewReservationReservationID");
+                    b.Property<int>("OldReservationReservationID")
+                        .HasColumnType("int");
 
                     b.HasIndex("NewReservationReservationID");
+
+                    b.HasIndex("OldReservationReservationID");
 
                     b.ToTable("ChangedTo");
                 });
@@ -98,7 +100,7 @@ namespace SoftwareEng.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("Date");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("CardNum");
 
@@ -121,7 +123,7 @@ namespace SoftwareEng.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("Date");
+                        .HasColumnType("datetime2");
 
                     b.Property<float>("Price")
                         .HasColumnType("real");
@@ -158,8 +160,8 @@ namespace SoftwareEng.Migrations
                     b.Property<bool>("Confirmed")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("DateCanceled")
-                        .HasColumnType("Date");
+                    b.Property<DateTime>("DateCanceled")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -167,7 +169,7 @@ namespace SoftwareEng.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("EndDate")
-                        .HasColumnType("date");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -185,8 +187,8 @@ namespace SoftwareEng.Migrations
                     b.Property<bool>("Paid")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("PaymentDate")
-                        .HasColumnType("Date");
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Price")
                         .HasColumnType("int");
@@ -198,7 +200,7 @@ namespace SoftwareEng.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("date");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("ReservationID");
 

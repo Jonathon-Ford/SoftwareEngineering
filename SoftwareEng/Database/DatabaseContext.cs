@@ -27,5 +27,19 @@ namespace SoftwareEng.DataModels
             string connString = @"Data Source=" + dataSource + ";Initial Catalog=" + database + ";Integrated Security=False; Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;User=team14;Password=team14";
             options.UseSqlServer(connString);
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ChangedTo>()
+                .HasKey("OldReservationReservationID", "NewReservationReservationID");
+            modelBuilder.Entity<Reservations>()
+                .Property("StartDate")
+                .HasColumnType("date");
+            modelBuilder.Entity<Reservations>()
+                .Property("EndDate")
+                .HasColumnType("date");
+            modelBuilder.Entity<BaseRatesReservations>()
+                .HasKey("BaseRatesBaseRateID", "ReservationsReservationID");
+        }
     }
 }

@@ -4,10 +4,8 @@
 * These classes are also used for data manipulation within the code
 * 
 */
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 public class Users
 {
@@ -37,15 +35,19 @@ public class Reservations
     public int Price { get; set; }// Not null
     public int RoomNum { get; set; }
     [Required]
+    [Column(TypeName = "Date")]
     public DateTime StartDate { get; set; }// Not null
     [Required]
+    [Column(TypeName="Date")]
     public DateTime EndDate { get; set; }// Not null
     [Required]
     public bool IsCanceled { get; set; }// Not null
-    public DateTime DateCanceled { get; set; }
+    [Column(TypeName ="Date")]
+    public DateTime? DateCanceled { get; set; }
     [Required]
     public bool Paid { get; set; }// Not null
-    public DateTime PaymentDate { get; set; }
+    [Column(TypeName = "Date")]
+    public DateTime? PaymentDate { get; set; }
     [Required]
     public bool Confirmed { get; set; }// Not null
     [Required]
@@ -62,6 +64,7 @@ public class Payments
     [Required]
     public Reservations Reservation { get; set; }// Not null
     [Required]
+    [Column(TypeName = "Date")]
     public DateTime PaymentDate { get; set; }
     public string Description { get; set; }
     [Required]
@@ -80,11 +83,12 @@ public class ReservationTypes
 }
 public class CreditCards
 {
-    [Key]
-    public int CardNum { get; set; }// Key also Not null
+    [Key, DatabaseGeneratedAttribute(DatabaseGeneratedOption.None)]
+    public long CardNum { get; set; }// Key also Not null
     [Required]
     public int CVVNum { get; set; }// Not null
     [Required]
+    [Column(TypeName = "Date")]
     public DateTime ExpiryDate { get; set; }// Not null
 }
 public class BaseRates
@@ -94,17 +98,22 @@ public class BaseRates
     [Required]
     public float Rate { get; set; }// Not null
     [Required]
+    [Column(TypeName = "Date")]
     public DateTime EffectiveDate { get; set; }// Not null
     [Required]
+    [Column(TypeName = "Date")]
     public DateTime DateSet { get; set; }
     public ICollection<Reservations> Reservations { get; set; }
 }
-[Microsoft.EntityFrameworkCore.Keyless]
 public class ChangedTo
 {
     [Required]
+    [Key]
+    [Column(Order = 1)]
     public Reservations OldReservation { get; set; }
     [Required]
+    [Key]
+    [Column(Order = 2)]
     public Reservations NewReservation { get; set; }
 }
 [Microsoft.EntityFrameworkCore.Keyless]
