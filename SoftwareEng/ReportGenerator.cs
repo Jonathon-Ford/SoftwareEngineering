@@ -168,7 +168,7 @@ namespace SoftwareEng
 
                 string date;
 
-                if(dailyOccupancy[i].StartDate.Date < DateTime.Now.Date) // If they stayed the night before print when they leave
+                if(dailyOccupancy[i].StartDate < DateTime.Now) // If they stayed the night before print when they leave
                 {
                     date = dailyOccupancy[i].EndDate.ToString("dd/MM/yyyy");
                 }
@@ -177,7 +177,7 @@ namespace SoftwareEng
                     date = "";
                 }
 
-                if(dailyOccupancy[i].EndDate.Date == DateTime.Now.Date) // If they leave today add a * before their name
+                if(dailyOccupancy[i].EndDate == DateTime.Now) // If they leave today add a * before their name
                 {
                     name = "*" + name;
                 }
@@ -284,8 +284,8 @@ namespace SoftwareEng
                 data += "Origonal reservation:\n";
                 for(int i = billableResos.Count - 1; i >= 1; i--)
                 {
-                    DateTime start = billableResos[i].StartDate.Date;
-                    DateTime end = billableResos[i].EndDate.Date;
+                    DateTime start = billableResos[i].StartDate;
+                    DateTime end = billableResos[i].EndDate;
                     float price = billableResos[i].Price;
 
                     data += "-----------------------------------------------\n"
