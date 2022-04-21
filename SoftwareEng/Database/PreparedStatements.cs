@@ -329,7 +329,7 @@ namespace SoftwareEng
                 .Where(r => r.ReservationType.ReservationID == 2) //2 is for 60 day reservations
                 .Where(r => r.Paid == false)
                 .Where(r => r.IsCanceled == false)
-                .Where(r => DateOnly.FromDateTime(DateTime.Today).AddDays(45).CompareTo(r.StartDate) >= 0)
+                .Where(r => (r.StartDate - DateTime.Now).Days <= 45)
                 .ToList();
             return toEmailList;
         }

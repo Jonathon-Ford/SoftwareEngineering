@@ -105,7 +105,6 @@ public class BaseRates
     public DateTime DateSet { get; set; }
     public ICollection<Reservations> Reservations { get; set; }
 }
-//[Microsoft.EntityFrameworkCore.Keyless]
 public class ChangedTo
 {
     [Required]
