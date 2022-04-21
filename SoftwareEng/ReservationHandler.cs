@@ -61,17 +61,25 @@ namespace SoftwareEng
                     }
                 }
 
-                full = false;
-                for (var i = startDate; i < endDate; i = i.AddDays(1))
+                try
                 {
-                    roomsLeft = PreparedStatements.GetAvailability(i);
-                    dailyOccupancies.Add(TOTAL_ROOMS - roomsLeft);
-
-                    if (roomsLeft == 0)
+                    full = false;
+                    for (var i = startDate; i < endDate; i = i.AddDays(1))
                     {
-                        full = true;
-                        Console.WriteLine("All rooms have been booked for " + i);
+                        roomsLeft = PreparedStatements.GetAvailability(i);
+                        dailyOccupancies.Add(TOTAL_ROOMS - roomsLeft);
+
+                        if (roomsLeft == 0)
+                        {
+                            full = true;
+                            Console.WriteLine("All rooms have been booked for " + i);
+                        }
                     }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine("Could not retrieve availability");
+                    return;
                 }
             }
 
@@ -120,13 +128,16 @@ namespace SoftwareEng
                     }
                 }
             }
-            
-            PreparedStatements.AddReservation(newReservation);
 
-            if (PreparedStatements.errno == 1)
-                Console.WriteLine("Could not add reservation");
-            else
+            try
+            {
+                PreparedStatements.AddReservation(newReservation);
                 Console.WriteLine("Reservation added");
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Could not add reservation");
+            }
         }
 
         public static void EditReservation()
@@ -137,9 +148,15 @@ namespace SoftwareEng
             List<int> dailyOccupancies = new List<int>();
             DateTime startDate = new DateTime(), endDate = new DateTime();
             var oldReservation = FindReservation();
+
+            if (oldReservation == null)
+                return;
+
             var newReservation = new Reservations();
             newReservation.Card = oldReservation.Card;
             newReservation.Email = oldReservation.Email;
+            newReservation.FirstName = oldReservation.FirstName;
+            newReservation.LastName = oldReservation.LastName;
 
             while (full)
             {
@@ -154,10 +171,6 @@ namespace SoftwareEng
                         startDate = Convert.ToDateTime(dateString);
                         invalidStartDate = false;
                     }
-                    else
-                    {
-                        Console.WriteLine("Invalid date format");
-                    }
                 }
 
                 //loop until the end date is valid
@@ -171,23 +184,26 @@ namespace SoftwareEng
                         endDate = Convert.ToDateTime(dateString);
                         invalidEndDate = false;
                     }
-                    else
-                    {
-                        Console.WriteLine("Invalid date format");
-                    }
                 }
 
-                full = false;
-                for (var i = startDate; i < endDate; i.AddDays(1))
+                try
                 {
-                    roomsLeft = PreparedStatements.GetAvailability(i);
-                    dailyOccupancies.Add(TOTAL_ROOMS - roomsLeft);
-
-                    if (roomsLeft == 0)
+                    full = false;
+                    for (var i = startDate; i < endDate; i = i.AddDays(1))
                     {
-                        full = true;
-                        Console.WriteLine("All rooms have been booked for " + i);
+                        roomsLeft = PreparedStatements.GetAvailability(i);
+                        dailyOccupancies.Add(TOTAL_ROOMS - roomsLeft);
+
+                        if (roomsLeft == 0)
+                        {
+                            full = true;
+                            Console.WriteLine("All rooms have been booked for " + i);
+                        }
                     }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine("Could not retrieve availability");
                 }
             }
 
@@ -198,12 +214,28 @@ namespace SoftwareEng
                 Description = DetermineReservationType(dailyOccupancies, startDate).ToString()
             };
 
-            PreparedStatements.ChangeReservationDate(oldReservation, newReservation);
+            try
+            {
+                PreparedStatements.ChangeReservationDate(oldReservation, newReservation);
+                Console.WriteLine("Reservation updated");
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Could not update reservation");
+            }
         }
 
         public static void CancelReservation()
         {
-            PreparedStatements.MarkReservationAsCanceled(FindReservation());
+            try
+            {
+                PreparedStatements.MarkReservationAsCanceled(FindReservation());
+                Console.WriteLine("Reservation cancelled");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Could not cancel reservation");
+            }
         }
 
         public static Reservations FindReservation()
@@ -214,55 +246,76 @@ namespace SoftwareEng
             bool found = false;
             Reservations reservation = new Reservations();
 
-            while (!found)
+            try
             {
-                Console.WriteLine("Please enter the last name for the reservation:");
-                lastName = Console.ReadLine();
-                Console.WriteLine("Please enter the first name for the reservation:");
-                firstName = Console.ReadLine();
-                var results = PreparedStatements.FindReservation(firstName, lastName);
-
-                if(results.Count == 0)
+                while (!found)
                 {
-                    Console.WriteLine("Found no reservations that matched the criteria");
-                    continue;
-                }
-                else if (results.Count > 1)
-                {
-                    Console.WriteLine("Please enter the start date of the reservation:");
-                    startDate = Convert.ToDateTime(Console.ReadLine());
-                    results = PreparedStatements.FindReservation(lastName, firstName, null, null, startDate);
+                    Console.WriteLine("Please enter the first name for the reservation:");
+                    firstName = Console.ReadLine();
+                    Console.WriteLine("Please enter the last name for the reservation:");
+                    lastName = Console.ReadLine();
+                    var results = PreparedStatements.FindReservation(firstName, lastName);
 
-                    if (results.Count > 1)
+                    if (results.Count == 0)
                     {
-                        Console.WriteLine("Please enter the email address with which the reservation was made");
-                        email = Console.ReadLine();
-                        Console.WriteLine("Please enter the last four digits of the credit card on file:");
-                        cardLastFour = int.Parse(Console.ReadLine());
-                        results = PreparedStatements.FindReservation(lastName, firstName, cardLastFour, email, startDate);
+                        Console.WriteLine("Found no reservations that matched the criteria");
+                        continue;
+                    }
+                    else if (results.Count > 1)
+                    {
+                        Console.WriteLine("Please enter the start date of the reservation:");
+                        startDate = Convert.ToDateTime(Console.ReadLine());
+                        results = PreparedStatements.FindReservation(firstName, lastName, null, null, startDate);
+
+                        if (results.Count == 0)
+                        {
+                            Console.WriteLine("Found no reservations that matched the criteria");
+                            continue;
+                        }
+                        else if (results.Count > 1)
+                        {
+                            Console.WriteLine("Please enter the email address with which the reservation was made");
+                            email = Console.ReadLine();
+                            Console.WriteLine("Please enter the last four digits of the credit card on file:");
+                            cardLastFour = int.Parse(Console.ReadLine());
+                            results = PreparedStatements.FindReservation(firstName, lastName, cardLastFour, email, startDate);
+                        }
+                    }
+
+                    reservation = results[0];
+                    Console.WriteLine($"Guest:{reservation.FirstName} {reservation.LastName} ({reservation.Email})");
+                    Console.WriteLine($"Dates:{reservation.StartDate}-{reservation.EndDate}");
+                    Console.WriteLine($"Credit Card:{reservation.Card.CardNum}");
+                    Console.WriteLine("Is this the reservation you were looking for? Y/N");
+
+                    if (Console.ReadLine().ToUpper() == "Y")
+                    {
+                        found = true;
                     }
                 }
 
-                reservation = results[0];
-                Console.WriteLine($"Guest:{reservation.FirstName} {reservation.LastName} ({reservation.Email})");
-                Console.WriteLine($"Dates:{reservation.StartDate}-{reservation.EndDate}");
-                Console.WriteLine($"Credit Card:{reservation.Card.CardNum}");
-                Console.WriteLine("Is this the reservation you were looking for? Y/N");
-
-                if (Console.ReadLine().ToUpper() == "Y")
-                {
-                    found = true;
-                }
+                return reservation;
             }
-
-            return reservation;
+            catch(Exception e)
+            {
+                Console.WriteLine("Error searching reservations");
+                return null;
+            }
         }
 
         public static void ConfirmReservation()
         {
-            var reservation = FindReservation();
-            reservation.Confirmed = true;
-            PreparedStatements.UpdateReservation(reservation);
+            try
+            {
+                var reservation = FindReservation();
+                reservation.Confirmed = true;
+                PreparedStatements.UpdateReservation(reservation);
+                Console.WriteLine("Reservation confirmed");
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Could not confirm reservation");
+            }
         }
 
         //public static void CheckAvailability()
@@ -272,7 +325,7 @@ namespace SoftwareEng
 
         private static ReservationType DetermineReservationType(List<int> dailyOccupancies, DateTime startDate)
         {
-            int daysOut = (startDate - DateTime.Now).Days;
+            var daysOut = (startDate - DateTime.Now).Days;
 
             if(daysOut >= 90)
             {

@@ -137,6 +137,8 @@ namespace SoftwareEng
 
             using DatabaseContext db = new DatabaseContext();
             db.Entry(toCheckIn).State = EntityState.Modified;
+            db.Entry(toCheckIn.Card).State = EntityState.Unchanged;
+            db.Entry(toCheckIn.ReservationType).State = EntityState.Unchanged;
             db.SaveChanges();
         }
 
@@ -149,6 +151,8 @@ namespace SoftwareEng
 
             using DatabaseContext db = new DatabaseContext();
             db.Entry(toCheckOut).State = EntityState.Modified;
+            db.Entry(toCheckOut.Card).State = EntityState.Unchanged;
+            db.Entry(toCheckOut.ReservationType).State = EntityState.Unchanged;
             db.SaveChanges();
         }
 
@@ -175,21 +179,15 @@ namespace SoftwareEng
                 {
                     if (startDate == default(DateTime))//If only have last four and no start date
                     {
-                        curReservations = db
-                            .Reservations
-                            .Where(r => r.FirstName == FName)
-                            .Where(r => r.LastName == LName)
+                        curReservations = curReservations
                             .Where(r => r.Card.CardNum % 10000 == lastFourOfCard)
                             .ToList();
                     }
                     else //If both last four and start date
                     {
-                        curReservations = db
-                            .Reservations
-                            .Where(r => r.FirstName == FName)
-                            .Where(r => r.LastName == LName)
+                        curReservations = curReservations
                             .Where(r => r.Card.CardNum % 10000 == lastFourOfCard)
-                            .Where(r => r.StartDate.Date == startDate.Date)
+                            .Where(r => r.StartDate == startDate)
                             .ToList();
                     }
                 }
@@ -197,21 +195,15 @@ namespace SoftwareEng
                 {
                     if(startDate == default(DateTime))
                     {
-                        curReservations = db
-                        .Reservations
-                        .Where(r => r.FirstName == FName)
-                        .Where(r => r.LastName == LName)
+                        curReservations = curReservations
                         .Where(r => r.Email == email)
                         .ToList();
                     }
                     else
                     {
-                        curReservations = db
-                        .Reservations
-                        .Where(r => r.FirstName == FName)
-                        .Where(r => r.LastName == LName)
+                        curReservations = curReservations
                         .Where(r => r.Email == email)
-                        .Where(r => r.StartDate.Date == startDate.Date)
+                        .Where(r => r.StartDate == startDate)
                         .ToList();
                     }
                 }
@@ -259,15 +251,12 @@ namespace SoftwareEng
         public static void AddReservation(Reservations resoToAdd)
         {
             using DatabaseContext db = new DatabaseContext();
-            try
-            {
-                db.Reservations.Add(resoToAdd);
-                db.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                errno = 1;
-            }
+
+            resoToAdd.ReservationType = db.ReservationTypes.Where(rt => rt.Description == resoToAdd.ReservationType.Description).First();
+            db.Reservations.Add(resoToAdd);
+            db.Entry(resoToAdd.Card).State = EntityState.Unchanged;
+            db.Entry(resoToAdd.ReservationType).State = EntityState.Unchanged;
+            db.SaveChanges();
         }
 
         /* This function marks the reservation given as canceled and sets the date it was canceled to the current day
@@ -280,7 +269,10 @@ namespace SoftwareEng
             toCancel.DateCanceled = DateTime.Now;
 
             using DatabaseContext db = new DatabaseContext();
+
             db.Entry(toCancel).State = EntityState.Modified;
+            db.Entry(toCancel.Card).State = EntityState.Unchanged;
+            db.Entry(toCancel.ReservationType).State = EntityState.Unchanged;
             db.SaveChanges();
         }
 
@@ -292,8 +284,8 @@ namespace SoftwareEng
             using DatabaseContext db = new DatabaseContext();
             var count = db
                 .Reservations
-                .Where(r => r.StartDate.Date <= day.Date)
-                .Where(r => r.EndDate.Date >= day.Date)
+                .Where(r => r.StartDate <= day)
+                .Where(r => r.EndDate >= day)
                 .Where(r => r.IsCanceled == false)
                 .Count();
 
@@ -311,6 +303,8 @@ namespace SoftwareEng
             AddReservation(newReso);
 
             using DatabaseContext db = new DatabaseContext();
+            db.Entry(oldReso).State = EntityState.Unchanged;
+            db.Entry(newReso).State = EntityState.Unchanged;
 
             db.ChangedTo.Add(new ChangedTo
             {
@@ -330,10 +324,12 @@ namespace SoftwareEng
             using DatabaseContext db = new DatabaseContext();
             var toEmailList = db
                 .Reservations
+                .Include("Card")
+                .Include("ReservationType")
                 .Where(r => r.ReservationType.ReservationID == 2) //2 is for 60 day reservations
                 .Where(r => r.Paid == false)
                 .Where(r => r.IsCanceled == false)
-                .Where(r => (r.StartDate - DateTime.Now).Days <= 45)
+                .Where(r => DateOnly.FromDateTime(DateTime.Today).AddDays(45).CompareTo(r.StartDate) >= 0)
                 .ToList();
             return toEmailList;
         }
@@ -348,16 +344,20 @@ namespace SoftwareEng
             using DatabaseContext db = new DatabaseContext();
             var dailyArrivals = db
                 .Reservations
-                .Where(r => r.StartDate.Date == DateTime.Now.Date)
+                .Include("Card")
+                .Include("ReservationType")
+                .Where(r => r.StartDate == DateTime.Today)
                 .Where(r => r.IsCanceled == false)
                 .OrderBy(r => r.FirstName)
                 .ToList();
 
             var lateArrivals = db
                 .Reservations
+                .Include("Card")
+                .Include("ReservationType")
                 .Where(r => r.Confirmed == true)
-                .Where(r => r.StartDate.Date < DateTime.Now.Date)
-                .Where(r => r.EndDate.Date >= DateTime.Now.Date)
+                .Where(r => r.StartDate < DateTime.Today)
+                .Where(r => r.EndDate >= DateTime.Today)
                 .Where(r => r.CheckedIn == false)
                 .Where(r => r.IsCanceled == false)
                 .OrderBy(r => r.FirstName)
@@ -374,6 +374,8 @@ namespace SoftwareEng
             using DatabaseContext db = new DatabaseContext();
             var todaysOccupancies = db
                 .Reservations
+                .Include("Card")
+                .Include("ReservationType")
                 .Where(r => r.CheckedIn == true)
                 .Where(r => r.CheckedOut == false)
                 .OrderBy(r => r.RoomNum)
@@ -400,8 +402,10 @@ namespace SoftwareEng
                 {
                     var count = db
                         .Reservations
-                        .Where(r => r.StartDate.Date <= curDate.Date)
-                        .Where(r => r.EndDate.Date >= curDate.Date)
+                        .Include("Card")
+                        .Include("ReservationID")
+                        .Where(r => r.StartDate <= curDate)
+                        .Where(r => r.EndDate >= curDate)
                         .Where(r => r.ReservationType.ReservationID == i)
                         .Count();
                     resoCount.Add(count);
@@ -429,8 +433,8 @@ namespace SoftwareEng
                         from br in db.BaseRates
                         join brr in db.BaseRatesReservations on br.BaseRateID equals brr.BaseRates.BaseRateID
                         join r in db.Reservations on brr.Reservations.ReservationID equals r.ReservationID
-                        where r.StartDate.Date <= curDate.Date
-                        where r.EndDate.Date >= curDate.Date
+                        where r.StartDate <= curDate
+                        where r.EndDate >= curDate
                         where r.IsCanceled == false
                         where br.EffectiveDate.Date == curDate.Date
                         select br.Rate
@@ -451,7 +455,7 @@ namespace SoftwareEng
 
             using DatabaseContext db = new DatabaseContext();
 
-            DateTime curDate = DateTime.Now.Date;
+            DateTime curDate = DateTime.Now;
             for(int i = 0; i < 30; i++)
             {
                 var loss = (
@@ -489,7 +493,10 @@ namespace SoftwareEng
                     from ct in db.ChangedTo
                     join r in db.Reservations on ct.OldReservation equals r
                     where ct.NewReservation.ReservationID == curResID
-                    select r).SingleOrDefault();
+                    select r)
+                    .Include("Card")
+                    .Include("ReservationType")
+                    .SingleOrDefault();
                     
                 if(reso == null)
                 {
@@ -505,64 +512,64 @@ namespace SoftwareEng
 
         }
         //*******TEST STATEMENTS********************************************************
-        public static void AddReservationTest()
-        {
-            using DatabaseContext db = new DatabaseContext();
+        //public static void AddReservationTest()
+        //{
+        //    using DatabaseContext db = new DatabaseContext();
 
-            BaseRates br1 = new BaseRates()
-            {
-                BaseRateID = 1,
-                Rate = 10,
-                EffectiveDate = DateTime.Now.Date,
-                DateSet = DateTime.Now,
-            };
-            BaseRates br2 = new BaseRates()
-            {
-                BaseRateID = 2,
-                Rate = 10,
-                EffectiveDate = DateTime.Now.AddDays(1).Date,
-                DateSet = DateTime.Now,
-            };
+        //    BaseRates br1 = new BaseRates()
+        //    {
+        //        BaseRateID = 1,
+        //        Rate = 10,
+        //        EffectiveDate = DateTime.Now.Date,
+        //        DateSet = DateTime.Now,
+        //    };
+        //    BaseRates br2 = new BaseRates()
+        //    {
+        //        BaseRateID = 2,
+        //        Rate = 10,
+        //        EffectiveDate = DateTime.Now.AddDays(1).Date,
+        //        DateSet = DateTime.Now,
+        //    };
 
-            db.BaseRates.Add(br1);
-            db.BaseRates.Add(br2);
+        //    db.BaseRates.Add(br1);
+        //    db.BaseRates.Add(br2);
 
-            List<BaseRates> baseRates = new List<BaseRates>() { br1, br2 };
+        //    List<BaseRates> baseRates = new List<BaseRates>() { br1, br2 };
 
-            Reservations reso = new Reservations()
-            {
-                ReservationID = 1,
-                LastName = "Bob",
-                FirstName = "Billy",
-                Email = "ThisIsFake@Fake.com",
-                ReservationType = new ReservationTypes() { ReservationID = 1, PercentOfBase = (float).8 },
-                Price = 20,
-                RoomNum = 1,
-                StartDate = DateTime.Now.Date,
-                EndDate = DateTime.Now.AddDays(2).Date,
-                IsCanceled = false,
-                Paid = true,
-                PaymentDate = DateTime.Now.Date,
-                Confirmed = false,
-                CheckedIn = true,
-                CheckedOut = false,
-                BaseRates = baseRates
-            };
+        //    Reservations reso = new Reservations()
+        //    {
+        //        ReservationID = 1,
+        //        LastName = "Bob",
+        //        FirstName = "Billy",
+        //        Email = "ThisIsFake@Fake.com",
+        //        ReservationType = new ReservationTypes() { ReservationID = 1, PercentOfBase = (float).8 },
+        //        Price = 20,
+        //        RoomNum = 1,
+        //        StartDate = DateTime.Now.Date,
+        //        EndDate = DateTime.Now.AddDays(2).Date,
+        //        IsCanceled = false,
+        //        Paid = true,
+        //        PaymentDate = DateTime.Now.Date,
+        //        Confirmed = false,
+        //        CheckedIn = true,
+        //        CheckedOut = false,
+        //        BaseRates = baseRates
+        //    };
 
-            db.Reservations.Add(reso);
+        //    db.Reservations.Add(reso);
 
-            var rates = db
-                .Reservations
-                .Where(r => r.ReservationID == 1)
-                .First();
+        //    var rates = db
+        //        .Reservations
+        //        .Where(r => r.ReservationID == 1)
+        //        .First();
 
-            db.SaveChanges();
+        //    db.SaveChanges();
 
-            for(int i = 0; i < rates.BaseRates.Count; i++)
-            {
-                Console.WriteLine("Rate " + i + ": " + rates.BaseRates.ToList()[i].Rate);
-            }
+        //    for(int i = 0; i < rates.BaseRates.Count; i++)
+        //    {
+        //        Console.WriteLine("Rate " + i + ": " + rates.BaseRates.ToList()[i].Rate);
+        //    }
 
-        }
+        //}
     }
 }
