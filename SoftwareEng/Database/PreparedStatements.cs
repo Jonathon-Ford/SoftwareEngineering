@@ -189,6 +189,7 @@ namespace SoftwareEng
                 .Reservations
                 .Include("Card")
                 .Include("ReservationType")
+                .Include(r => r.BaseRates)
                 .Where(r => r.FirstName == FName)
                 .Where(r => r.LastName == LName)
                 .ToList();
@@ -393,27 +394,20 @@ namespace SoftwareEng
         /// <returns>List(Reserations)</returns>
         public static List<Reservations> GetReservationsForEmail()
         {
+            var fortyFiveDaysOut = DateTime.Now.AddDays(45).Date;
+            var thirtyDaysOut = DateTime.Now.AddDays(30).Date;
             using DatabaseContext db = new DatabaseContext();
-            var toEmailList = db
+            return db
                 .Reservations
-                .Include("Card")
-                .Include("ReservationType")
-                .ToList();
-
-            toEmailList = toEmailList
+                .Include(r  => r.Card)
+                .Include(r => r.ReservationType)
+                .Include(r => r.BaseRates)
                 .Where(r => r.ReservationType.ReservationID == (int)ReservationTypeCode.SixtyDay)
-                .ToList();
-
-            toEmailList = toEmailList
                 .Where(r => r.Paid == false)
                 .Where(r => r.IsCanceled == false)
+                .Where(r => r.StartDate <= fortyFiveDaysOut)
+                .Where(r => r.StartDate >= thirtyDaysOut)
                 .ToList();
-
-            toEmailList = toEmailList
-                .Where(r => (r.StartDate - DateTime.Now).Days <= 45)
-                .Where(r => (r.StartDate - DateTime.Now).Days >= 30)
-                .ToList();
-            return toEmailList;
         }
 
         /// <summary>
@@ -422,15 +416,18 @@ namespace SoftwareEng
         /// <returns>List(Reservations)</returns>
         public static List<Reservations> GetReservationsToCancelForEmail()
         {
+            var thirtyDaysOut = DateTime.Now.AddDays(30).Date;
             using DatabaseContext db = new DatabaseContext();
-            var toEmailList = db
+            return db
                 .Reservations
+                .Include(r => r.Card)
+                .Include(r => r.ReservationType)
+                .Include(r => r.BaseRates)
                 .Where(r => r.ReservationType.ReservationID == (int)ReservationTypeCode.SixtyDay)
                 .Where(r => r.Paid == false)
                 .Where(r => r.IsCanceled == false)
-                .Where(r => (r.StartDate - DateTime.Now).Days < 30)
+                .Where(r => r.StartDate < thirtyDaysOut)
                 .ToList();
-            return toEmailList;
         }
 
         //******REPORT STATEMENTS******************************************************
@@ -531,16 +528,13 @@ namespace SoftwareEng
             for(int i = 0; i < 30; i++)// For thrity days
             {
                 var income =
-                    (
-                        from br in db.BaseRates
-                        join brr in db.BaseRatesReservations on br.BaseRateID equals brr.BaseRates.BaseRateID
-                        join r in db.Reservations on brr.Reservations.ReservationID equals r.ReservationID
-                        where r.StartDate <= curDate
-                        where r.EndDate >= curDate
-                        where r.IsCanceled == false
-                        where br.EffectiveDate.Date == curDate.Date
-                        select br.Rate
-                    ).Sum(); //join base rates with reservations via the many to many table base rates reservations, get the daily rate from the reservations that are for that day
+                    db.BaseRates.Include(b => b.Reservations
+                                            .Where(r => r.StartDate <= curDate)
+                                            .Where(r => r.EndDate >= curDate)
+                                            .Where(r => r.IsCanceled == false))
+                        .Where(b => b.EffectiveDate.Date == curDate.Date)
+                        .Select(x => x.Rate)
+                        .Sum(); //join base rates with reservations via the many to many table base rates reservations, get the daily rate from the reservations that are for that day
 
                 incomeList.Add(income);
             }
@@ -561,17 +555,14 @@ namespace SoftwareEng
             DateTime curDate = DateTime.Now;
             for(int i = 0; i < 30; i++)
             {
-                var loss = (
-                        from br in db.BaseRates
-                        join brr in db.BaseRatesReservations on br.BaseRateID equals brr.BaseRates.BaseRateID
-                        join r in db.Reservations on brr.Reservations.ReservationID equals r.ReservationID
-                        where r.StartDate.Date <= curDate.Date
-                        where r.EndDate.Date >= curDate.Date
-                        where r.IsCanceled == false
-                        where r.ReservationType.ReservationID == 4 //4 is incentive
-                        where br.EffectiveDate.Date == curDate.Date
-                        select br.Rate
-                    ).Sum();
+                var loss = db.BaseRates.Include(b => b.Reservations
+                                                    .Where(r => r.StartDate <= curDate.Date)
+                                                    .Where(r => r.EndDate >= curDate.Date)
+                                                    .Where(r => r.IsCanceled == false)
+                                                    .Where(r => r.ReservationType.ReservationID == (int)ReservationTypeCode.Incentive))
+                    .Where(b => b.EffectiveDate == curDate.Date)
+                    .Select(x => x.Rate)
+                    .Sum();
 
                 loss *= (float)0.2; // 20% of base rate is equal to the amount lost due to incentive rate
                 losses.Add(loss);
@@ -594,15 +585,24 @@ namespace SoftwareEng
             int curResID = reservation.ReservationID;
             while (true)
             {
-                var reso = (
-                    from ct in db.ChangedTo
-                    join r in db.Reservations on ct.OldReservation equals r
-                    where ct.NewReservation.ReservationID == curResID
-                    select r)
-                    .Include("BaseRates")
-                    .Include("Card")
-                    .Include("ReservationType")
-                    .SingleOrDefault();
+                var reso = db
+                    .ChangedTo
+                    .Include(ct => ct.OldReservation)
+                    .Include(ct => ct.OldReservation.BaseRates)
+                    .Include(ct => ct.OldReservation.Card)
+                    .Include(ct => ct.OldReservation.ReservationType)
+                    .Where(ct => ct.NewReservation == reservation)
+                    .Select(ct => ct.OldReservation).SingleOrDefault();
+
+                    //(
+                    //from ct in db.ChangedTo
+                    //join r in db.Reservations on ct.OldReservation equals r
+                    //where ct.NewReservation.ReservationID == curResID
+                    //select r)
+                    //.Include(r => r.BaseRates)
+                    //.Include(r => r.Card)
+                    //.Include(r => r.ReservationType)
+                    //.SingleOrDefault();
                     
                 if(reso == null)
                 {
