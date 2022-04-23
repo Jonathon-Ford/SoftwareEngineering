@@ -55,7 +55,7 @@ namespace SoftwareEng
 
         private static void SendEmail(MailAddressCollection to, MailAddress from, string subject, string body)
         {
-            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             MailMessage message = new MailMessage();
 
             foreach (var addr in to)
@@ -66,10 +66,10 @@ namespace SoftwareEng
             message.Subject = subject;
             message.Body = body;
             SmtpClient client = new SmtpClient("smtp.gmail.com");
-            //client.Port = 587;
+            client.Port = 587;
             // Credentials are necessary if the server requires the client
             // to authenticate before it will send email on the client's behalf.
-            //client.UseDefaultCredentials = true;
+            client.UseDefaultCredentials = true;
 
             try
             {
