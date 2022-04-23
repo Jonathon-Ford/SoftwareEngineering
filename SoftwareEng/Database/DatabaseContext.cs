@@ -17,7 +17,7 @@ namespace SoftwareEng.DataModels
         public DbSet<CreditCards> CreditCards { get; set; }
         public DbSet<BaseRates> BaseRates { get; set; }
         public DbSet<ChangedTo> ChangedTo { get; set; }
-        public DbSet<BaseRatesReservations> BaseRatesReservations{ get; set; }
+        //public DbSet<BaseRatesReservations> BaseRatesReservations{ get; set; }
         public string DbPath { get; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -40,8 +40,8 @@ namespace SoftwareEng.DataModels
             modelBuilder.Entity<Reservations>()
                 .Property("EndDate")
                 .HasColumnType("date");
-            modelBuilder.Entity<BaseRatesReservations>()
-                .HasKey("BaseRatesBaseRateID", "ReservationsReservationID");
+            //modelBuilder.Entity<BaseRatesReservations>()
+            //    .HasKey("BaseRatesBaseRateID", "ReservationsReservationID");
             modelBuilder
                 .Entity<BaseRates>()
                 .HasMany(x => x.Reservations)

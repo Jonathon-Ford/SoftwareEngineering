@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
@@ -9,7 +10,7 @@ namespace SoftwareEng
 {
     public static class Email
     {
-        private static MailAddress _hotelEmailAddress = new MailAddress("ophelias.oasis@gmail.com", "Ophelia's Oasis");
+        private static MailAddress _hotelEmailAddress = new MailAddress("annarose0987@gmail.com", "Ophelia's Oasis");
         public static void GenerateDailyEmails()
         {
             GeneratePaymentReminder();
@@ -24,6 +25,7 @@ namespace SoftwareEng
 
             foreach (var res in reservationsDue)
             {
+                toAddresses.Clear();
                 toAddresses.Add(res.Email);
                 subject = "Payment Due for Reservation at Ophelia's Oasis";
                 body = $"We are looking forward to your arrival on {res.StartDate}. In order to retain your reservation, please pay the " +
@@ -42,6 +44,7 @@ namespace SoftwareEng
 
             foreach (var res in reservationsOverdue)
             {
+                toAddresses.Clear();
                 toAddresses.Add(res.Email);
                 subject = "Unpaid Reservation Cancelled";
                 body = $"This message is being sent to inform you that your reservation beginning {res.StartDate} has been cancelled because it was not paid by the due date.";
@@ -52,15 +55,21 @@ namespace SoftwareEng
 
         private static void SendEmail(MailAddressCollection to, MailAddress from, string subject, string body)
         {
+            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             MailMessage message = new MailMessage();
-            message.To.Concat(to);
+
+            foreach (var addr in to)
+            {
+                message.To.Add(addr);
+            }
             message.From = from;
             message.Subject = subject;
             message.Body = body;
             SmtpClient client = new SmtpClient("smtp.gmail.com");
+            //client.Port = 587;
             // Credentials are necessary if the server requires the client
             // to authenticate before it will send email on the client's behalf.
-            client.UseDefaultCredentials = true;
+            //client.UseDefaultCredentials = true;
 
             try
             {
@@ -68,7 +77,11 @@ namespace SoftwareEng
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine("Failed to send email to ");
+                foreach(var addr in message.To)
+                {
+                    Console.WriteLine(addr);
+                }
             }
         }
     }
