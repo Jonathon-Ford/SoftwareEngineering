@@ -14,9 +14,9 @@ namespace SoftwareEng
         public enum ReservationTypeCode
         {
             Prepaid = 1,
-            SixtyDay = 2,
-            Conventional = 3,
-            Incentive = 4
+            SixtyDay = 3,
+            Conventional = 4,
+            Incentive = 5
         }
  
         public static void MakeReservation()
