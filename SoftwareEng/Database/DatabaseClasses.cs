@@ -32,7 +32,7 @@ public class Reservations
     [Required]
     public ReservationTypes ReservationType { get; set; }// Not null
     [Required]
-    public int Price { get; set; }// Not null
+    public double Price { get; set; }// Not null
     public int RoomNum { get; set; }
     [Required]
     [Column(TypeName = "Date")]

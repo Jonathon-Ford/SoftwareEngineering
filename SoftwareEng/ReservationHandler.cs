@@ -21,9 +21,10 @@ namespace SoftwareEng
  
         public static void MakeReservation()
         {
-            bool invalidStartDate = true, invalidEndDate = true, invalidEmail = true, full = true;
-            string dateString, emailString;
-            int roomsLeft;
+            bool invalidStartDate = true, invalidEndDate = true, invalidEmail = true, invalidcardNum = true, invalidCvv = true, full = true;
+            string dateString, emailString, cardNumString, cvvString;
+            long cardNum;
+            int roomsLeft, cvv;
             DateTime startDate = new DateTime(), endDate = new DateTime();
             List<int> dailyOccupancies = new List<int>();
             Reservations newReservation = new Reservations();
@@ -90,6 +91,20 @@ namespace SoftwareEng
                 Description = DetermineReservationType(dailyOccupancies, startDate).ToString()
             };
 
+            try
+            {
+            newReservation.BaseRates = PreparedStatements.GetBaseRates(startDate, endDate).DistinctBy(r => r.BaseRateID).ToList();
+            newReservation.Price = CalculateReservationPrice(newReservation);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return;
+            }
+
+            if (newReservation.Price == 0)
+                return;
+
             Console.WriteLine("Please enter the guest's information\nFirst name:");
             newReservation.FirstName = Console.ReadLine();
             Console.WriteLine("Last name:");
@@ -110,20 +125,61 @@ namespace SoftwareEng
 
             if (newReservation.ReservationType.Description != ReservationTypeCode.SixtyDay.ToString())
             {
-                Console.WriteLine("Please enter payment information");
-                Console.WriteLine("Credit card number:");
-                newReservation.Card.CardNum = long.Parse(Console.ReadLine());
-                Console.WriteLine("CVV:");
-                newReservation.Card.CVVNum = int.Parse(Console.ReadLine());
-                //loop until the expiration date is valid
+                //loop until the card information is valid
                 while (true)
                 {
-                    Console.WriteLine("Expiration date:");
-                    dateString = Console.ReadLine();
+                    Console.WriteLine("Please enter payment information");
 
-                    if (IsDateValid(dateString))
+                    while (true)
                     {
-                        newReservation.Card.ExpiryDate = Convert.ToDateTime(dateString);
+                        Console.WriteLine("Credit card number (XXXXXXXXXXXXXXXX):");
+                        cardNumString = Console.ReadLine().Trim();
+
+                        if (cardNumString.Length == 16 && long.TryParse(cardNumString, out cardNum))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid input for card number; please try again");
+                        }
+                    }
+
+                    while (true)
+                    {
+                        Console.WriteLine("CVV (XXX or XXXX):");
+                        cvvString = Console.ReadLine().Trim();
+
+                        if((cvvString.Length == 3 || cvvString.Length == 4) && int.TryParse(cvvString, out cvv))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid input for card number; please try again");
+                        }
+                    }
+
+                    while (true)
+                    {
+                        Console.WriteLine("Expiration date:");
+                        dateString = Console.ReadLine();
+
+                        if (IsDateValid(dateString))
+                        {
+                            newReservation.Card.ExpiryDate = Convert.ToDateTime(dateString);
+                            break;
+                        }
+                    }
+
+                    if(!IsCardValid(cardNum, cvv, newReservation.Card.ExpiryDate))
+                    {
+                        Console.WriteLine("No card found with the given information; please try again");
+                    }
+                    else
+                    {
+                        newReservation.Card.CardNum = cardNum;
+                        newReservation.Card.CVVNum = cvv;
                         break;
                     }
                 }
@@ -377,6 +433,52 @@ namespace SoftwareEng
             catch (Exception)
             {
                 return false;
+            }
+        }
+
+        private static bool IsCardValid(long cardNum, int cvv, DateTime expiration)
+        {
+            try
+            {
+                CreditCards possibleCard = new CreditCards()
+                {
+                    CardNum = cardNum,
+                    CVVNum = cvv,
+                    ExpiryDate = expiration
+                };
+                CreditCards cardResult;
+            
+                cardResult = PreparedStatements.FindCardByNum(possibleCard);
+
+                if (cardResult != null && cardResult.CVVNum == possibleCard.CVVNum && cardResult.ExpiryDate == possibleCard.ExpiryDate)
+                    return true;
+                else
+                    return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static double CalculateReservationPrice(Reservations reservation)
+        {
+            try
+            {
+                var rates = reservation.BaseRates.ToList();
+
+                var reservationTypeInfo = PreparedStatements.GetReservationTypeDetails(reservation.ReservationType);
+
+                //Multiply each element by the percentage determined by the reservation type
+                rates.ForEach(r => r.Rate *= reservationTypeInfo.PercentOfBase / 100);
+
+                //Return the sum of all the daily rates
+                return rates.Sum<BaseRates>(r => r.Rate);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return 0;
             }
         }
     }

@@ -42,6 +42,11 @@ namespace SoftwareEng.DataModels
                 .HasColumnType("date");
             modelBuilder.Entity<BaseRatesReservations>()
                 .HasKey("BaseRatesBaseRateID", "ReservationsReservationID");
+            modelBuilder
+                .Entity<BaseRates>()
+                .HasMany(x => x.Reservations)
+                .WithMany(x => x.BaseRates)
+                .UsingEntity(j => j.ToTable("BaseRatesReservations"));
         }
     }
 }
