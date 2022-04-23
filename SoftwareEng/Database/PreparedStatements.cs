@@ -363,9 +363,18 @@ namespace SoftwareEng
                 .Reservations
                 .Include("Card")
                 .Include("ReservationType")
-                .Where(r => r.ReservationType.ReservationID == 2) //2 is for 60 day reservations
+                .ToList();
+
+            toEmailList = toEmailList
+                .Where(r => r.ReservationType.ReservationID == (int)ReservationTypeCode.SixtyDay)
+                .ToList();
+
+            toEmailList = toEmailList
                 .Where(r => r.Paid == false)
                 .Where(r => r.IsCanceled == false)
+                .ToList();
+
+            toEmailList = toEmailList
                 .Where(r => (r.StartDate - DateTime.Now).Days <= 45)
                 .Where(r => (r.StartDate - DateTime.Now).Days >= 30)
                 .ToList();
