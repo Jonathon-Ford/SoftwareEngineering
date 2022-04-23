@@ -294,7 +294,7 @@ namespace SoftwareEng
                 {
                     DateTime start = billableResos[i].StartDate;
                     DateTime end = billableResos[i].EndDate;
-                    float price = billableResos[i].Price;
+                    double price = billableResos[i].Price;
 
                     data += "-----------------------------------------------\n"
                         + "Old start date: " + start.ToString("dd/MM/yyyy") + "\n"

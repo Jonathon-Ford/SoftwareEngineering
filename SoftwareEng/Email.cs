@@ -27,7 +27,7 @@ namespace SoftwareEng
                 toAddresses.Add(res.Email);
                 subject = "Payment Due for Reservation at Ophelia's Oasis";
                 body = $"We are looking forward to your arrival on {res.StartDate}. In order to retain your reservation, please pay the " +
-                    $"full bill by {DateTime.Now.AddDays(-30)}. Thank you for booking a stay with us!\n\n";
+                    $"full bill by {res.StartDate.AddDays(-30)}. Thank you for booking a stay with us!\n\n";
                 body += ReportGenerator.GenerateReservationHistory(PreparedStatements.GetAllResosToBeBilled(res));
 
                 SendEmail(toAddresses, _hotelEmailAddress, subject, body);

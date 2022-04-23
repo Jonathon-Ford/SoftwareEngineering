@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using SoftwareEng.DataModels;
@@ -243,15 +244,49 @@ namespace SoftwareEng
 
             for (var day = startDate.Date; day < endDate.Date; day.AddDays(1))
             {
-                var curPrice = db
-                    .BaseRates
-                    .Where(br => br.EffectiveDate.Date == day.Date)
-                    .OrderByDescending(br => br.DateSet)
-                    .First();
+                try
+                {
+                    var curPrice = db
+                        .BaseRates
+                        .Where(br => br.EffectiveDate.Date == day.Date)
+                        .OrderByDescending(br => br.DateSet)
+                        .First();
 
-                rates.Add(curPrice);
+                    rates.Add(curPrice);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                    throw new Exception("ERROR: Could not find base rate for " + day + "\n");
+                }
             }
             return rates;
+        }
+
+        public static ReservationTypes GetReservationTypeDetails(ReservationTypes type)
+        {
+            try
+            {
+                using DatabaseContext db = new DatabaseContext();
+                return db
+                    .ReservationTypes
+                    .Where(rt => rt.ReservationID == type.ReservationID)
+                    .Single();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+                throw new Exception("ERROR: Could not retrieve details for " + type.Description + " reservation type");
+            }
+        }
+
+        public static CreditCards FindCardByNum(CreditCards card)
+        {
+            using DatabaseContext db = new DatabaseContext();
+            return db
+                .CreditCards
+                .Where(cc => cc.CardNum == card.CardNum)
+                .Single();
         }
 
         /// <summary>
@@ -564,6 +599,7 @@ namespace SoftwareEng
                     join r in db.Reservations on ct.OldReservation equals r
                     where ct.NewReservation.ReservationID == curResID
                     select r)
+                    .Include("BaseRates")
                     .Include("Card")
                     .Include("ReservationType")
                     .SingleOrDefault();
