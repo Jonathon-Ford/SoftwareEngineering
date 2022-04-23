@@ -261,6 +261,7 @@ static void CheckInGuest()
                 for (int i = 0; i < reservations.Count; i++)
                 {
                     Console.WriteLine("Reservation " + i);
+                    Console.WriteLine("Room number: " + reservations[i].RoomNum);
                     Console.WriteLine("First name: " + reservations[i].FirstName);
                     Console.WriteLine("Last name: " + reservations[i].LastName);
                     Console.WriteLine("Email: " + reservations[i].Email);
@@ -329,6 +330,14 @@ static void CheckOutGuest()
                 for (int i = 0; i < reservations.Count; i++)
                 {
                     Console.WriteLine("Reservation " + i);
+                    Console.WriteLine("Room number: " + reservations[i].RoomNum);
+                    Console.WriteLine("Room number: " + reservations[i].ReservationType);
+                    Console.WriteLine("First name: " + reservations[i].FirstName);
+                    Console.WriteLine("Last name: " + reservations[i].LastName);
+                    Console.WriteLine("Email: " + reservations[i].Email);
+                    Console.WriteLine("Start date: " + reservations[i].StartDate);
+                    Console.WriteLine("Last date: " + reservations[i].EndDate);
+                    Console.WriteLine("Total price: " + reservations[i].Price);
                 }
 
                 do
