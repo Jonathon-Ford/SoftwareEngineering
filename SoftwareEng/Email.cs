@@ -1,8 +1,10 @@
-﻿using System;
-using System.Net;
+﻿using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
+using MimeKit.Text;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,7 +12,7 @@ namespace SoftwareEng
 {
     public static class Email
     {
-        private static MailAddress _hotelEmailAddress = new MailAddress("annarose0987@gmail.com", "Ophelia's Oasis");
+        private static MailboxAddress _hotelEmailAddress = new MailboxAddress("Ophelia's Oasis", "annarose0987@gmail.com");
         public static void GenerateDailyEmails()
         {
             GeneratePaymentReminder();
@@ -20,60 +22,49 @@ namespace SoftwareEng
         private static void GeneratePaymentReminder()
         {
             var reservationsDue = PreparedStatements.GetReservationsForEmail();
-            var toAddresses = new MailAddressCollection();
             string subject = "", body = "";
 
             foreach (var res in reservationsDue)
             {
-                toAddresses.Clear();
-                toAddresses.Add(res.Email);
                 subject = "Payment Due for Reservation at Ophelia's Oasis";
                 body = $"We are looking forward to your arrival on {res.StartDate}. In order to retain your reservation, please pay the " +
                     $"full bill by {res.StartDate.AddDays(-30)}. Thank you for booking a stay with us!\n\n";
                 body += ReportGenerator.GenerateReservationHistory(PreparedStatements.GetAllResosToBeBilled(res));
 
-                SendEmail(toAddresses, _hotelEmailAddress, subject, body);
+                SendEmail(MailboxAddress.Parse(res.Email), _hotelEmailAddress, subject, body);
             }
         }
 
         private static void GenerateCancellationNotification()
         {
             var reservationsOverdue = PreparedStatements.GetReservationsToCancelForEmail();
-            var toAddresses = new MailAddressCollection();
             string subject = "", body = "";
 
             foreach (var res in reservationsOverdue)
             {
-                toAddresses.Clear();
-                toAddresses.Add(res.Email);
                 subject = "Unpaid Reservation Cancelled";
                 body = $"This message is being sent to inform you that your reservation beginning {res.StartDate} has been cancelled because it was not paid by the due date.";
 
-                SendEmail(toAddresses, _hotelEmailAddress, subject, body);
+                SendEmail(MailboxAddress.Parse(res.Email), _hotelEmailAddress, subject, body);
             }
         }
 
-        private static void SendEmail(MailAddressCollection to, MailAddress from, string subject, string body)
-        {
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            MailMessage message = new MailMessage();
-
-            foreach (var addr in to)
-            {
-                message.To.Add(addr);
-            }
-            message.From = from;
+        private static void SendEmail(MailboxAddress to, MailboxAddress from, string subject, string body)
+        {            
+            MimeMessage message = new MimeMessage();
+            message.From.Add(from);
+            message.To.Add(to);
             message.Subject = subject;
-            message.Body = body;
-            SmtpClient client = new SmtpClient("smtp.gmail.com");
-            client.Port = 587;
-            // Credentials are necessary if the server requires the client
-            // to authenticate before it will send email on the client's behalf.
-            client.UseDefaultCredentials = true;
+            message.Body = new TextPart(TextFormat.Plain) { Text = body };
+            
+            using SmtpClient client = new SmtpClient();
 
             try
             {
+                client.Connect("smtp.gmail.com", 587, SecureSocketOptions.Auto);
+                client.Authenticate("aschaf38@gmail.com", "AS*cm!0918");
                 client.Send(message);
+                client.Disconnect(true);
             }
             catch (Exception ex)
             {
