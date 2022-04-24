@@ -124,9 +124,6 @@ namespace SoftwareEng
             }
         }
 
-        /* Adds a new base rate, if there is already a base rate for that day it is ok, this will be used in the future
-         * 
-         */
         /// <summary>
         /// Adds a new base rate, if there is already a base rate for that day it is ok, this will be used in the future
         /// </summary>
@@ -243,7 +240,7 @@ namespace SoftwareEng
             using DatabaseContext db = new DatabaseContext();
             List<BaseRates> rates = new List<BaseRates>();
 
-            for (var day = startDate.Date; day < endDate.Date; day.AddDays(1))
+            for (var day = startDate.Date; day < endDate.Date; day = day.AddDays(1))
             {
                 try
                 {
@@ -319,6 +316,9 @@ namespace SoftwareEng
             db.Reservations.Add(resoToAdd);
             db.Entry(resoToAdd.Card).State = EntityState.Unchanged;
             db.Entry(resoToAdd.ReservationType).State = EntityState.Unchanged;
+
+            foreach(var rate in resoToAdd.BaseRates)
+                db.Entry(rate).State = EntityState.Unchanged;
             db.SaveChanges();
         }
 

@@ -86,14 +86,11 @@ namespace SoftwareEng
 
             newReservation.StartDate = startDate;
             newReservation.EndDate = endDate;
-            newReservation.ReservationType = new ReservationTypes()
-            {
-                Description = DetermineReservationType(dailyOccupancies, startDate).ToString()
-            };
+            newReservation.ReservationType = DetermineReservationType(dailyOccupancies, startDate);
 
             try
             {
-            newReservation.BaseRates = PreparedStatements.GetBaseRates(startDate, endDate).DistinctBy(r => r.BaseRateID).ToList();
+            newReservation.BaseRates = PreparedStatements.GetBaseRates(startDate, endDate).ToList();
             newReservation.Price = CalculateReservationPrice(newReservation);
             }
             catch (Exception e)
@@ -156,7 +153,7 @@ namespace SoftwareEng
                         }
                         else
                         {
-                            Console.WriteLine("Invalid input for card number; please try again");
+                            Console.WriteLine("Invalid input for CVV; please try again");
                         }
                     }
 
@@ -379,25 +376,34 @@ namespace SoftwareEng
 
         //}
 
-        private static ReservationTypeCode DetermineReservationType(List<int> dailyOccupancies, DateTime startDate)
+        private static ReservationTypes DetermineReservationType(List<int> dailyOccupancies, DateTime startDate)
         {
             var daysOut = (startDate - DateTime.Now).Days;
+            var type = new ReservationTypes();
 
             if(daysOut >= 90)
             {
-                return ReservationTypeCode.Prepaid;
+                type.ReservationID = (int)ReservationTypeCode.Prepaid;
+                type.Description = ReservationTypeCode.Prepaid.ToString();
+                return type;
             }
             else if(daysOut >= 60)
             {
-                return ReservationTypeCode.SixtyDay;
+                type.ReservationID = (int)ReservationTypeCode.SixtyDay;
+                type.Description = ReservationTypeCode.SixtyDay.ToString();
+                return type;
             }
             else if(daysOut >= 30 && dailyOccupancies.Average()/TOTAL_ROOMS > 0.6)
             {
-                return ReservationTypeCode.Conventional;
+                type.ReservationID = (int)ReservationTypeCode.Conventional;
+                type.Description = ReservationTypeCode.Conventional.ToString();
+                return type;
             }
             else
             {
-                return ReservationTypeCode.Incentive;
+                type.ReservationID = (int)ReservationTypeCode.Incentive;
+                type.Description = ReservationTypeCode.Incentive.ToString();
+                return type;
             }
         }
 

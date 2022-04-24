@@ -61,10 +61,11 @@ namespace SoftwareEng
 
             try
             {
-                client.Connect("smtp.gmail.com", 587, SecureSocketOptions.Auto);
+                client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
                 client.Authenticate("opheliaoasis2022@gmail.com", "SEoo2022");
                 client.Send(message);
                 client.Disconnect(true);
+                Console.WriteLine("Emails sent");
             }
             catch (Exception ex)
             {
