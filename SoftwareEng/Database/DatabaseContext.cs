@@ -17,16 +17,13 @@ namespace SoftwareEng.DataModels
         public DbSet<CreditCards> CreditCards { get; set; }
         public DbSet<BaseRates> BaseRates { get; set; }
         public DbSet<ChangedTo> ChangedTo { get; set; }
-        //public DbSet<BaseRatesReservations> BaseRatesReservations{ get; set; }
         public string DbPath { get; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             string dataSource = @"134.228.35.6";
-            dataSource = "localhost";
             string database = "Ophelia's Oasis";
             string connString = @"Data Source=" + dataSource + ";Initial Catalog=" + database + ";Integrated Security=False; Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;User=team14;Password=team14";
-            connString = @"Data Source=" + dataSource + ";Initial Catalog=" + database + ";Integrated Security=True; Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
             options.UseSqlServer(connString);
         }
 
@@ -40,8 +37,6 @@ namespace SoftwareEng.DataModels
             modelBuilder.Entity<Reservations>()
                 .Property("EndDate")
                 .HasColumnType("date");
-            //modelBuilder.Entity<BaseRatesReservations>()
-            //    .HasKey("BaseRatesBaseRateID", "ReservationsReservationID");
             modelBuilder
                 .Entity<BaseRates>()
                 .HasMany(x => x.Reservations)

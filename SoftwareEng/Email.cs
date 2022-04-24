@@ -12,7 +12,7 @@ namespace SoftwareEng
 {
     public static class Email
     {
-        private static MailboxAddress _hotelEmailAddress = new MailboxAddress("Ophelia's Oasis", "annarose0987@gmail.com");
+        private static MailboxAddress _hotelEmailAddress = new MailboxAddress("Ophelia's Oasis", "opheliaoasis2022@gmail.com");
         public static void GenerateDailyEmails()
         {
             GeneratePaymentReminder();
@@ -62,7 +62,7 @@ namespace SoftwareEng
             try
             {
                 client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                client.Authenticate("opheliaoasis2022@gmail.com", "SEoo2022");
+                client.Authenticate(_hotelEmailAddress.Address, "SEoo2022");
                 client.Send(message);
                 client.Disconnect(true);
                 Console.WriteLine("Emails sent");
