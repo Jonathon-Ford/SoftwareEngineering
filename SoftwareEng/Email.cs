@@ -62,7 +62,7 @@ namespace SoftwareEng
             try
             {
                 client.Connect("smtp.gmail.com", 587, SecureSocketOptions.Auto);
-                client.Authenticate("aschaf38@gmail.com", "AS*cm!0918");
+                client.Authenticate("opheliaoasis2022@gmail.com", "SEoo2022");
                 client.Send(message);
                 client.Disconnect(true);
             }
