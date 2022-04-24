@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoftwareEng.DataModels;
 
@@ -11,9 +12,10 @@ using SoftwareEng.DataModels;
 namespace SoftwareEng.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20220423154108_ChangedPriceToDouble")]
+    partial class ChangedPriceToDouble
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,7 +58,22 @@ namespace SoftwareEng.Migrations
 
                     b.HasIndex("ReservationsReservationID");
 
-                    b.ToTable("BaseRatesReservations", (string)null);
+                    b.ToTable("BaseRatesReservations");
+                });
+
+            modelBuilder.Entity("BaseRatesReservations1", b =>
+                {
+                    b.Property<int>("BaseRatesBaseRateID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReservationsReservationID")
+                        .HasColumnType("int");
+
+                    b.HasKey("BaseRatesBaseRateID", "ReservationsReservationID");
+
+                    b.HasIndex("ReservationsReservationID");
+
+                    b.ToTable("BaseRatesReservations1");
                 });
 
             modelBuilder.Entity("ChangedTo", b =>
@@ -243,6 +260,25 @@ namespace SoftwareEng.Migrations
                 });
 
             modelBuilder.Entity("BaseRatesReservations", b =>
+                {
+                    b.HasOne("BaseRates", "BaseRates")
+                        .WithMany()
+                        .HasForeignKey("BaseRatesBaseRateID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Reservations", "Reservations")
+                        .WithMany()
+                        .HasForeignKey("ReservationsReservationID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BaseRates");
+
+                    b.Navigation("Reservations");
+                });
+
+            modelBuilder.Entity("BaseRatesReservations1", b =>
                 {
                     b.HasOne("BaseRates", null)
                         .WithMany()

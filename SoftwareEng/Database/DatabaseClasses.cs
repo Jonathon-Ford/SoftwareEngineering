@@ -32,7 +32,7 @@ public class Reservations
     [Required]
     public ReservationTypes ReservationType { get; set; }// Not null
     [Required]
-    public int Price { get; set; }// Not null
+    public double Price { get; set; }// Not null
     public int RoomNum { get; set; }
     [Required]
     [Column(TypeName = "Date")]
@@ -115,12 +115,4 @@ public class ChangedTo
     [Key]
     [Column(Order = 2)]
     public Reservations NewReservation { get; set; }
-}
-[Microsoft.EntityFrameworkCore.Keyless]
-public class BaseRatesReservations
-{
-    [Required]
-    public Reservations Reservations { get; set; }
-    [Required]
-    public BaseRates BaseRates { get; set; }
 }

@@ -68,7 +68,7 @@ namespace SoftwareEng
         /* This function writes the 30 day incentive report to console and saves it to a file in documents
          * 
          */
-        public static void GenerateInsentiveReport()
+        public static void GenerateIncentiveReport()
         {
             String data = "Incentive Report ----- Generated: " + DateTime.Now.ToString("MM/dd/yyyy h:mm tt") + "\n";
             List<float> losses = PreparedStatements.GetIncentiveReportInfo();
@@ -272,27 +272,35 @@ namespace SoftwareEng
          */
         public static void GenerateBill(Payments payment)
         {
-            List<Reservations> billableResos = PreparedStatements.GetAllResosToBeBilled(payment);
+            List<Reservations> billableResos = PreparedStatements.GetAllResosToBeBilled(payment.Reservation);
 
             String data = "Bill Generated: " + DateTime.Now.ToString("MM/dd/yyyy h:mm tt") + "\n";
-            bool changeFee = false;
 
-            if(billableResos.Count > 1)//If the reservation was changed to another date at least once, print the old dates and old price
+            data += GenerateReservationHistory(billableResos);            
+
+            PrintToConsoleAndSaveToDocs(data, "MostRecentBill");
+        }
+
+        public static string GenerateReservationHistory(List<Reservations> billableResos)
+        {
+            bool changeFee = false;
+            string data = "";
+            if (billableResos.Count > 1)//If the reservation was changed to another date at least once, print the old dates and old price
             {
                 changeFee = true;
 
-                data += "Origonal reservation:\n";
-                for(int i = billableResos.Count - 1; i >= 1; i--)
+                data += "Original reservation:\n";
+                for (int i = billableResos.Count - 1; i >= 1; i--)
                 {
                     DateTime start = billableResos[i].StartDate;
                     DateTime end = billableResos[i].EndDate;
-                    float price = billableResos[i].Price;
+                    double price = billableResos[i].Price;
 
                     data += "-----------------------------------------------\n"
                         + "Old start date: " + start.ToString("dd/MM/yyyy") + "\n"
                         + "Old end date: " + end.ToString("dd/MM/yyyy") + "\n"
                         + "Old total price (not billed): " + price + "\n"
-                        + "Changed To:\n" 
+                        + "Changed To:\n"
                         + "----------------------------------------------\n";
                 }
             }
@@ -322,7 +330,7 @@ namespace SoftwareEng
 
             data += "Total: " + billableResos[0].Price;
 
-            PrintToConsoleAndSaveToDocs(data, "MostRecentBill");
+            return data;
         }
     }
 }

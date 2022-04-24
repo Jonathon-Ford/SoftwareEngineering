@@ -178,3 +178,8 @@ D:\schaf\source\repos\SoftwareEngineering\SoftwareEng\obj\Debug\net6.0\refint\So
 D:\schaf\source\repos\SoftwareEngineering\SoftwareEng\obj\Debug\net6.0\SoftwareEng.pdb
 D:\schaf\source\repos\SoftwareEngineering\SoftwareEng\obj\Debug\net6.0\SoftwareEng.genruntimeconfig.cache
 D:\schaf\source\repos\SoftwareEngineering\SoftwareEng\obj\Debug\net6.0\ref\SoftwareEng.dll
+D:\schaf\source\repos\SoftwareEngineering\SoftwareEng\bin\Debug\net6.0\MailKit.dll
+D:\schaf\source\repos\SoftwareEngineering\SoftwareEng\bin\Debug\net6.0\MimeKit.dll
+D:\schaf\source\repos\SoftwareEngineering\SoftwareEng\bin\Debug\net6.0\BouncyCastle.Crypto.dll
+D:\schaf\source\repos\SoftwareEngineering\SoftwareEng\bin\Debug\net6.0\System.Security.Cryptography.Pkcs.dll
+D:\schaf\source\repos\SoftwareEngineering\SoftwareEng\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Security.Cryptography.Pkcs.dll
