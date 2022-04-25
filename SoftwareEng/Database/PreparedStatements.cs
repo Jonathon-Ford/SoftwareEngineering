@@ -403,7 +403,7 @@ namespace SoftwareEng
                     var count = db
                         .Reservations
                         .Include("Card")
-                        .Include("ReservationID")
+                        .Include("ReservationType")
                         .Where(r => r.StartDate <= curDate)
                         .Where(r => r.EndDate >= curDate)
                         .Where(r => r.ReservationType.ReservationID == i)

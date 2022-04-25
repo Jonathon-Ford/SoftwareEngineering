@@ -45,8 +45,16 @@ static void Main(Users currentUser)
             var key = Console.ReadKey(true);
             if (key.Key == ConsoleKey.Enter)
                 break;
-            Console.Write("*");
-            password += key.KeyChar;
+            else if (key.Key == ConsoleKey.Backspace)
+            {
+                Console.Write("\b \b");
+                password = password.Remove(password.Length - 1, 1);
+            }
+            else
+            {
+                Console.Write("*");
+                password += key.KeyChar;
+            }
         }
 
         Console.WriteLine("\nChecking credentials...");
@@ -64,8 +72,16 @@ static void Main(Users currentUser)
                 var key = Console.ReadKey(true);
                 if (key.Key == ConsoleKey.Enter)
                     break;
-                Console.Write("*");
-                password += key.KeyChar;
+                else if (key.Key == ConsoleKey.Backspace)
+                {
+                    Console.Write("\b \b");
+                    password = password.Remove(password.Length - 1, 1);
+                }
+                else
+                {
+                    Console.Write("*");
+                    password += key.KeyChar;
+                }
             }
 
             remainingAttempts--;
