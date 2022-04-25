@@ -99,9 +99,14 @@ static void Main(Users currentUser)
         }
     }
     string command = "";
+    int numCommands = 11;
+    if(currentUser.RoleName == "Management")
+    {
+        numCommands = 18;
+    }
     while (!String.Equals(command, "q"))//Until the user logs out, print the options and read what they would like to do
     {
-        Console.WriteLine("Input your desired function (1 - 15) or q to log out:");
+        Console.WriteLine("Input your desired function (1 - "+ numCommands +") or q to log out:");
         Console.WriteLine("1  - Make a reservation");
         Console.WriteLine("2  - Edit a reservation");
         Console.WriteLine("3  - Cancel a reservation");
