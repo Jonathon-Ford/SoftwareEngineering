@@ -222,10 +222,9 @@ namespace SoftwareEng
 
                 data += String.Format("{0,-50} {1,-20} {2,-15} {3, -15} \n",
                     name, reso, roomNum, endTime);
-
-
-                PrintToConsoleAndSaveToDocs(data, "DailyArrivalsReport");
             }
+
+            PrintToConsoleAndSaveToDocs(data, "DailyArrivalsReport");
         }
 
         /* This function prints the 30 day incentive report to the console and saves it to a file in documents

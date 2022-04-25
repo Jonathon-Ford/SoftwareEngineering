@@ -150,14 +150,15 @@ static void Main(Users currentUser)
                 }
                 break;
             case "13":
-                //if(String.Equals(currentUser.role, "Management"){
-                //  GenerateExpectedOccupancyReport();
-                //}
+                if (String.Equals(currentUser.RoleName, "Management")){
+                    SoftwareEng.ReportGenerator.GenerateThirtyDayIncomeReport();
+                }
                 break;
             case "14":
-                //if(String.Equals(currentUser.role, "Management"){
-                //  GenerateExpectedOccupancyReport();
-                //}
+                if (String.Equals(currentUser.RoleName, "Management"))
+                {
+                    SoftwareEng.ReportGenerator.GenerateInsentiveReport();
+                }
                 break;
             case "15":
                 //if(String.Equals(currentUser.role, "Management"){
