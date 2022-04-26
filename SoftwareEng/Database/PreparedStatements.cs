@@ -617,6 +617,20 @@ namespace SoftwareEng
             return ressos;
 
         }
+
+        public static void AddPayment(Payments payment)
+        {
+            using DatabaseContext db = new DatabaseContext();
+
+            db.Payments.Add(payment);
+            db.Entry(payment.Card).State = EntityState.Unchanged;
+            db.Entry(payment.Reservation).State = EntityState.Unchanged;
+
+            foreach (var rate in resoToAdd.BaseRates)
+                db.Entry(rate).State = EntityState.Unchanged;
+            db.SaveChanges();
+        }
+
         //*******TEST STATEMENTS********************************************************
         //public static void AddReservationTest()
         //{
