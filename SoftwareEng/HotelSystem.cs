@@ -182,9 +182,9 @@ static void Main(Users currentUser)
                 }
                 break;
             case "15":
-                //if(String.Equals(currentUser.role, "Management"){
-                //  GenerateExpectedOccupancyReport();
-                //}
+                if (String.Equals(currentUser.RoleName, "Management")){
+                    //Set base rate
+                }
                 break;
             case "16":
                 if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
@@ -523,23 +523,21 @@ static void ConfigureBaseRate()
 {
 
 }
-/*
+/* Waits until midnight and then sets room numbers for that days arrivals and cancels 60 day
  * 
  */
 static void SystemTriggered()
 {
-    while (true)
-    {
-        //Wait until midngiht
-        var now = DateTime.Now;
-        var tomorrow = now.AddDays(1);
-        var durationUntilMidnight = tomorrow.Date - now;
 
-        var t = new Timer(o => {/* Do work*/}, null, TimeSpan.Zero, durationUntilMidnight);
+    //Wait until midngiht
+    var now = DateTime.Now;
+    var tomorrow = now.AddDays(1);
+    var durationUntilMidnight = tomorrow.Date - now;
 
-        ReportGenerator.SetRoomNumbers();
-    }
+    var t = new Timer(o => { ReportGenerator.SetRoomNumbers(); /*Cancel 60 days*/ SystemTriggered(); }, null, TimeSpan.Zero, durationUntilMidnight);
+
 }
 
 Thread atMidnight = new Thread(SystemTriggered);
-Main(currentUser);
+//while(true)
+    Main(currentUser);
