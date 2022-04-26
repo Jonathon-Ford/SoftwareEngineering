@@ -11,7 +11,7 @@ namespace SoftwareEng
     {
         public const int TOTAL_ROOMS = 45;
 
-        private enum ReservationType
+        public enum ReservationTypeCode
         {
             Prepaid = 1,
             SixtyDay = 2,
@@ -21,9 +21,10 @@ namespace SoftwareEng
  
         public static void MakeReservation()
         {
-            bool invalidStartDate = true, invalidEndDate = true, invalidEmail = true, full = true;
-            string dateString, emailString;
-            int roomsLeft;
+            bool invalidStartDate = true, invalidEndDate = true, invalidEmail = true, invalidcardNum = true, invalidCvv = true, full = true;
+            string dateString, emailString, cardNumString, cvvString;
+            long cardNum;
+            int roomsLeft, cvv;
             DateTime startDate = new DateTime(), endDate = new DateTime();
             List<int> dailyOccupancies = new List<int>();
             Reservations newReservation = new Reservations();
@@ -85,10 +86,21 @@ namespace SoftwareEng
 
             newReservation.StartDate = startDate;
             newReservation.EndDate = endDate;
-            newReservation.ReservationType = new ReservationTypes()
+            newReservation.ReservationType = DetermineReservationType(dailyOccupancies, startDate);
+
+            try
             {
-                Description = DetermineReservationType(dailyOccupancies, startDate).ToString()
-            };
+            newReservation.BaseRates = PreparedStatements.GetBaseRates(startDate, endDate).ToList();
+            newReservation.Price = CalculateReservationPrice(newReservation);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return;
+            }
+
+            if (newReservation.Price == 0)
+                return;
 
             Console.WriteLine("Please enter the guest's information\nFirst name:");
             newReservation.FirstName = Console.ReadLine();
@@ -108,22 +120,63 @@ namespace SoftwareEng
                     Console.WriteLine("Invalid email; please try again");
             }
 
-            if (newReservation.ReservationType.Description != ReservationType.SixtyDay.ToString())
+            if (newReservation.ReservationType.Description != ReservationTypeCode.SixtyDay.ToString())
             {
-                Console.WriteLine("Please enter payment information");
-                Console.WriteLine("Credit card number:");
-                newReservation.Card.CardNum = long.Parse(Console.ReadLine());
-                Console.WriteLine("CVV:");
-                newReservation.Card.CVVNum = int.Parse(Console.ReadLine());
-                //loop until the expiration date is valid
+                //loop until the card information is valid
                 while (true)
                 {
-                    Console.WriteLine("Expiration date:");
-                    dateString = Console.ReadLine();
+                    Console.WriteLine("Please enter payment information");
 
-                    if (IsDateValid(dateString))
+                    while (true)
                     {
-                        newReservation.Card.ExpiryDate = Convert.ToDateTime(dateString);
+                        Console.WriteLine("Credit card number (XXXXXXXXXXXXXXXX):");
+                        cardNumString = Console.ReadLine().Trim();
+
+                        if (cardNumString.Length == 16 && long.TryParse(cardNumString, out cardNum))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid input for card number; please try again");
+                        }
+                    }
+
+                    while (true)
+                    {
+                        Console.WriteLine("CVV (XXX or XXXX):");
+                        cvvString = Console.ReadLine().Trim();
+
+                        if((cvvString.Length == 3 || cvvString.Length == 4) && int.TryParse(cvvString, out cvv))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid input for CVV; please try again");
+                        }
+                    }
+
+                    while (true)
+                    {
+                        Console.WriteLine("Expiration date:");
+                        dateString = Console.ReadLine();
+
+                        if (IsDateValid(dateString))
+                        {
+                            newReservation.Card.ExpiryDate = Convert.ToDateTime(dateString);
+                            break;
+                        }
+                    }
+
+                    if(!IsCardValid(cardNum, cvv, newReservation.Card.ExpiryDate))
+                    {
+                        Console.WriteLine("No card found with the given information; please try again");
+                    }
+                    else
+                    {
+                        newReservation.Card.CardNum = cardNum;
+                        newReservation.Card.CVVNum = cvv;
                         break;
                     }
                 }
@@ -323,25 +376,34 @@ namespace SoftwareEng
 
         //}
 
-        private static ReservationType DetermineReservationType(List<int> dailyOccupancies, DateTime startDate)
+        private static ReservationTypes DetermineReservationType(List<int> dailyOccupancies, DateTime startDate)
         {
             var daysOut = (startDate - DateTime.Now).Days;
+            var type = new ReservationTypes();
 
             if(daysOut >= 90)
             {
-                return ReservationType.Prepaid;
+                type.ReservationID = (int)ReservationTypeCode.Prepaid;
+                type.Description = ReservationTypeCode.Prepaid.ToString();
+                return type;
             }
             else if(daysOut >= 60)
             {
-                return ReservationType.SixtyDay;
+                type.ReservationID = (int)ReservationTypeCode.SixtyDay;
+                type.Description = ReservationTypeCode.SixtyDay.ToString();
+                return type;
             }
             else if(daysOut >= 30 && dailyOccupancies.Average()/TOTAL_ROOMS > 0.6)
             {
-                return ReservationType.Conventional;
+                type.ReservationID = (int)ReservationTypeCode.Conventional;
+                type.Description = ReservationTypeCode.Conventional.ToString();
+                return type;
             }
             else
             {
-                return ReservationType.Incentive;
+                type.ReservationID = (int)ReservationTypeCode.Incentive;
+                type.Description = ReservationTypeCode.Incentive.ToString();
+                return type;
             }
         }
 
@@ -377,6 +439,52 @@ namespace SoftwareEng
             catch (Exception)
             {
                 return false;
+            }
+        }
+
+        private static bool IsCardValid(long cardNum, int cvv, DateTime expiration)
+        {
+            try
+            {
+                CreditCards possibleCard = new CreditCards()
+                {
+                    CardNum = cardNum,
+                    CVVNum = cvv,
+                    ExpiryDate = expiration
+                };
+                CreditCards cardResult;
+            
+                cardResult = PreparedStatements.FindCardByNum(possibleCard);
+
+                if (cardResult != null && cardResult.CVVNum == possibleCard.CVVNum && cardResult.ExpiryDate == possibleCard.ExpiryDate)
+                    return true;
+                else
+                    return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static double CalculateReservationPrice(Reservations reservation)
+        {
+            try
+            {
+                var rates = reservation.BaseRates.ToList();
+
+                var reservationTypeInfo = PreparedStatements.GetReservationTypeDetails(reservation.ReservationType);
+
+                //Multiply each element by the percentage determined by the reservation type
+                rates.ForEach(r => r.Rate *= reservationTypeInfo.PercentOfBase / 100);
+
+                //Return the sum of all the daily rates
+                return rates.Sum<BaseRates>(r => r.Rate);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return 0;
             }
         }
     }

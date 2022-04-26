@@ -156,7 +156,7 @@ static void Main(Users currentUser)
                 CheckOutGuest();
                 break;
             case "9":
-                //GenerateDailyEmails();
+                Email.GenerateDailyEmails();
                 break;
             case "10":
                 ReportGenerator.GenerateDailyArrivalsReport();
