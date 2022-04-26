@@ -178,7 +178,7 @@ static void Main(Users currentUser)
             case "14":
                 if (String.Equals(currentUser.RoleName, "Management"))
                 {
-                    ReportGenerator.GenerateInsentiveReport();
+                    ReportGenerator.GenerateIncentiveReport();
                 }
                 break;
             case "15":

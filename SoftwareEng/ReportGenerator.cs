@@ -90,7 +90,7 @@ namespace SoftwareEng
             }
             float avg = AveragePrice(losses);
 
-            data += "Total loss over all 30 days: " + complete_total;
+            data += "Total loss over all 30 days: \n" + complete_total;
             data += "Average loss over 30 days: " + avg;
 
             PrintToConsoleAndSaveToDocs(data, "IncentiveReport");
