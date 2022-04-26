@@ -337,7 +337,24 @@ namespace SoftwareEng
          */
         public static void SetRoomNumbers()
         {
+            List<Reservations> currentOccupancies = PreparedStatements.GetTodaysOccupancies();
 
+            List<Reservations> todaysArrivals = PreparedStatements.GetTodaysGuests();
+
+            int currentRoom = 1;
+            while(todaysArrivals.Count > 0)
+            {
+                for(int i = currentRoom; i <= 45; i++)
+                {
+                    if(i != currentOccupancies[i].RoomNum)
+                    {
+                        break;
+                    }
+                }
+                todaysArrivals[0].RoomNum = currentRoom;
+                PreparedStatements.UpdateReservation(todaysArrivals[0]);
+                todaysArrivals.RemoveAt(0);
+            }
         }
     }
 }

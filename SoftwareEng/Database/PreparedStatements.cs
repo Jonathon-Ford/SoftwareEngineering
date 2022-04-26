@@ -167,7 +167,6 @@ namespace SoftwareEng
 
         //******RESERVATION STATEMENTS************************************************************
 
-        /*          */
         /// <summary>
         /// This function finds a reservation with 3 levels of specificity
         ///  First it will look for reservations with the desired name, if they have more than one res it will try to specify the search
@@ -357,11 +356,6 @@ namespace SoftwareEng
             return 45 - count;
         }
 
-        /* 
-         * 
-         * 
-         *        
-         */
         /// <summary>
         /// Marks a reservation as being changed to the new reso. 
         /// Takes: The old reservation (this will ensure it is canceled) and
@@ -431,6 +425,25 @@ namespace SoftwareEng
         }
 
         //******REPORT STATEMENTS******************************************************
+
+        /*
+         * 
+         */
+        public static List<Reservations> GetTodaysGuests()
+        {
+            using DatabaseContext db = new DatabaseContext();
+            var dailyArrivals = db
+                .Reservations
+                .Include("Card")
+                .Include("ReservationType")
+                .Where(r => r.StartDate == DateTime.Today)
+                .Where(r => r.IsCanceled == false)
+                .OrderBy(r => r.FirstName)
+                .ToList();
+
+            List<Reservations> result = dailyArrivals;
+            return result;
+        }
 
         /// <summary>
         /// Returns a list of reservations that are expected to arrive today
@@ -527,14 +540,15 @@ namespace SoftwareEng
             DateTime curDate = DateTime.Now;
             for(int i = 0; i < 30; i++)// For thrity days
             {
-                var income =
-                    db.BaseRates.Include(b => b.Reservations
-                                            .Where(r => r.StartDate <= curDate)
-                                            .Where(r => r.EndDate >= curDate)
-                                            .Where(r => r.IsCanceled == false))
-                        .Where(b => b.EffectiveDate.Date == curDate.Date)
-                        .Select(x => x.Rate)
-                        .Sum(); //join base rates with reservations via the many to many table base rates reservations, get the daily rate from the reservations that are for that day
+                var income =db
+                    .BaseRates
+                    .Include(b => b.Reservations
+                    .Where(r => r.StartDate <= curDate)
+                    .Where(r => r.EndDate >= curDate)
+                    .Where(r => r.IsCanceled == false))
+                    .Where(b => b.EffectiveDate.Date == curDate.Date)
+                    .Select(x => x.Rate)
+                    .Sum(); //join base rates with reservations via the many to many table base rates reservations, get the daily rate from the reservations that are for that day
 
                 incomeList.Add(income);
             }
@@ -555,11 +569,12 @@ namespace SoftwareEng
             DateTime curDate = DateTime.Now;
             for(int i = 0; i < 30; i++)
             {
-                var loss = db.BaseRates.Include(b => b.Reservations
-                                                    .Where(r => r.StartDate <= curDate.Date)
-                                                    .Where(r => r.EndDate >= curDate.Date)
-                                                    .Where(r => r.IsCanceled == false)
-                                                    .Where(r => r.ReservationType.ReservationID == (int)ReservationTypeCode.Incentive))
+                var loss = db.BaseRates
+                    .Include(b => b.Reservations
+                    .Where(r => r.StartDate <= curDate.Date)
+                    .Where(r => r.EndDate >= curDate.Date)
+                    .Where(r => r.IsCanceled == false)
+                    .Where(r => r.ReservationType.ReservationID == (int)ReservationTypeCode.Incentive))
                     .Where(b => b.EffectiveDate == curDate.Date)
                     .Select(x => x.Rate)
                     .Sum();
