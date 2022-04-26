@@ -521,7 +521,54 @@ static void ProcessPayment()
  */
 static void ConfigureBaseRate()
 {
+    string dateString;
+    bool invalidEffectDate = true;
+    float baseRate;
+    DateTime effectDate = new DateTime();
+    DateTime today = DateTime.Now;
 
+    while (invalidEffectDate)
+    {
+        Console.WriteLine("Please enter the effective date:");
+        dateString = Console.ReadLine();
+
+        if (DateTime.TryParse(dateString, out effectDate))
+        {
+            effectDate = Convert.ToDateTime(dateString);
+            invalidEffectDate = false;
+        }
+
+        try
+        {
+            if (today > effectDate)
+            {
+                invalidEffectDate = false;
+            }
+            else
+            {
+                bool less = true;
+
+                while (less)
+                {
+                    Console.WriteLine("Enter desired base rate");
+                    baseRate = float.Parse(Console.ReadLine());
+
+                    if (baseRate > 0)
+                    {
+                        BaseRates baseRates = new BaseRates { Rate = baseRate, EffectiveDate = effectDate, DateSet = today };
+                        SoftwareEng.PreparedStatements.AddBaseRate(baseRates);
+                        Console.WriteLine("The base rate has been set.");
+                        less = false;
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Could not set a base rate");
+            return;
+        }
+    }
 }
 /* Waits until midnight and then sets room numbers for that days arrivals and cancels 60 day
  * 
