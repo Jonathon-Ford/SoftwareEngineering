@@ -626,8 +626,6 @@ namespace SoftwareEng
             db.Entry(payment.Card).State = EntityState.Unchanged;
             db.Entry(payment.Reservation).State = EntityState.Unchanged;
 
-            foreach (var rate in resoToAdd.BaseRates)
-                db.Entry(rate).State = EntityState.Unchanged;
             db.SaveChanges();
         }
 

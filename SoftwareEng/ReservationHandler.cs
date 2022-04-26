@@ -376,6 +376,85 @@ namespace SoftwareEng
 
         //}
 
+        /*This function produces a bill for the customer and "charges their card"
+ * 
+ */
+        public static void ProcessPayment(Reservations reservation = null)
+        {
+            var payment = new Payments();
+            string cardNumString, cvvString, dateString;
+            long cardNum;
+            int cvv;
+
+            if (reservation == null)
+            {
+                reservation = ReservationHandler.FindReservation();
+            }
+
+            payment.Reservation = reservation;
+
+            while (true)
+            {
+                Console.WriteLine("Please enter payment information");
+
+                while (true)
+                {
+                    Console.WriteLine("Credit card number (XXXXXXXXXXXXXXXX):");
+                    cardNumString = Console.ReadLine().Trim();
+
+                    if (cardNumString.Length == 16 && long.TryParse(cardNumString, out cardNum))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid input for card number; please try again");
+                    }
+                }
+
+                while (true)
+                {
+                    Console.WriteLine("CVV (XXX or XXXX):");
+                    cvvString = Console.ReadLine().Trim();
+
+                    if ((cvvString.Length == 3 || cvvString.Length == 4) && int.TryParse(cvvString, out cvv))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid input for CVV; please try again");
+                    }
+                }
+
+                while (true)
+                {
+                    Console.WriteLine("Expiration date:");
+                    dateString = Console.ReadLine();
+
+                    if (IsDateValid(dateString))
+                    {
+                        payment.Card.ExpiryDate = Convert.ToDateTime(dateString);
+                        break;
+                    }
+                }
+
+                if (!IsCardValid(cardNum, cvv, payment.Card.ExpiryDate))
+                {
+                    Console.WriteLine("No card found with the given information; please try again");
+                }
+                else
+                {
+                    payment.Card.CardNum = cardNum;
+                    payment.Card.CVVNum = cvv;
+                    break;
+                }
+            }
+
+            payment.PaymentDate = DateTime.Now;
+            PreparedStatements.AddPayment(payment);
+        }
+
         private static ReservationTypes DetermineReservationType(List<int> dailyOccupancies, DateTime startDate)
         {
             var daysOut = (startDate - DateTime.Now).Days;

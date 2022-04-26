@@ -509,13 +509,6 @@ static void DeleteUser()
     }
 }
 
-/*This function produces a bill for the customer and "charges their card"
- * 
- */
-static void ProcessPayment()
-{
-
-}
 /*This function configures base rate
  * 
  */
