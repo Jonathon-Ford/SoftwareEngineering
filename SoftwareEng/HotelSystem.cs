@@ -126,6 +126,7 @@ static void Main(Users currentUser)
             Console.WriteLine("16 - Create new user");
             Console.WriteLine("17 - Update old user");
             Console.WriteLine("18 - Delete old user");
+            Console.WriteLine("19 - Configure base rate");
         }
 
         command = Console.ReadLine();
@@ -202,6 +203,12 @@ static void Main(Users currentUser)
                 if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
                 {
                     DeleteUser();                    
+                }
+                break;
+            case "19":
+                if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
+                {
+                    ConfigureBaseRate();
                 }
                 break;
             case "q":
