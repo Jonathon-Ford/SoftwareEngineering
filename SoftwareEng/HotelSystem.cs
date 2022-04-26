@@ -159,26 +159,26 @@ static void Main(Users currentUser)
                 //GenerateDailyEmails();
                 break;
             case "10":
-                GenerateDailyArrivalsReport();
+                ReportGenerator.GenerateDailyArrivalsReport();
                 break;
             case "11":
-                GenerateDailyOccupancyReport();
+                ReportGenerator.GenerateDailyOccupancyReport();
                 break;
             case "12":
                 if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
                 {
-                    GenerateThirtyDayOccupancyReport();
+                    ReportGenerator.GenerateThirtyDayOccupancyReport();
                 }
                 break;
             case "13":
                 if (String.Equals(currentUser.RoleName, "Management")){
-                    SoftwareEng.ReportGenerator.GenerateThirtyDayIncomeReport();
+                    ReportGenerator.GenerateThirtyDayIncomeReport();
                 }
                 break;
             case "14":
                 if (String.Equals(currentUser.RoleName, "Management"))
                 {
-                    SoftwareEng.ReportGenerator.GenerateInsentiveReport();
+                    ReportGenerator.GenerateInsentiveReport();
                 }
                 break;
             case "15":
@@ -468,7 +468,7 @@ static void UpdateUser()
                 newRole = Console.ReadLine();
             }
 
-            bool success = SoftwareEng.UserFunctions.UpdateUser(oldUsername, newUsername, newPassword, newRole);
+            bool success = UserFunctions.UpdateUser(oldUsername, newUsername, newPassword, newRole);
 
             if (success == true)
             {
@@ -505,30 +505,10 @@ static void DeleteUser()
     }
     else
     {
-        Console.WriteLine("User is not existsed. Cannot be deleted.");
+        Console.WriteLine("User not found. Cannot be deleted.");
     }
 }
-/*This function generates daily arrival report when a Manager chose this option
- * 
- */
-static void GenerateDailyArrivalsReport()
-{
-    SoftwareEng.ReportGenerator.GenerateDailyArrivalsReport();
-}
-/*This function generates daily occupancy report when a Manager chose this option
- * 
- */
-static void GenerateDailyOccupancyReport()
-{
-    SoftwareEng.ReportGenerator.GenerateDailyOccupancyReport();
-}
-/*This function generates daily occupancy report when a Manager chose this option
- * 
- */
-static void GenerateThirtyDayOccupancyReport()
-{
-    SoftwareEng.ReportGenerator.GenerateThirtyDayOccupancyReport();
-}
+
 /*This function produces a bill for the customer and "charges their card"
  * 
  */
@@ -543,5 +523,23 @@ static void ConfigureBaseRate()
 {
 
 }
+/*
+ * 
+ */
+static void SystemTriggered()
+{
+    while (true)
+    {
+        //Wait until midngiht
+        var now = DateTime.Now;
+        var tomorrow = now.AddDays(1);
+        var durationUntilMidnight = tomorrow.Date - now;
 
+        var t = new Timer(o => {/* Do work*/}, null, TimeSpan.Zero, durationUntilMidnight);
+
+        ReportGenerator.SetRoomNumbers();
+    }
+}
+
+Thread atMidnight = new Thread(SystemTriggered);
 Main(currentUser);

@@ -219,7 +219,7 @@ namespace SoftwareEng
             using DatabaseContext db = new DatabaseContext();
             List<BaseRates> rates = new List<BaseRates>();
 
-            for (var day = startDate.Date; day < endDate.Date; day.AddDays(1))
+            for (var day = startDate.Date; day < endDate.Date; day = day.AddDays(1))
             {
                 var curPrice = db
                     .BaseRates
@@ -411,7 +411,7 @@ namespace SoftwareEng
                     resoCount.Add(count);
                 }
                 occupancyInfo.Add(resoCount);
-                curDate.AddDays(1);
+                curDate = curDate.AddDays(1);
             }
 
             return occupancyInfo;

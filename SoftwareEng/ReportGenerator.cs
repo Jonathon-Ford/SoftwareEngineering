@@ -85,7 +85,7 @@ namespace SoftwareEng
 
                 data += String.Format("{0,-10} {1,-10} \n",
                     date, total);
-                curDate.AddDays(1);
+                curDate = curDate.AddDays(1);
                 complete_total += total;
             }
             float avg = AveragePrice(losses);
@@ -134,7 +134,7 @@ namespace SoftwareEng
                 data += String.Format("{0,-15} {1,-15} {2,-15} {3, -15} {4, -15} {5, -15} \n",
                     date, prepaidNum, sixtyDayNum, conventionalNum, incentiveNum, total);
 
-                curDate.AddDays(1);
+                curDate = curDate.AddDays(1);
             }
 
             int average = Average(totals);
@@ -247,16 +247,16 @@ namespace SoftwareEng
             {
                 total += x;
 
-                string date = curDate.ToString("dd/MM/yyyy");
+                string date = curDate.ToString("MM/dd/yyyy");
 
                 data += String.Format("{0,-20} {1,-20} \n",
                     date, x);
-                curDate.AddDays(1);
+                curDate = curDate.AddDays(1);
             }
 
             float avg = AveragePrice(income);
 
-            data += "Total expected income: " + total;
+            data += "Total expected income: " + total +"\n";
             data += "Average daily income: " + avg;
 
             PrintToConsoleAndSaveToDocs(data, "ExpectedIncomeReport");
@@ -322,6 +322,14 @@ namespace SoftwareEng
             data += "Total: " + billableResos[0].Price;
 
             PrintToConsoleAndSaveToDocs(data, "MostRecentBill");
+        }
+
+        /*
+         * 
+         */
+        public static void SetRoomNumbers()
+        {
+
         }
     }
 }
