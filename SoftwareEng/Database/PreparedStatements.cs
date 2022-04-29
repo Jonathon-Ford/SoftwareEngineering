@@ -766,64 +766,79 @@ namespace SoftwareEng
         }
 
         //*******TEST STATEMENTS********************************************************
-        //public static void AddReservationTest()
-        //{
-        //    using DatabaseContext db = new DatabaseContext();
+        public static void PopulateWithTestData(int numToAdd)
+        {
+            DateTime curDate = DateTime.Now.Date;
+            Random r = new Random();
+            for(int i = 0; i < 60; i++)
+            {
+                BaseRates toAdd = new BaseRates();
+                float rate = r.Next(50, 300);
+                toAdd.Rate = rate;
+                toAdd.DateSet = curDate;
+                toAdd.EffectiveDate = curDate.AddDays(i);
+                AddBaseRate(toAdd);
+            }
 
-        //    BaseRates br1 = new BaseRates()
-        //    {
-        //        BaseRateID = 1,
-        //        Rate = 10,
-        //        EffectiveDate = DateTime.Now.Date,
-        //        DateSet = DateTime.Now,
-        //    };
-        //    BaseRates br2 = new BaseRates()
-        //    {
-        //        BaseRateID = 2,
-        //        Rate = 10,
-        //        EffectiveDate = DateTime.Now.AddDays(1).Date,
-        //        DateSet = DateTime.Now,
-        //    };
+            int numRes = r.Next(0, 45);
 
-        //    db.BaseRates.Add(br1);
-        //    db.BaseRates.Add(br2);
+            try
+            {
+                CreditCards dontNeed = AddCardInfo( 1111111111111111, 123, DateTime.Now.AddYears(2));
+            }
+            catch(Exception e) { }
 
-        //    List<BaseRates> baseRates = new List<BaseRates>() { br1, br2 };
+            for(int i = 0; i < numToAdd; i++)
+            {
+                int randDaysAway = r.Next(0, 40);
+                int randStayLen = r.Next(1, 10);
 
-        //    Reservations reso = new Reservations()
-        //    {
-        //        ReservationID = 1,
-        //        LastName = "Bob",
-        //        FirstName = "Billy",
-        //        Email = "ThisIsFake@Fake.com",
-        //        ReservationType = new ReservationTypes() { ReservationID = 1, PercentOfBase = (float).8 },
-        //        Price = 20,
-        //        RoomNum = 1,
-        //        StartDate = DateTime.Now.Date,
-        //        EndDate = DateTime.Now.AddDays(2).Date,
-        //        IsCanceled = false,
-        //        Paid = true,
-        //        PaymentDate = DateTime.Now.Date,
-        //        Confirmed = false,
-        //        CheckedIn = true,
-        //        CheckedOut = false,
-        //        BaseRates = baseRates
-        //    };
+                Reservations toAdd = new Reservations();
+                toAdd.StartDate = DateTime.Now.AddDays(randDaysAway);
+                toAdd.EndDate = DateTime.Now.AddDays(randDaysAway + randStayLen);
 
-        //    db.Reservations.Add(reso);
+                bool keepGoing = true;
+                for(int j = randDaysAway; j < randDaysAway + randStayLen; j++)
+                {
+                    int count = GetAvailability(DateTime.Now.AddDays(j));
+                    if(count == 0)
+                    {
+                        keepGoing = false;
+                        break;
+                    }
+                }
+                if (!keepGoing)
+                {
+                    continue;
+                }
 
-        //    var rates = db
-        //        .Reservations
-        //        .Where(r => r.ReservationID == 1)
-        //        .First();
+                toAdd.FirstName = "Test";
+                toAdd.LastName = "McTestface" + i;
 
-        //    db.SaveChanges();
+                int type = r.Next(1, 4);
+                switch (type)
+                {
+                    case 1: toAdd.ReservationType = new ReservationTypes() { Description = "Prepaid", ReservationID = 1};break;
+                    case 2: toAdd.ReservationType = new ReservationTypes() { Description = "SixtyDay", ReservationID = 2 }; break;
+                    case 3: toAdd.ReservationType = new ReservationTypes() { Description = "Conventional", ReservationID = 3 }; break;
+                    case 4: toAdd.ReservationType = new ReservationTypes() { Description = "Incentive", ReservationID = 4 }; break;
+                }
 
-        //    for(int i = 0; i < rates.BaseRates.Count; i++)
-        //    {
-        //        Console.WriteLine("Rate " + i + ": " + rates.BaseRates.ToList()[i].Rate);
-        //    }
+                toAdd.Email = "fake@notreal.com";
+                toAdd.Card = new CreditCards () { CardNum = 1111111111111111, CVVNum = 123, ExpiryDate = DateTime.Now.AddYears(2) };
 
-        //}
+                toAdd.BaseRates = GetBaseRates(toAdd.StartDate, toAdd.EndDate);
+
+                float sum = 0;
+                for(int j = 0; j < toAdd.BaseRates.Count; j++)
+                {
+                    sum += toAdd.BaseRates.ToList()[j].Rate;
+                }
+
+                toAdd.Price = sum;
+
+                AddReservation(toAdd);
+            }
+        }
     }
 }

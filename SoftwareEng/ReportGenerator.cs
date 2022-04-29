@@ -278,6 +278,8 @@ namespace SoftwareEng
             data += "Duration: " + reservation.StartDate + " - " + reservation.EndDate + " (" + (reservation.EndDate - reservation.StartDate).Days + " nights)";
             data += "Room: " + reservation.RoomNum;
 
+            data += "Guest: " + reservation.FirstName + reservation.LastName + "\n";
+            data += "Room Number: " + reservation.RoomNum + "\n";
             data += GenerateReservationHistory(billableResos);            
 
             PrintToConsoleAndSaveToDocs(data, "MostRecentBill");
@@ -330,7 +332,13 @@ namespace SoftwareEng
                     dis_fee, price);
             }
 
+            data += "Total nights: " + billableResos[0].BaseRates.Count();
             data += "Total: " + billableResos[0].Price;
+
+            if(billableResos[0].ReservationType.ReservationID == (int)ReservationHandler.ReservationTypeCode.SixtyDay)
+            {
+                data += "Bill paid: " + billableResos[0].PaymentDate?.ToString("dd/MM/yyyy");
+            }
 
             return data;
         }
@@ -347,21 +355,26 @@ namespace SoftwareEng
             int currentRoom = 1;
             while(todaysArrivals.Count > 0)
             {
-                for(int i = currentRoom; i <= 45; i++)
+                for(int i = currentRoom; i <= 45; i++, currentRoom++)
                 {
-                    if(i != currentOccupancies[i].RoomNum)
+                    bool occupied = false;
+                    for(int j = 0; j < currentOccupancies.Count; j++)
+                    {
+                        if(currentOccupancies[j].RoomNum == i)
+                        {
+                            occupied = true;
+                        }
+                    }
+                    if (occupied) { }
+                    else
                     {
                         break;
-                    }
-                    if (currentRoom == 45)
-                    {
-                        Console.WriteLine("Error too many reservations in a day");
-                        return;
                     }
                 }
                 todaysArrivals[0].RoomNum = currentRoom;
                 PreparedStatements.UpdateReservation(todaysArrivals[0]);
                 todaysArrivals.RemoveAt(0);
+                currentRoom++;
             }
         }
     }

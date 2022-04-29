@@ -837,6 +837,8 @@ static void SystemTriggered()
 
 }
 
+
+//PreparedStatements.PopulateWithTestData(100);
 Thread atMidnight = new Thread(SystemTriggered);
 while (true)
 {
