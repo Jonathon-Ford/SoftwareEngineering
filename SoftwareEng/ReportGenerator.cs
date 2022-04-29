@@ -350,16 +350,15 @@ namespace SoftwareEng
                     {
                         break;
                     }
+                    if (currentRoom == 45)
+                    {
+                        Console.WriteLine("Error too many reservations in a day");
+                        return;
+                    }
                 }
                 todaysArrivals[0].RoomNum = currentRoom;
                 PreparedStatements.UpdateReservation(todaysArrivals[0]);
                 todaysArrivals.RemoveAt(0);
-
-                if(currentRoom == 45)
-                {
-                    Console.WriteLine("Error too many reservations in a day");
-                    break;
-                }
             }
         }
     }

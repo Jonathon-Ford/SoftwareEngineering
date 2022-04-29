@@ -685,27 +685,38 @@ static void ProcessPayment()
 static void ConfigureBaseRate()
 {
     string dateString;
-    bool invalidEffectDate = true;
+    bool invalidEffectStartDate = true;
+    bool invalidEffectEndDate = true;
     float baseRate;
-    DateTime effectDate = new DateTime();
+    DateTime effectStartDate = new DateTime();
+    DateTime effectiveEndDate = new DateTime();
     DateTime today = DateTime.Now;
 
-    while (invalidEffectDate)
+    while (invalidEffectStartDate | invalidEffectEndDate)
     {
-        Console.WriteLine("Please enter the effective date:");
+        Console.WriteLine("Please enter the effective start date:");
         dateString = Console.ReadLine();
 
-        if (DateTime.TryParse(dateString, out effectDate))
+        if (DateTime.TryParse(dateString, out effectStartDate))
         {
-            effectDate = Convert.ToDateTime(dateString);
-            invalidEffectDate = false;
+            effectStartDate = Convert.ToDateTime(dateString);
+            invalidEffectStartDate = false;
+        }
+
+        Console.WriteLine("Please enter the effective end date:");
+        dateString = Console.ReadLine();
+
+        if (DateTime.TryParse(dateString, out effectiveEndDate))
+        {
+            effectiveEndDate = Convert.ToDateTime(dateString);
+            invalidEffectEndDate = false;
         }
 
         try
         {
-            if (today > effectDate)
+            if (today > effectStartDate || effectStartDate > effectiveEndDate)//If the start day is in the past or the end day is before the start day
             {
-                invalidEffectDate = false;
+                invalidEffectStartDate = false; invalidEffectEndDate = false; //Fail
             }
             else
             {
@@ -718,9 +729,12 @@ static void ConfigureBaseRate()
 
                     if (baseRate > 0)
                     {
-                        BaseRates baseRates = new BaseRates { Rate = baseRate, EffectiveDate = effectDate, DateSet = today };
-                        SoftwareEng.PreparedStatements.AddBaseRate(baseRates);
-                        Console.WriteLine("The base rate has been set.");
+                        for(DateTime i = effectStartDate; i < effectiveEndDate; i = i.AddDays(1))
+                        {
+                            BaseRates baseRates = new BaseRates { Rate = baseRate, EffectiveDate = effectStartDate, DateSet = today };
+                            SoftwareEng.PreparedStatements.AddBaseRate(baseRates);
+                        }
+                        Console.WriteLine("The base rate(s) has been set.");
                         less = false;
                     }
                 }
