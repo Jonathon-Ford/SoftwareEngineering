@@ -175,6 +175,8 @@ namespace SoftwareEng
                         newReservation.Card.CardNum = card.CardNum;
                         newReservation.Card.CVVNum = card.CVVNum;
                         break;
+
+                        Console.WriteLine("No info found. Please try again");
                     }
                     else
                     {
@@ -282,10 +284,9 @@ namespace SoftwareEng
 
             newReservation.StartDate = startDate;
             newReservation.EndDate = endDate;
-            newReservation.ReservationType = new ReservationTypes()
-            {
-                Description = DetermineReservationType(dailyOccupancies, startDate).ToString()
-            };
+            newReservation.ReservationType = DetermineReservationType(dailyOccupancies, startDate);
+            newReservation.BaseRates = PreparedStatements.GetBaseRates(newReservation.StartDate, newReservation.EndDate);
+            newReservation.Price = CalculateReservationPrice(newReservation);
 
             try
             {
@@ -382,7 +383,8 @@ namespace SoftwareEng
                     reservation = results[0];
                     Console.WriteLine($"Guest:{reservation.FirstName} {reservation.LastName} ({reservation.Email})");
                     Console.WriteLine($"Dates:{reservation.StartDate}-{reservation.EndDate}");
-                    Console.WriteLine($"Credit Card:{reservation.Card.CardNum}");
+                    //Console.WriteLine($"Credit Card:{reservation.Card.CardNum}");
+                    Console.WriteLine("Credit Card: {0,16}", reservation.Card.CardNum.ToString("D16"));
                     Console.WriteLine("Is this the reservation you were looking for? Y/N");
 
                     if (Console.ReadLine().ToUpper() == "Y")
@@ -507,7 +509,7 @@ namespace SoftwareEng
             try
             {
                 var date = Convert.ToDateTime(input);
-                var curDate = DateTime.Now;
+                var curDate = DateTime.Now.Date;
 
                 if (date >= curDate)
                     return true;
@@ -592,6 +594,30 @@ namespace SoftwareEng
             var nextDay = reservation.StartDate.AddDays(1);
             var firstBaseRate = PreparedStatements.GetBaseRates(reservation.StartDate, nextDay).First();
             return firstBaseRate.Rate * PreparedStatements.GetReservationTypeDetails(reservation.ReservationType).PercentOfBase / 100;
+        }
+
+        /*This function adds a user with provided username, password, and role
+         * 
+         */
+        public static void CheckAvailability()
+        {
+            bool invalidStartDate = true;
+            string dateString;
+            DateTime startDate;
+            //loop until the start date is valid
+            while (invalidStartDate)
+            {
+                Console.WriteLine("Please enter the date you want to check:");
+                dateString = Console.ReadLine();
+
+                if (IsDateValid(dateString))
+                {
+                    startDate = Convert.ToDateTime(dateString);
+                    int emptyRoom = SoftwareEng.PreparedStatements.GetAvailability(startDate);
+                    Console.WriteLine(emptyRoom);
+                    invalidStartDate = false;
+                }
+            }
         }
     }
 }

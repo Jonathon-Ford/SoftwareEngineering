@@ -36,8 +36,8 @@ namespace SoftwareEng
 
             var user = db
                 .Users
-                .Where(u => u.Username == username)
-                .Where(u => u.Password == password)
+                .Where(u => EF.Functions.Collate(u.Username, "SQL_Latin1_General_CP1_CS_AS") == username)
+                .Where(u => EF.Functions.Collate(u.Password, "SQL_Latin1_General_CP1_CS_AS") == password)
                 .SingleOrDefault();
 
             if (user == null)
@@ -566,7 +566,8 @@ namespace SoftwareEng
                         .Include("ReservationType")
                         .Where(r => r.StartDate <= curDate)
                         .Where(r => r.EndDate >= curDate)
-                        .Where(r => r.ReservationType.ReservationID == i)
+                        .Where(r => r.ReservationType.ReservationID == j)
+                        .Where(r => r.IsCanceled == false)
                         .Count();
                     resoCount.Add(count);
                 }
@@ -586,19 +587,33 @@ namespace SoftwareEng
             List<float> incomeList = new List<float>(30);
             using DatabaseContext db = new DatabaseContext();
 
-            DateTime curDate = DateTime.Now;
+            DateTime curDate = DateTime.Now.Date;
             for(int i = 0; i < 30; i++)// For thrity days
             {
-                var income =
-                    db.BaseRates.Include(b => b.Reservations
-                                            .Where(r => r.StartDate <= curDate)
-                                            .Where(r => r.EndDate >= curDate)
-                                            .Where(r => r.IsCanceled == false))
-                        .Where(b => b.EffectiveDate.Date == curDate.Date)
-                        .Select(x => x.Rate)
-                        .Sum(); //join base rates with reservations via the many to many table base rates reservations, get the daily rate from the reservations that are for that day
+                var resos = db
+                    .Reservations
+                    .Where(r => r.StartDate <= curDate)
+                    .Where(r => r.EndDate >= curDate)
+                    .Where(r => r.IsCanceled == false)
+                    .Include("BaseRates")
+                    .ToList(); //join base rates with reservations via the many to many table base rates reservations, get the daily rate from the reservations that are for that day
 
-                incomeList.Add(income);
+                float perDayTotal = 0;
+                //I am so sorry to any man, beast, celectial or otherwise that has to look upon my madness
+                for(int j = 0; j < resos.Count; j++)//For how many resos we got...
+                {
+                    for(int k = 0; k < resos[j].BaseRates.Count; k++)//For how many base rates are in the reso we are looking at...
+                    {
+                        if (resos[j].BaseRates.ToList()[k].EffectiveDate == curDate)
+                        {//If this is the day we are looking for....
+                            perDayTotal += resos[j].BaseRates.ToList()[k].Rate; //Add the rate to the others
+                            break;
+                        }
+                    }
+                }
+
+                incomeList.Add(perDayTotal);
+                curDate = curDate.AddDays(1);
             }
 
             return incomeList;
@@ -614,20 +629,35 @@ namespace SoftwareEng
 
             using DatabaseContext db = new DatabaseContext();
 
-            DateTime curDate = DateTime.Now;
+            DateTime curDate = DateTime.Now.Date;
             for(int i = 0; i < 30; i++)
             {
-                var loss = db.BaseRates.Include(b => b.Reservations
-                                                    .Where(r => r.StartDate <= curDate.Date)
-                                                    .Where(r => r.EndDate >= curDate.Date)
-                                                    .Where(r => r.IsCanceled == false)
-                                                    .Where(r => r.ReservationType.ReservationID == (int)ReservationTypeCode.Incentive))
-                    .Where(b => b.EffectiveDate == curDate.Date)
-                    .Select(x => x.Rate)
-                    .Sum();
+                var resos = db
+                    .Reservations
+                    .Where(r => r.StartDate <= curDate)
+                    .Where(r => r.EndDate >= curDate)
+                    .Where(r => r.IsCanceled == false)
+                    .Where(r => r.ReservationType.ReservationID == (int)ReservationHandler.ReservationTypeCode.Incentive)
+                    .Include("BaseRates")
+                    .ToList(); //join base rates with reservations via the many to many table base rates reservations, get the daily rate from the reservations that are for that day
 
-                loss *= (float)0.2; // 20% of base rate is equal to the amount lost due to incentive rate
-                losses.Add(loss);
+                float perDayLoss = 0;
+                //I am so sorry to any man, beast, celectial or otherwise that has to look upon my madness
+                for (int j = 0; j < resos.Count; j++)//For how many resos we got...
+                {
+                    for (int k = 0; k < resos[j].BaseRates.Count; k++)//For how many base rates are in the reso we are looking at...
+                    {
+                        if (resos[j].BaseRates.ToList()[k].EffectiveDate == curDate)
+                        {//If this is the day we are looking for....
+                            perDayLoss += resos[j].BaseRates.ToList()[k].Rate; //Add the rate to the others
+                            break;
+                        }
+                    }
+                }
+
+                perDayLoss *= (float)0.2;
+                losses.Add(perDayLoss);
+                curDate = curDate.AddDays(1);
             }
             return losses;
         }
@@ -677,6 +707,61 @@ namespace SoftwareEng
                 }
             }
             return ressos;
+
+        }
+
+        /// <summary>
+        /// Records a payment
+        /// </summary>
+        /// Author: AS
+        /// <param name="payment"></param>
+        public static void AddPayment(Payments payment)
+        {
+            using DatabaseContext db = new DatabaseContext();
+
+            db.Payments.Add(payment);
+            db.Entry(payment.Card).State = EntityState.Unchanged;
+            db.Entry(payment.Reservation).State = EntityState.Unchanged;
+            db.Entry(payment.Reservation.ReservationType).State = EntityState.Unchanged;
+            db.Entry(payment.Reservation.Card).State = EntityState.Unchanged;
+            foreach (var rate in payment.Reservation.BaseRates)
+                db.Entry(rate).State = EntityState.Unchanged;
+
+            db.SaveChanges();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cardNum"></param>
+        /// <param name="cvv"></param>
+        /// <param name="expireDate"></param>
+        /// <returns>CreditCards</returns>
+        /// 
+        public static CreditCards AddCardInfo(long cardNum, int cvv, DateTime expireDate)
+        {
+            using DatabaseContext db = new DatabaseContext();
+            
+
+            var card = db
+                .CreditCards
+                .Where(u => u.CardNum == cardNum)
+                .SingleOrDefault();
+
+            if (card == null)
+            {
+                CreditCards newCard = new CreditCards { CardNum = cardNum, CVVNum = cvv, ExpiryDate = expireDate };
+                db.CreditCards.Add(newCard);
+                db.SaveChanges();
+                return newCard; //Return an empty user class to show it was not found
+            } else
+            {
+                card.CardNum = cardNum;
+                card.CVVNum = cvv;
+                card.ExpiryDate = expireDate;
+                db.SaveChanges();
+                return card;
+            }
 
         }
 
