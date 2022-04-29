@@ -234,7 +234,7 @@ static void Main(Users currentUser)
             case "18":
                 if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
                 {
-                    DeleteUser();                    
+                    DeleteUser(currentUser.Username);                    
                 }
                 else
                 {
@@ -727,22 +727,30 @@ static void UpdateUser()
 /*This function deletes a user with provided username
  * 
  */
-static void DeleteUser()
+static void DeleteUser(string currentUsername)
 {
     string deleteUsername;
 
     Console.WriteLine("Please input the username of the user you want to delete");
     deleteUsername = Console.ReadLine();
 
-    bool success = SoftwareEng.UserFunctions.DeleteUser(deleteUsername);
+    if (String.Equals(deleteUsername, currentUsername))
+    {
+        Console.WriteLine("Cannot delete yourself. Please try again");
+        return;
+    } else
+    {
+        bool success = SoftwareEng.UserFunctions.DeleteUser(deleteUsername);
 
-    if (success)
-    {
-        Console.WriteLine("User has been deleted");
-    }
-    else
-    {
-        Console.WriteLine("User not found. Cannot be deleted.");
+        if (success)
+        {
+            Console.WriteLine("User has been deleted");
+        }
+        else
+        {
+            Console.WriteLine("User not found. Cannot be deleted.");
+        }
+
     }
 }
 
