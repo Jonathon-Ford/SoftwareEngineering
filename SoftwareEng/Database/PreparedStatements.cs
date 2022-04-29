@@ -652,64 +652,33 @@ namespace SoftwareEng
         }
 
         //*******TEST STATEMENTS********************************************************
-        //public static void AddReservationTest()
-        //{
-        //    using DatabaseContext db = new DatabaseContext();
+        public static void PopulateWithTestData()
+        {
+            DateTime curDate = DateTime.Now.Date;
+            Random r = new Random();
+            for(int i = 0; i < 60; i++)
+            {
+                BaseRates toAdd = new BaseRates();
+                float rate = r.Next(50, 300);
+                toAdd.Rate = rate;
+                toAdd.DateSet = curDate;
+                toAdd.EffectiveDate = curDate.AddDays(i);
+                AddBaseRate(toAdd);
+            }
 
-        //    BaseRates br1 = new BaseRates()
-        //    {
-        //        BaseRateID = 1,
-        //        Rate = 10,
-        //        EffectiveDate = DateTime.Now.Date,
-        //        DateSet = DateTime.Now,
-        //    };
-        //    BaseRates br2 = new BaseRates()
-        //    {
-        //        BaseRateID = 2,
-        //        Rate = 10,
-        //        EffectiveDate = DateTime.Now.AddDays(1).Date,
-        //        DateSet = DateTime.Now,
-        //    };
+            int numRes = r.Next(0, 45);
 
-        //    db.BaseRates.Add(br1);
-        //    db.BaseRates.Add(br2);
+            
 
-        //    List<BaseRates> baseRates = new List<BaseRates>() { br1, br2 };
+            for(int i = 0; i < 45; i++)
+            {
+                int randDaysAway = r.Next(0, 40);
+                int randStayLen = r.Next(0, 10);
 
-        //    Reservations reso = new Reservations()
-        //    {
-        //        ReservationID = 1,
-        //        LastName = "Bob",
-        //        FirstName = "Billy",
-        //        Email = "ThisIsFake@Fake.com",
-        //        ReservationType = new ReservationTypes() { ReservationID = 1, PercentOfBase = (float).8 },
-        //        Price = 20,
-        //        RoomNum = 1,
-        //        StartDate = DateTime.Now.Date,
-        //        EndDate = DateTime.Now.AddDays(2).Date,
-        //        IsCanceled = false,
-        //        Paid = true,
-        //        PaymentDate = DateTime.Now.Date,
-        //        Confirmed = false,
-        //        CheckedIn = true,
-        //        CheckedOut = false,
-        //        BaseRates = baseRates
-        //    };
+                Reservations toAdd = new Reservations();
+                toAdd.StartDate = DateTime.Now.AddDays(randStayLen);
 
-        //    db.Reservations.Add(reso);
-
-        //    var rates = db
-        //        .Reservations
-        //        .Where(r => r.ReservationID == 1)
-        //        .First();
-
-        //    db.SaveChanges();
-
-        //    for(int i = 0; i < rates.BaseRates.Count; i++)
-        //    {
-        //        Console.WriteLine("Rate " + i + ": " + rates.BaseRates.ToList()[i].Rate);
-        //    }
-
-        //}
+            }
+        }
     }
 }
