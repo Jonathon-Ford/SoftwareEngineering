@@ -68,7 +68,7 @@ public class Payments
     public DateTime PaymentDate { get; set; }
     public string Description { get; set; }
     [Required]
-    public float Price { get; set; }// Not null
+    public double Price { get; set; }// Not null
     [Required]
     public CreditCards Card { get; set; }
 }

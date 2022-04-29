@@ -269,11 +269,14 @@ namespace SoftwareEng
          * ***Warning this function has not been tested as well as the others***
          * 
          */
-        public static void GenerateBill(Payments payment)
+        public static void GenerateBill(Reservations reservation)
         {
-            List<Reservations> billableResos = PreparedStatements.GetAllResosToBeBilled(payment.Reservation);
+            List<Reservations> billableResos = PreparedStatements.GetAllResosToBeBilled(reservation);
 
             String data = "Bill Generated: " + DateTime.Now.ToString("MM/dd/yyyy h:mm tt") + "\n";
+            data += "Name: " + reservation.FirstName + " " + reservation.LastName + "\n";
+            data += "Duration: " + reservation.StartDate + " - " + reservation.EndDate + " (" + (reservation.EndDate - reservation.StartDate).Days + " nights)";
+            data += "Room: " + reservation.RoomNum;
 
             data += GenerateReservationHistory(billableResos);            
 
