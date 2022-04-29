@@ -269,9 +269,9 @@ namespace SoftwareEng
          * ***Warning this function has not been tested as well as the others***
          * 
          */
-        public static void GenerateBill(Payments payment)
+        public static void GenerateBill(Reservations reservation)
         {
-            List<Reservations> billableResos = PreparedStatements.GetAllResosToBeBilled(payment.Reservation);
+            List<Reservations> billableResos = PreparedStatements.GetAllResosToBeBilled(reservation);
 
             String data = "Bill Generated: " + DateTime.Now.ToString("MM/dd/yyyy h:mm tt") + "\n";
 

@@ -529,8 +529,10 @@ static void CheckOutGuest()
                     {
                         for (int i = 0; i < reservations.Count; i++)
                         {
-                            SoftwareEng.PreparedStatements.MarkReservationAsCheckedIn(reservations[i]);
+                            PreparedStatements.MarkReservationAsCheckedOut(reservations[i]);
 
+                            ReportGenerator.GenerateBill(reservations[i]);
+                            ReservationHandler.ProcessPayment(reservations[i]);
                             Console.WriteLine("Successfully checked in. Enjoy your stay. Press any key to continue.");
                             ret = Console.ReadLine();
 

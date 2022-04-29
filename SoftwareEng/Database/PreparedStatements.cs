@@ -386,6 +386,19 @@ namespace SoftwareEng
             db.SaveChanges();
         }
 
+        /// <summary>
+        /// Returns all reservations that have not been cancelled, checked in, or confirmed and were supposed to start the previous day
+        /// </summary>
+        public static List<Reservations> GetNoShowReservations()
+        {
+            using DatabaseContext db = new DatabaseContext();
+
+            return db.Reservations
+                .Where(r => !r.IsCanceled && !r.Confirmed && !r.CheckedIn)
+                .Where(r => r.StartDate == DateTime.Now.Date.AddDays(-1))
+                .ToList();
+        }
+
         //******EMAIL STATEMENTS*******************************************************
 
         /// <summary>
