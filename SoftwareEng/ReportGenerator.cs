@@ -278,8 +278,8 @@ namespace SoftwareEng
             data += "Duration: " + reservation.StartDate + " - " + reservation.EndDate + " (" + (reservation.EndDate - reservation.StartDate).Days + " nights)";
             data += "Room: " + reservation.RoomNum;
 
-            data += "Guest: " + payment.Reservation.FirstName + payment.Reservation.LastName + "\n";
-            data += "Room Number: " + payment.Reservation.RoomNum + "\n";
+            data += "Guest: " + reservation.FirstName + reservation.LastName + "\n";
+            data += "Room Number: " + reservation.RoomNum + "\n";
             data += GenerateReservationHistory(billableResos);            
 
             PrintToConsoleAndSaveToDocs(data, "MostRecentBill");
