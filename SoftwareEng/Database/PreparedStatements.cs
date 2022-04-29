@@ -633,6 +633,24 @@ namespace SoftwareEng
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cardNum"></param>
+        /// <param name="cvv"></param>
+        /// <param name="expireDate"></param>
+        /// <returns>CreditCards</returns>
+        /// 
+        public static CreditCards AddCardInfo(long cardNum, int cvv, DateTime expireDate)
+        {
+            using DatabaseContext db = new DatabaseContext();
+            CreditCards newCard = new CreditCards { CardNum = cardNum, CVVNum = cvv, ExpiryDate = expireDate };
+            db.CreditCards.Add(newCard);
+            db.SaveChanges();
+
+            return newCard;
+        }
+
         //*******TEST STATEMENTS********************************************************
         //public static void AddReservationTest()
         //{

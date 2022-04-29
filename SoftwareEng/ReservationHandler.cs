@@ -171,7 +171,10 @@ namespace SoftwareEng
 
                     if(!IsCardValid(cardNum, cvv, newReservation.Card.ExpiryDate))
                     {
-                        Console.WriteLine("No card found with the given information; please try again");
+                        CreditCards card = SoftwareEng.PreparedStatements.AddCardInfo(cardNum, cvv, newReservation.Card.ExpiryDate);
+                        newReservation.Card.CardNum = card.CardNum;
+                        newReservation.Card.CVVNum = card.CVVNum;
+                        break;
                     }
                     else
                     {
