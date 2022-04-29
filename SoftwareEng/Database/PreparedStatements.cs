@@ -167,7 +167,6 @@ namespace SoftwareEng
 
         //******RESERVATION STATEMENTS************************************************************
 
-        /*          */
         /// <summary>
         /// This function finds a reservation with 3 levels of specificity
         ///  First it will look for reservations with the desired name, if they have more than one res it will try to specify the search

@@ -429,7 +429,7 @@ static void CheckOutGuest()
                 string command;
                 string email;
                 int cardNum;
-                List<Reservations> reservations = SoftwareEng.PreparedStatements.FindReservation(fname, lname);
+                List<Reservations> reservations = PreparedStatements.FindReservation(fname, lname);
                 List<Reservations> reservationWithCard = new List<Reservations>();
                 List<Reservations> reservationWithEmail = new List<Reservations>();
                 if (reservations.Count > 1)
@@ -443,7 +443,7 @@ static void CheckOutGuest()
                     {
                         Console.WriteLine("Enter your card number");
                         cardNum = int.Parse(Console.ReadLine());
-                        reservationWithCard = SoftwareEng.PreparedStatements.FindReservation(fname, lname, cardNum);
+                        reservationWithCard = PreparedStatements.FindReservation(fname, lname, cardNum);
                         Console.WriteLine("\n\nRoom number: " + reservationWithCard[0].RoomNum);
                         Console.WriteLine("First name: " + reservationWithCard[0].FirstName);
                         Console.WriteLine("Last name: " + reservationWithCard[0].LastName);
@@ -460,7 +460,7 @@ static void CheckOutGuest()
                             {
                                 for (int i = 0; i < reservationWithCard.Count; i++)
                                 {
-                                    SoftwareEng.PreparedStatements.MarkReservationAsCheckedIn(reservationWithCard[i]);
+                                    PreparedStatements.MarkReservationAsCheckedIn(reservationWithCard[i]);
 
                                     Console.WriteLine("Successfully checked in. Enjoy your stay. Press any key to continue.");
                                     ret = Console.ReadLine();
