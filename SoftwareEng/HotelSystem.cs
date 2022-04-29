@@ -727,7 +727,7 @@ static void ConfigureBaseRate()
                     {
                         for(DateTime i = effectStartDate; i < effectiveEndDate; i = i.AddDays(1))
                         {
-                            BaseRates baseRates = new BaseRates { Rate = baseRate, EffectiveDate = effectStartDate, DateSet = today };
+                            BaseRates baseRates = new BaseRates { Rate = baseRate, EffectiveDate = i, DateSet = today };
                             SoftwareEng.PreparedStatements.AddBaseRate(baseRates);
                         }
                         Console.WriteLine("The base rate(s) has been set.");
