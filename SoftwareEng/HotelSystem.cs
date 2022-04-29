@@ -292,14 +292,14 @@ static void CheckInGuest()
                 {
                     Console.WriteLine("Found " + reservations.Count + " reservations under your name");
                     Console.WriteLine("Please provide more details.");
-                    Console.WriteLine("Press 1 to add card info. Press 2 to add email. (Default is email)");
+                    Console.WriteLine("Press 1 to add last 4 digits of card number. Press 2 to add email. (Default is email)");
                     command = Console.ReadLine();
 
                     if (String.Equals(command, "1"))
                     {
                         Console.WriteLine("Enter your card number");
                         cardNum = int.Parse(Console.ReadLine());
-                        reservationWithCard = SoftwareEng.PreparedStatements.FindReservation(fname, lname, cardNum);
+                        reservationWithCard = SoftwareEng.PreparedStatements.FindReservation(fname, lname, cardNum, null);
                         Console.WriteLine("\n\nRoom number: " + reservationWithCard[0].RoomNum);
                         Console.WriteLine("First name: " + reservationWithCard[0].FirstName);
                         Console.WriteLine("Last name: " + reservationWithCard[0].LastName);
@@ -440,7 +440,7 @@ static void CheckOutGuest()
                 {
                     Console.WriteLine("Found " + reservations.Count + " reservations under your name");
                     Console.WriteLine("Please provide more details.");
-                    Console.WriteLine("Press 1 to add card info. Press 2 to add email. (Default is email)");
+                    Console.WriteLine("Press 1 to add last 4 digits of card number. Press 2 to add email. (Default is email)");
                     command = Console.ReadLine();
 
                     if (String.Equals(command, "1"))
