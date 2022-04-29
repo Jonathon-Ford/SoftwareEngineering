@@ -198,6 +198,7 @@ namespace SoftwareEng
                     else
                     {
                         newReservation.Paid = true;
+                        newReservation.PaymentDate = DateTime.Now.Date;
                         PreparedStatements.UpdateReservation(newReservation);
                         Console.WriteLine("Reservation paid");
                     }
@@ -310,6 +311,12 @@ namespace SoftwareEng
                         {
                             Console.WriteLine("Error cancelling reservation: could not charge cancellation fee");
                             return;
+                        }
+                        else
+                        {
+                            reservation.Paid = true;
+                            reservation.PaymentDate = DateTime.Now.Date;
+                            PreparedStatements.UpdateReservation(reservation);
                         }
                     }
                 }
@@ -579,7 +586,8 @@ namespace SoftwareEng
 
         private static double CalculateFirstDayPrice(Reservations reservation)
         {
-            var firstBaseRate = PreparedStatements.GetBaseRates(reservation.StartDate, reservation.StartDate).First();
+            var nextDay = reservation.StartDate.AddDays(1);
+            var firstBaseRate = PreparedStatements.GetBaseRates(reservation.StartDate, nextDay).First();
             return firstBaseRate.Rate * PreparedStatements.GetReservationTypeDetails(reservation.ReservationType).PercentOfBase / 100;
         }
     }

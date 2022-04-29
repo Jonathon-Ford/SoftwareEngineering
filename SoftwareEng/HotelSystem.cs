@@ -532,9 +532,16 @@ static void CheckOutGuest()
                             PreparedStatements.MarkReservationAsCheckedOut(reservations[i]);
 
                             ReportGenerator.GenerateBill(reservations[i]);
-                            ReservationHandler.ProcessPayment(reservations[i]);
-                            Console.WriteLine("Successfully checked in. Enjoy your stay. Press any key to continue.");
-                            ret = Console.ReadLine();
+                            if(!ReservationHandler.ProcessPayment("Pay bill at checkout", reservations[i]))
+                            {
+                                Console.WriteLine("Error processing bill payment");
+                            }
+                            else
+                            {
+                                reservations[i].Paid = true;
+                                reservations[i].PaymentDate = DateTime.Now.Date;
+                                PreparedStatements.UpdateReservation(reservations[i]);
+                            }
 
                             return;
                         }
