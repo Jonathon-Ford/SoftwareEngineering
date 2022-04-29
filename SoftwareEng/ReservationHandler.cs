@@ -180,6 +180,15 @@ namespace SoftwareEng
                         break;
                     }
                 }
+
+                if (newReservation.ReservationType.Description != ReservationTypeCode.Prepaid.ToString())
+                {
+                    if(!ProcessPayment(newReservation))
+                    {
+                        Console.WriteLine("Error processing payment; could not make reservation");
+                        return;
+                    }
+                }
             }
 
             try
@@ -282,8 +291,26 @@ namespace SoftwareEng
         {
             try
             {
-                PreparedStatements.MarkReservationAsCanceled(FindReservation());
+                var reservation = FindReservation();
+
+                if((reservation.StartDate.Date - DateTime.Now.Date).Days < 3)
+                {
+                    if (reservation.ReservationType.Description == ReservationTypeCode.Conventional.ToString()
+                        || reservation.ReservationType.Description == ReservationTypeCode.Incentive.ToString())
+                    {
+                        reservation.Price = CalculateFirstDayPrice(reservation);
+                        if(!ProcessPayment(reservation))
+                        {
+                            Console.WriteLine("Error cancelling reservation: could not charge cancellation fee");
+                            return;
+                        }
+                    }
+                }
+
+                PreparedStatements.MarkReservationAsCanceled(reservation);
                 Console.WriteLine("Reservation cancelled");
+
+
             }
             catch (Exception e)
             {
@@ -376,83 +403,87 @@ namespace SoftwareEng
 
         //}
 
-        /*This function produces a bill for the customer and "charges their card"
- * 
- */
-        public static void ProcessPayment(Reservations reservation = null)
+        /// <summary>
+        /// This funnction accepts a reservation or finds a reservation and "charges" the card associated with it.
+        /// </summary>
+        /// <param name="reservation"></param>
+        /// <returns>bool indicating success or failure</returns>
+        public static bool ProcessPayment(Reservations reservation = null)
         {
             var payment = new Payments();
-            string cardNumString, cvvString, dateString;
+            string cardNumString, cvvString, dateString, paymentType;
             long cardNum;
             int cvv;
 
-            if (reservation == null)
+            try
             {
-                reservation = ReservationHandler.FindReservation();
-            }
+                if (reservation == null)
+                {
+                    reservation = ReservationHandler.FindReservation();
+                }
 
-            payment.Reservation = reservation;
-
-            while (true)
-            {
-                Console.WriteLine("Please enter payment information");
+                payment.Reservation = reservation ?? throw new Exception("");
+                payment.PaymentDate = DateTime.Now.Date;
+                payment.Card = reservation.Card;
 
                 while (true)
                 {
-                    Console.WriteLine("Credit card number (XXXXXXXXXXXXXXXX):");
-                    cardNumString = Console.ReadLine().Trim();
+                    Console.WriteLine("Please select the payment type: \n1 - Pay full bill\n2 - Charge no-show fee");
+                    paymentType = Console.ReadLine();
 
-                    if (cardNumString.Length == 16 && long.TryParse(cardNumString, out cardNum))
+                    if (paymentType == "1")
                     {
+                        payment.Description = "Reservation bill";
+                        payment.Price = reservation.Price;
                         break;
+                    }
+                    else if (paymentType == "2")
+                    {
+                        payment.Description = "No-show fee";
+
+                        try
+                        {
+                            //get base rate for first day only
+                            payment.Price = CalculateFirstDayPrice(reservation);
+                            break;
+                        }
+                        catch (Exception e)
+                        {
+                            throw new Exception("Error retrieving payment amount");
+                        }
                     }
                     else
                     {
-                        Console.WriteLine("Invalid input for card number; please try again");
+                        Console.WriteLine("Invalid selection; please try again");
                     }
                 }
 
-                while (true)
+                try
                 {
-                    Console.WriteLine("CVV (XXX or XXXX):");
-                    cvvString = Console.ReadLine().Trim();
-
-                    if ((cvvString.Length == 3 || cvvString.Length == 4) && int.TryParse(cvvString, out cvv))
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid input for CVV; please try again");
-                    }
+                    PreparedStatements.AddPayment(payment);
+                    return true;
                 }
-
-                while (true)
+                catch (Exception exception)
                 {
-                    Console.WriteLine("Expiration date:");
-                    dateString = Console.ReadLine();
-
-                    if (IsDateValid(dateString))
-                    {
-                        payment.Card.ExpiryDate = Convert.ToDateTime(dateString);
-                        break;
-                    }
-                }
-
-                if (!IsCardValid(cardNum, cvv, payment.Card.ExpiryDate))
-                {
-                    Console.WriteLine("No card found with the given information; please try again");
-                }
-                else
-                {
-                    payment.Card.CardNum = cardNum;
-                    payment.Card.CVVNum = cvv;
-                    break;
+                    throw new Exception("Could not add payment");
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
 
-            payment.PaymentDate = DateTime.Now;
-            PreparedStatements.AddPayment(payment);
+        public static void ChargeNoShowFees()
+        {
+            var reservations = PreparedStatements.GetNoShowReservations();
+
+            foreach (var res in reservations)
+            {
+                res.Price = CalculateFirstDayPrice(res);
+                ProcessPayment(res);
+            }
         }
 
         private static ReservationTypes DetermineReservationType(List<int> dailyOccupancies, DateTime startDate)
@@ -565,6 +596,12 @@ namespace SoftwareEng
                 Console.WriteLine(e.Message);
                 return 0;
             }
+        }
+
+        private static double CalculateFirstDayPrice(Reservations reservation)
+        {
+            var firstBaseRate = PreparedStatements.GetBaseRates(reservation.StartDate, reservation.StartDate).First();
+            return firstBaseRate.Rate * PreparedStatements.GetReservationTypeDetails(reservation.ReservationType).PercentOfBase / 100;
         }
     }
 }

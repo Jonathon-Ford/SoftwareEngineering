@@ -347,7 +347,7 @@ static void CheckOutGuest()
             }
             else
             {
-                List<Reservations> reservations = SoftwareEng.PreparedStatements.FindReservation(fname, lname);
+                List<Reservations> reservations = PreparedStatements.FindReservation(fname, lname);
 
                 for (int i = 0; i < reservations.Count; i++)
                 {
@@ -371,9 +371,10 @@ static void CheckOutGuest()
                     {
                         for (int i = 0; i < reservations.Count; i++)
                         {
-                            SoftwareEng.PreparedStatements.MarkReservationAsCheckedOut(reservations[i]);
+                            PreparedStatements.MarkReservationAsCheckedOut(reservations[i]);
 
-                            // generate bill here
+                            ReportGenerator.GenerateBill(reservations[i]);
+                            ReservationHandler.ProcessPayment(reservations[i]);
 
                             return;
                         }
