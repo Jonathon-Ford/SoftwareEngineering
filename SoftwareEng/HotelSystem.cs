@@ -1,4 +1,4 @@
-﻿/*Authors: Jonathon Ford, 
+﻿/*Authors: Jonathon Ford, Hoang Bao Duy Le, Anna Schafer
  * 
  * This program is a console app for a hotel database. Once ran you can run 15 different opperations which are as follows
  * 1.) Make Reservation (adds customer information and dates they want to book, as well as pricing)
@@ -15,8 +15,10 @@
  * 12.) Generate 30 day occupancy report ( Managers only, generate what reservations are to be had for the next 30 days)
  * 13.) Generate 30 day income report (Managers only, generate a report for how much money will be made in the next 30 days if no one cancles)
  * 14.) Generate 30 day incentive report (Managers only, generate a report for how much money will be lost due to incentive discount)
- * 15.) Set Base Rate (Set a rate for the room pricing for a certain date)
- * 
+ * 15.) Configure Base Rate (Set a rate for the room pricing for a certain date)
+ * 16.) Create new user
+ * 17.) Update old user
+ * 18.) Delete old user
  */
 
 using SoftwareEng;
@@ -47,6 +49,7 @@ static void Main(Users currentUser)
                 break;
             else if (key.Key == ConsoleKey.Backspace)
             {
+                // avoiding error when delete the password all the ways
                 if(password.Length == 0) { }//Do nothing
                 else
                 {
@@ -315,6 +318,8 @@ static void CheckInGuest()
                 string command;
                 string email;
                 int cardNum;
+                string dateString;
+                DateTime startDate;
                 List<Reservations> reservations = SoftwareEng.PreparedStatements.FindReservation(fname, lname);
                 List<Reservations> reservationWithCard = new List<Reservations>();
                 List<Reservations> reservationWithEmail = new List<Reservations>();
@@ -322,6 +327,12 @@ static void CheckInGuest()
                 {
                     Console.WriteLine("Found " + reservations.Count + " reservations under your name");
                     Console.WriteLine("Please provide more details.");
+                    Console.WriteLine("Please input the start date");
+                    dateString = Console.ReadLine();
+                    if (DateTime.TryParse(dateString, out startDate))
+                    {
+                        startDate = Convert.ToDateTime(dateString);
+                    }
                     Console.WriteLine("Press 1 to add last 4 digits of card number. Press 2 to add email. (Default is email)");
                     command = Console.ReadLine();
 
@@ -329,7 +340,7 @@ static void CheckInGuest()
                     {
                         Console.WriteLine("Enter your card number");
                         cardNum = int.Parse(Console.ReadLine());
-                        reservationWithCard = SoftwareEng.PreparedStatements.FindReservation(fname, lname, cardNum, null);
+                        reservationWithCard = SoftwareEng.PreparedStatements.FindReservation(fname, lname, cardNum, null, startDate);
                         Console.WriteLine("\n\nRoom number: " + reservationWithCard[0].RoomNum);
                         Console.WriteLine("First name: " + reservationWithCard[0].FirstName);
                         Console.WriteLine("Last name: " + reservationWithCard[0].LastName);
@@ -363,7 +374,7 @@ static void CheckInGuest()
                     {
                         Console.WriteLine("Enter your email");
                         email = Console.ReadLine();
-                        reservationWithEmail = SoftwareEng.PreparedStatements.FindReservation(fname, lname, null, email);
+                        reservationWithEmail = SoftwareEng.PreparedStatements.FindReservation(fname, lname, null, email, startDate);
                         Console.WriteLine("Room number: " + reservationWithEmail[0].RoomNum);
                         Console.WriteLine("First name: " + reservationWithEmail[0].FirstName);
                         Console.WriteLine("Last name: " + reservationWithEmail[0].LastName);
@@ -463,6 +474,8 @@ static void CheckOutGuest()
                 string command;
                 string email;
                 int cardNum;
+                string dateString;
+                DateTime startDate;
                 List<Reservations> reservations = PreparedStatements.FindReservation(fname, lname);
                 List<Reservations> reservationWithCard = new List<Reservations>();
                 List<Reservations> reservationWithEmail = new List<Reservations>();
@@ -470,6 +483,12 @@ static void CheckOutGuest()
                 {
                     Console.WriteLine("Found " + reservations.Count + " reservations under your name");
                     Console.WriteLine("Please provide more details.");
+                    Console.WriteLine("Please input the start date");
+                    dateString = Console.ReadLine();
+                    if (DateTime.TryParse(dateString, out startDate))
+                    {
+                        startDate = Convert.ToDateTime(dateString);
+                    }
                     Console.WriteLine("Press 1 to add last 4 digits of card number. Press 2 to add email. (Default is email)");
                     command = Console.ReadLine();
 
@@ -477,7 +496,7 @@ static void CheckOutGuest()
                     {
                         Console.WriteLine("Enter your card number");
                         cardNum = int.Parse(Console.ReadLine());
-                        reservationWithCard = PreparedStatements.FindReservation(fname, lname, cardNum);
+                        reservationWithCard = PreparedStatements.FindReservation(fname, lname, cardNum, null, startDate);
                         Console.WriteLine("\n\nRoom number: " + reservationWithCard[0].RoomNum);
                         Console.WriteLine("First name: " + reservationWithCard[0].FirstName);
                         Console.WriteLine("Last name: " + reservationWithCard[0].LastName);
@@ -523,7 +542,7 @@ static void CheckOutGuest()
                     {
                         Console.WriteLine("Enter your email");
                         email = Console.ReadLine();
-                        reservationWithEmail = SoftwareEng.PreparedStatements.FindReservation(fname, lname, null, email);
+                        reservationWithEmail = SoftwareEng.PreparedStatements.FindReservation(fname, lname, null, email, startDate);
                         Console.WriteLine("Room number: " + reservationWithEmail[0].RoomNum);
                         Console.WriteLine("First name: " + reservationWithEmail[0].FirstName);
                         Console.WriteLine("Last name: " + reservationWithEmail[0].LastName);
