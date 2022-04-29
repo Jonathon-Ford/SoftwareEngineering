@@ -159,49 +159,46 @@ static void Main(Users currentUser)
                 Email.GenerateDailyEmails();
                 break;
             case "10":
-                AddCardInfo();
-                break;
-            case "11":
                 ReportGenerator.GenerateDailyArrivalsReport();
                 break;
-            case "12":
+            case "11":
                 ReportGenerator.GenerateDailyOccupancyReport();
                 break;
-            case "13":
+            case "12":
                 if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
                 {
                     ReportGenerator.GenerateThirtyDayOccupancyReport();
                 }
                 break;
-            case "14":
+            case "13":
                 if (String.Equals(currentUser.RoleName, "Management")){
                     ReportGenerator.GenerateThirtyDayIncomeReport();
                 }
                 break;
-            case "15":
+            case "14":
                 if (String.Equals(currentUser.RoleName, "Management"))
                 {
                     ReportGenerator.GenerateIncentiveReport();
                 }
                 break;
-            case "16":
+            case "15":
                 if (String.Equals(currentUser.RoleName, "Management")){
                     ConfigureBaseRate();
                 }
                 break;
-            case "17":
+            case "16":
                 if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
                 {
                     AddUser();
                 }
                 break;
-            case "18":
+            case "17":
                 if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
                 {
                     UpdateUser();
                 }
                 break;
-            case "19":
+            case "18":
                 if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
                 {
                     DeleteUser();                    
