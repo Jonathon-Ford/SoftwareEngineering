@@ -180,25 +180,32 @@ namespace SoftwareEng
                         break;
                     }
                 }
-
-                if (newReservation.ReservationType.Description != ReservationTypeCode.Prepaid.ToString())
-                {
-                    if(!ProcessPayment(newReservation))
-                    {
-                        Console.WriteLine("Error processing payment; could not make reservation");
-                        return;
-                    }
-                }
             }
 
             try
             {
                 PreparedStatements.AddReservation(newReservation);
                 Console.WriteLine("Reservation added");
+
+                if (newReservation.ReservationType.Description == ReservationTypeCode.Prepaid.ToString())
+                {
+
+                    if (!ProcessPayment("Pay bill when reservation made", newReservation))
+                    {
+                        Console.WriteLine("Error processing payment");
+                        return;
+                    }
+                    else
+                    {
+                        newReservation.Paid = true;
+                        PreparedStatements.UpdateReservation(newReservation);
+                        Console.WriteLine("Reservation paid");
+                    }
+                }
             }
             catch(Exception e)
             {
-                Console.WriteLine("Could not add reservation");
+                Console.WriteLine("Error making reservation");
             }
         }
 
@@ -299,7 +306,7 @@ namespace SoftwareEng
                         || reservation.ReservationType.Description == ReservationTypeCode.Incentive.ToString())
                     {
                         reservation.Price = CalculateFirstDayPrice(reservation);
-                        if(!ProcessPayment(reservation))
+                        if(!ProcessPayment("Charge for cancelling w/in 3 days", reservation))
                         {
                             Console.WriteLine("Error cancelling reservation: could not charge cancellation fee");
                             return;
@@ -407,13 +414,11 @@ namespace SoftwareEng
         /// This funnction accepts a reservation or finds a reservation and "charges" the card associated with it.
         /// </summary>
         /// <param name="reservation"></param>
+        /// <param name="paymentDescription"></param>
         /// <returns>bool indicating success or failure</returns>
-        public static bool ProcessPayment(Reservations reservation = null)
+        public static bool ProcessPayment(string paymentDescription, Reservations reservation = null)
         {
             var payment = new Payments();
-            string cardNumString, cvvString, dateString, paymentType;
-            long cardNum;
-            int cvv;
 
             try
             {
@@ -425,38 +430,8 @@ namespace SoftwareEng
                 payment.Reservation = reservation ?? throw new Exception("");
                 payment.PaymentDate = DateTime.Now.Date;
                 payment.Card = reservation.Card;
-
-                while (true)
-                {
-                    Console.WriteLine("Please select the payment type: \n1 - Pay full bill\n2 - Charge no-show fee");
-                    paymentType = Console.ReadLine();
-
-                    if (paymentType == "1")
-                    {
-                        payment.Description = "Reservation bill";
-                        payment.Price = reservation.Price;
-                        break;
-                    }
-                    else if (paymentType == "2")
-                    {
-                        payment.Description = "No-show fee";
-
-                        try
-                        {
-                            //get base rate for first day only
-                            payment.Price = CalculateFirstDayPrice(reservation);
-                            break;
-                        }
-                        catch (Exception e)
-                        {
-                            throw new Exception("Error retrieving payment amount");
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid selection; please try again");
-                    }
-                }
+                payment.Description = paymentDescription;
+                payment.Price = reservation.Price;
 
                 try
                 {
@@ -482,7 +457,7 @@ namespace SoftwareEng
             foreach (var res in reservations)
             {
                 res.Price = CalculateFirstDayPrice(res);
-                ProcessPayment(res);
+                ProcessPayment("No-show fee", res);
             }
         }
 
@@ -581,15 +556,19 @@ namespace SoftwareEng
         {
             try
             {
+                var sum = 0.0;
                 var rates = reservation.BaseRates.ToList();
 
                 var reservationTypeInfo = PreparedStatements.GetReservationTypeDetails(reservation.ReservationType);
 
                 //Multiply each element by the percentage determined by the reservation type
-                rates.ForEach(r => r.Rate *= reservationTypeInfo.PercentOfBase / 100);
+                foreach (var rate in rates)
+                {
+                    sum += rate.Rate * reservationTypeInfo.PercentOfBase / 100;
+                }
 
                 //Return the sum of all the daily rates
-                return rates.Sum<BaseRates>(r => r.Rate);
+                return sum;
             }
             catch (Exception e)
             {

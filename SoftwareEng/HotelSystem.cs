@@ -374,7 +374,7 @@ static void CheckOutGuest()
                             PreparedStatements.MarkReservationAsCheckedOut(reservations[i]);
 
                             ReportGenerator.GenerateBill(reservations[i]);
-                            ReservationHandler.ProcessPayment(reservations[i]);
+                            ReservationHandler.ProcessPayment("Pay bill at checkout", reservations[i]);
 
                             return;
                         }

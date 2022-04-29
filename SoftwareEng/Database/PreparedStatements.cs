@@ -232,6 +232,7 @@ namespace SoftwareEng
         /// <summary>
         /// This function gets a list for all of the base rates for each day of a stay
         /// </summary>
+        /// Modified by AS 4/28/22 to add default rate
         /// <param name="startDate"></param>
         /// <param name="endDate"></param>
         /// <returns>List(BaseRates)</returns>
@@ -248,9 +249,28 @@ namespace SoftwareEng
                         .BaseRates
                         .Where(br => br.EffectiveDate.Date == day.Date)
                         .OrderByDescending(br => br.DateSet)
-                        .First();
+                        .ToList();
 
-                    rates.Add(curPrice);
+                    if(curPrice.Count == 0)
+                    {
+                        var defaultPrice = db
+                            .BaseRates
+                            .OrderByDescending(br => br.EffectiveDate)
+                            .ThenByDescending(br => br.DateSet)
+                            .First();
+
+                        rates.Add(new BaseRates()
+                        {
+                            DateSet = defaultPrice.DateSet,
+                            EffectiveDate = day,
+                            Rate = defaultPrice.Rate
+                        });
+                    }
+                    else
+                    {
+                        rates.Add(curPrice.First());
+                    }
+
                 }
                 catch (Exception ex)
                 {
@@ -261,6 +281,13 @@ namespace SoftwareEng
             return rates;
         }
 
+        /// <summary>
+        /// Gets all the details for the given reservation type
+        /// </summary>
+        /// Author: AS
+        /// <param name="type"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static ReservationTypes GetReservationTypeDetails(ReservationTypes type)
         {
             try
@@ -278,6 +305,12 @@ namespace SoftwareEng
             }
         }
 
+        /// <summary>
+        /// Finds a credit card based on the card number
+        /// </summary>
+        /// Author: AS
+        /// <param name="card"></param>
+        /// <returns></returns>
         public static CreditCards FindCardByNum(CreditCards card)
         {
             using DatabaseContext db = new DatabaseContext();
@@ -318,7 +351,8 @@ namespace SoftwareEng
             db.Entry(resoToAdd.ReservationType).State = EntityState.Unchanged;
 
             foreach(var rate in resoToAdd.BaseRates)
-                db.Entry(rate).State = EntityState.Unchanged;
+                if(rate.BaseRateID != 0)
+                    db.Entry(rate).State = EntityState.Unchanged;
             db.SaveChanges();
         }
 
@@ -389,6 +423,7 @@ namespace SoftwareEng
         /// <summary>
         /// Returns all reservations that have not been cancelled, checked in, or confirmed and were supposed to start the previous day
         /// </summary>
+        /// Author: AS
         public static List<Reservations> GetNoShowReservations()
         {
             using DatabaseContext db = new DatabaseContext();
@@ -426,6 +461,7 @@ namespace SoftwareEng
         /// <summary>
         /// Returns all 60 day reservations that have not paid, have not been cancelled, and start in less than 30 days
         /// </summary>
+        /// Author: AS
         /// <returns>List(Reservations)</returns>
         public static List<Reservations> GetReservationsToCancelForEmail()
         {
@@ -631,6 +667,11 @@ namespace SoftwareEng
 
         }
 
+        /// <summary>
+        /// Records a payment
+        /// </summary>
+        /// Author: AS
+        /// <param name="payment"></param>
         public static void AddPayment(Payments payment)
         {
             using DatabaseContext db = new DatabaseContext();
@@ -638,6 +679,10 @@ namespace SoftwareEng
             db.Payments.Add(payment);
             db.Entry(payment.Card).State = EntityState.Unchanged;
             db.Entry(payment.Reservation).State = EntityState.Unchanged;
+            db.Entry(payment.Reservation.ReservationType).State = EntityState.Unchanged;
+            db.Entry(payment.Reservation.Card).State = EntityState.Unchanged;
+            foreach (var rate in payment.Reservation.BaseRates)
+                db.Entry(rate).State = EntityState.Unchanged;
 
             db.SaveChanges();
         }
