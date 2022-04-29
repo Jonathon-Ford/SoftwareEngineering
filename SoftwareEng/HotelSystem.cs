@@ -116,17 +116,16 @@ static void Main(Users currentUser)
         Console.WriteLine("7  - Check in guest");
         Console.WriteLine("8  - Check out guest");
         Console.WriteLine("9  - Generate daily emails");
-        Console.WriteLine("10  - Add card info");
-        Console.WriteLine("11 - Generate daily arivals report");
-        Console.WriteLine("12 - Generate daily occupancy report");
+        Console.WriteLine("10 - Generate daily arivals report");
+        Console.WriteLine("11 - Generate daily occupancy report");
         if (String.Equals(currentUser.RoleName, "Management") || (String.Equals(currentUser.RoleName, "management"))){
-            Console.WriteLine("13 - Generate 30 day occupancy report");
-            Console.WriteLine("14 - Generate 30 day expected income report");
-            Console.WriteLine("15 - Generate 30 day incentive loss report");
-            Console.WriteLine("16 - Configure base rate");
-            Console.WriteLine("17 - Create new user");
-            Console.WriteLine("18 - Update old user");
-            Console.WriteLine("19 - Delete old user");
+            Console.WriteLine("12 - Generate 30 day occupancy report");
+            Console.WriteLine("13 - Generate 30 day expected income report");
+            Console.WriteLine("14 - Generate 30 day incentive loss report");
+            Console.WriteLine("15 - Configure base rate");
+            Console.WriteLine("16 - Create new user");
+            Console.WriteLine("17 - Update old user");
+            Console.WriteLine("18 - Delete old user");
         }
 
         command = Console.ReadLine();
@@ -744,43 +743,6 @@ static void ConfigureBaseRate()
         {
             Console.WriteLine("Could not set a base rate");
             return;
-        }
-    }
-}
-/*This function adds a card info for a customer
- * 
- */
-static void AddCardInfo()
-{
-    long cardNum;
-    int cvv;
-    string dateString;
-    bool invalid = true;
-    DateTime expiryDate;
-
-    Console.WriteLine("Please input card number");
-    cardNum = long.Parse(Console.ReadLine());
-    Console.WriteLine("Please input CVV number");
-    cvv = int.Parse(Console.ReadLine());
-
-    while (invalid)
-    {
-        Console.WriteLine("Please enter the expire date:");
-        dateString = Console.ReadLine();
-
-        if (DateTime.TryParse(dateString, out expiryDate))
-        {
-            expiryDate = Convert.ToDateTime(dateString);
-            CreditCards newCard = SoftwareEng.PreparedStatements.AddCardInfo(cardNum, cvv, expiryDate);
-
-            if (newCard == null)
-            {
-                Console.WriteLine("Cannot add new card. Please try again");
-            } else
-            {
-                Console.WriteLine("New card info is added");
-            }
-            invalid = false;
         }
     }
 }
