@@ -390,11 +390,6 @@ namespace SoftwareEng
             return 45 - count;
         }
 
-        /* 
-         * 
-         * 
-         *        
-         */
         /// <summary>
         /// Marks a reservation as being changed to the new reso. 
         /// Takes: The old reservation (this will ensure it is canceled) and

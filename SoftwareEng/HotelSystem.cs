@@ -541,6 +541,8 @@ static void CheckOutGuest()
                                 reservations[i].Paid = true;
                                 reservations[i].PaymentDate = DateTime.Now.Date;
                                 PreparedStatements.UpdateReservation(reservations[i]);
+                                Console.WriteLine("Successfully checked out. Thank you for staying with us. Press any key to continue.");
+                                ret = Console.ReadLine();
                             }
 
                             return;
