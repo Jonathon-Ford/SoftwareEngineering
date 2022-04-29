@@ -353,12 +353,12 @@ static void CheckOutGuest()
                 {
                     Console.WriteLine("Reservation " + i);
                     Console.WriteLine("Room number: " + reservations[i].RoomNum);
-                    Console.WriteLine("Room number: " + reservations[i].ReservationType);
+                    Console.WriteLine("Reservation type: " + reservations[i].ReservationType.Description);
                     Console.WriteLine("First name: " + reservations[i].FirstName);
                     Console.WriteLine("Last name: " + reservations[i].LastName);
                     Console.WriteLine("Email: " + reservations[i].Email);
                     Console.WriteLine("Start date: " + reservations[i].StartDate);
-                    Console.WriteLine("Last date: " + reservations[i].EndDate);
+                    Console.WriteLine("End date: " + reservations[i].EndDate);
                     Console.WriteLine("Total price: " + reservations[i].Price);
                 }
 
@@ -374,7 +374,16 @@ static void CheckOutGuest()
                             PreparedStatements.MarkReservationAsCheckedOut(reservations[i]);
 
                             ReportGenerator.GenerateBill(reservations[i]);
-                            ReservationHandler.ProcessPayment("Pay bill at checkout", reservations[i]);
+                            if(!ReservationHandler.ProcessPayment("Pay bill at checkout", reservations[i]))
+                            {
+                                Console.WriteLine("Error processing bill payment");
+                            }
+                            else
+                            {
+                                reservations[i].Paid = true;
+                                reservations[i].PaymentDate = DateTime.Now.Date;
+                                PreparedStatements.UpdateReservation(reservations[i]);
+                            }
 
                             return;
                         }
