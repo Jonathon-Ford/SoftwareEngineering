@@ -90,8 +90,8 @@ namespace SoftwareEng
             }
             float avg = AveragePrice(losses);
 
-            data += "Total loss over all 30 days: \n" + complete_total;
-            data += "Average loss over 30 days: " + avg;
+            data += "Total loss over all 30 days: " + complete_total + "\n";
+            data += "Average loss over 30 days: " + avg + "\n";
 
             PrintToConsoleAndSaveToDocs(data, "IncentiveReport");
         }
@@ -269,11 +269,14 @@ namespace SoftwareEng
          * ***Warning this function has not been tested as well as the others***
          * 
          */
-        public static void GenerateBill(Payments payment)
+        public static void GenerateBill(Reservations reservation)
         {
-            List<Reservations> billableResos = PreparedStatements.GetAllResosToBeBilled(payment.Reservation);
+            List<Reservations> billableResos = PreparedStatements.GetAllResosToBeBilled(reservation);
 
             String data = "Bill Generated: " + DateTime.Now.ToString("MM/dd/yyyy h:mm tt") + "\n";
+            data += "Name: " + reservation.FirstName + " " + reservation.LastName + "\n";
+            data += "Duration: " + reservation.StartDate + " - " + reservation.EndDate + " (" + (reservation.EndDate - reservation.StartDate).Days + " nights)";
+            data += "Room: " + reservation.RoomNum;
 
             data += "Guest: " + payment.Reservation.FirstName + payment.Reservation.LastName + "\n";
             data += "Room Number: " + payment.Reservation.RoomNum + "\n";

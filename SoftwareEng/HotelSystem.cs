@@ -47,8 +47,12 @@ static void Main(Users currentUser)
                 break;
             else if (key.Key == ConsoleKey.Backspace)
             {
-                Console.Write("\b \b");
-                password = password.Remove(password.Length - 1, 1);
+                if(password.Length == 0) { }//Do nothing
+                else
+                {
+                    Console.Write("\b \b");
+                    password = password.Remove(password.Length - 1, 1);
+                }
             }
             else
             {
@@ -64,7 +68,6 @@ static void Main(Users currentUser)
             Console.WriteLine("Please input your username:");
             username = Console.ReadLine();
             Console.WriteLine("Please input your password");
-            System.Console.Write("password: ");
 
             password = null;
             while (true)
@@ -74,8 +77,12 @@ static void Main(Users currentUser)
                     break;
                 else if (key.Key == ConsoleKey.Backspace)
                 {
-                    Console.Write("\b \b");
-                    password = password.Remove(password.Length - 1, 1);
+                    if (password.Length == 0) { }//Do nothing
+                    else
+                    {
+                        Console.Write("\b \b");
+                        password = password.Remove(password.Length - 1, 1);
+                    }
                 }
                 else
                 {
@@ -83,7 +90,7 @@ static void Main(Users currentUser)
                     password += key.KeyChar;
                 }
             }
-
+            Console.WriteLine("\n");
             remainingAttempts--;
         }
 
@@ -147,7 +154,7 @@ static void Main(Users currentUser)
                 ReservationHandler.ConfirmReservation();
                 break;
             case "6":
-                CheckAvailability();
+                ReservationHandler.CheckAvailability();
                 break;
             case "7":
                 CheckInGuest();
@@ -168,11 +175,18 @@ static void Main(Users currentUser)
                 if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
                 {
                     ReportGenerator.GenerateThirtyDayOccupancyReport();
+                } else
+                {
+                    Console.WriteLine("Invaid input. Please try again");
                 }
                 break;
             case "13":
                 if (String.Equals(currentUser.RoleName, "Management")){
                     ReportGenerator.GenerateThirtyDayIncomeReport();
+                }
+                else
+                {
+                    Console.WriteLine("Invaid input. Please try again");
                 }
                 break;
             case "14":
@@ -180,10 +194,18 @@ static void Main(Users currentUser)
                 {
                     ReportGenerator.GenerateIncentiveReport();
                 }
+                else
+                {
+                    Console.WriteLine("Invaid input. Please try again");
+                }
                 break;
             case "15":
                 if (String.Equals(currentUser.RoleName, "Management")){
                     ConfigureBaseRate();
+                }
+                else
+                {
+                    Console.WriteLine("Invaid input. Please try again");
                 }
                 break;
             case "16":
@@ -191,11 +213,19 @@ static void Main(Users currentUser)
                 {
                     AddUser();
                 }
+                else
+                {
+                    Console.WriteLine("Invaid input. Please try again");
+                }
                 break;
             case "17":
                 if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
                 {
                     UpdateUser();
+                }
+                else
+                {
+                    Console.WriteLine("Invaid input. Please try again");
                 }
                 break;
             case "18":
@@ -203,11 +233,15 @@ static void Main(Users currentUser)
                 {
                     DeleteUser();                    
                 }
+                else
+                {
+                    Console.WriteLine("Invaid input. Please try again");
+                }
                 break;
             case "q":
                 Console.WriteLine("Are you sure you want to log out? y/n");
                 string input = Console.ReadLine();
-                if (String.Equals(input, "y"))//if they are sure do nothing
+                if (String.Equals(input, "y") || String.Equals(input, "Y"))//if they are sure do nothing
                 {
                     break;
                 }
@@ -335,7 +369,7 @@ static void CheckInGuest()
                         Console.WriteLine("Last name: " + reservationWithEmail[0].LastName);
                         Console.WriteLine("Email: " + reservationWithEmail[0].Email);
                         Console.WriteLine("Start date: " + reservationWithEmail[0].StartDate);
-                        Console.WriteLine("Last date: \n\n" + reservationWithEmail[0].EndDate);
+                        Console.WriteLine("Last date: " + reservationWithEmail[0].EndDate);
 
                         do
                         {
@@ -367,7 +401,7 @@ static void CheckInGuest()
                     Console.WriteLine("Last name: " + reservations[0].LastName);
                     Console.WriteLine("Email: " + reservations[0].Email);
                     Console.WriteLine("Start date: " + reservations[0].StartDate);
-                    Console.WriteLine("Last date: \n\n" + reservations[0].EndDate);
+                    Console.WriteLine("Last date: " + reservations[0].EndDate);
                 }                
 
                 do
@@ -429,7 +463,7 @@ static void CheckOutGuest()
                 string command;
                 string email;
                 int cardNum;
-                List<Reservations> reservations = SoftwareEng.PreparedStatements.FindReservation(fname, lname);
+                List<Reservations> reservations = PreparedStatements.FindReservation(fname, lname);
                 List<Reservations> reservationWithCard = new List<Reservations>();
                 List<Reservations> reservationWithEmail = new List<Reservations>();
                 if (reservations.Count > 1)
@@ -443,7 +477,7 @@ static void CheckOutGuest()
                     {
                         Console.WriteLine("Enter your card number");
                         cardNum = int.Parse(Console.ReadLine());
-                        reservationWithCard = SoftwareEng.PreparedStatements.FindReservation(fname, lname, cardNum);
+                        reservationWithCard = PreparedStatements.FindReservation(fname, lname, cardNum);
                         Console.WriteLine("\n\nRoom number: " + reservationWithCard[0].RoomNum);
                         Console.WriteLine("First name: " + reservationWithCard[0].FirstName);
                         Console.WriteLine("Last name: " + reservationWithCard[0].LastName);
@@ -458,12 +492,23 @@ static void CheckOutGuest()
 
                             if (String.Equals(correct, "y") || String.Equals(correct, "Y"))
                             {
-                                for (int i = 0; i < reservationWithCard.Count; i++)
+                                for (int i = 0; i < reservations.Count; i++)
                                 {
-                                    SoftwareEng.PreparedStatements.MarkReservationAsCheckedIn(reservationWithCard[i]);
+                                    PreparedStatements.MarkReservationAsCheckedOut(reservations[i]);
 
-                                    Console.WriteLine("Successfully checked in. Enjoy your stay. Press any key to continue.");
-                                    ret = Console.ReadLine();
+                                    ReportGenerator.GenerateBill(reservations[i]);
+                                    if (!ReservationHandler.ProcessPayment("Pay bill at checkout", reservations[i]))
+                                    {
+                                        Console.WriteLine("Error processing bill payment");
+                                    }
+                                    else
+                                    {
+                                        reservations[i].Paid = true;
+                                        reservations[i].PaymentDate = DateTime.Now.Date;
+                                        PreparedStatements.UpdateReservation(reservations[i]);
+                                        Console.WriteLine("Successfully checked out. Thank you for staying with us. Press any key to continue.");
+                                        ret = Console.ReadLine();
+                                    }
 
                                     return;
                                 }
@@ -493,12 +538,23 @@ static void CheckOutGuest()
 
                             if (String.Equals(correct, "y") || String.Equals(correct, "Y"))
                             {
-                                for (int i = 0; i < reservationWithEmail.Count; i++)
+                                for (int i = 0; i < reservations.Count; i++)
                                 {
-                                    SoftwareEng.PreparedStatements.MarkReservationAsCheckedIn(reservationWithEmail[i]);
+                                    PreparedStatements.MarkReservationAsCheckedOut(reservations[i]);
 
-                                    Console.WriteLine("Successfully checked in. Enjoy your stay. Press any key to continue.");
-                                    ret = Console.ReadLine();
+                                    ReportGenerator.GenerateBill(reservations[i]);
+                                    if (!ReservationHandler.ProcessPayment("Pay bill at checkout", reservations[i]))
+                                    {
+                                        Console.WriteLine("Error processing bill payment");
+                                    }
+                                    else
+                                    {
+                                        reservations[i].Paid = true;
+                                        reservations[i].PaymentDate = DateTime.Now.Date;
+                                        PreparedStatements.UpdateReservation(reservations[i]);
+                                        Console.WriteLine("Successfully checked out. Thank you for staying with us. Press any key to continue.");
+                                        ret = Console.ReadLine();
+                                    }
 
                                     return;
                                 }
@@ -529,10 +585,21 @@ static void CheckOutGuest()
                     {
                         for (int i = 0; i < reservations.Count; i++)
                         {
-                            SoftwareEng.PreparedStatements.MarkReservationAsCheckedIn(reservations[i]);
+                            PreparedStatements.MarkReservationAsCheckedOut(reservations[i]);
 
-                            Console.WriteLine("Successfully checked in. Enjoy your stay. Press any key to continue.");
-                            ret = Console.ReadLine();
+                            ReportGenerator.GenerateBill(reservations[i]);
+                            if(!ReservationHandler.ProcessPayment("Pay bill at checkout", reservations[i]))
+                            {
+                                Console.WriteLine("Error processing bill payment");
+                            }
+                            else
+                            {
+                                reservations[i].Paid = true;
+                                reservations[i].PaymentDate = DateTime.Now.Date;
+                                PreparedStatements.UpdateReservation(reservations[i]);
+                                Console.WriteLine("Successfully checked out. Thank you for staying with us. Press any key to continue.");
+                                ret = Console.ReadLine();
+                            }
 
                             return;
                         }
@@ -580,15 +647,7 @@ static void AddUser()
         Console.WriteLine("Username has existed. Please try again with different username.\n");
     }
 }
-/*This function adds a user with provided username, password, and role
- * 
- */
-static void CheckAvailability()
-{
-    DateTime now = DateTime.Now;
-    int emptyRoom = SoftwareEng.PreparedStatements.GetAvailability(now);
-    Console.WriteLine(emptyRoom);
-}
+
 /*This function updates a user with provided username, password, and role
  * 
  */
@@ -668,13 +727,6 @@ static void DeleteUser()
     }
 }
 
-/*This function produces a bill for the customer and "charges their card"
- * 
- */
-static void ProcessPayment()
-{
-
-}
 /*This function configures base rate
  * 
  */
@@ -725,7 +777,7 @@ static void ConfigureBaseRate()
 
                     if (baseRate > 0)
                     {
-                        for(DateTime i = effectStartDate; i < effectiveEndDate; i = i.AddDays(1))
+                        for(DateTime i = effectStartDate; i <= effectiveEndDate; i = i.AddDays(1))
                         {
                             BaseRates baseRates = new BaseRates { Rate = baseRate, EffectiveDate = i, DateSet = today };
                             SoftwareEng.PreparedStatements.AddBaseRate(baseRates);
@@ -759,5 +811,8 @@ static void SystemTriggered()
 }
 
 Thread atMidnight = new Thread(SystemTriggered);
-//while(true)
+while (true)
+{
+    Console.Clear();
     Main(currentUser);
+}

@@ -175,6 +175,8 @@ namespace SoftwareEng
                         newReservation.Card.CardNum = card.CardNum;
                         newReservation.Card.CVVNum = card.CVVNum;
                         break;
+
+                        Console.WriteLine("No info found. Please try again");
                     }
                     else
                     {
@@ -189,10 +191,27 @@ namespace SoftwareEng
             {
                 PreparedStatements.AddReservation(newReservation);
                 Console.WriteLine("Reservation added");
+
+                if (newReservation.ReservationType.Description == ReservationTypeCode.Prepaid.ToString())
+                {
+
+                    if (!ProcessPayment("Pay bill when reservation made", newReservation))
+                    {
+                        Console.WriteLine("Error processing payment");
+                        return;
+                    }
+                    else
+                    {
+                        newReservation.Paid = true;
+                        newReservation.PaymentDate = DateTime.Now.Date;
+                        PreparedStatements.UpdateReservation(newReservation);
+                        Console.WriteLine("Reservation paid");
+                    }
+                }
             }
             catch(Exception e)
             {
-                Console.WriteLine("Could not add reservation");
+                Console.WriteLine("Error making reservation");
             }
         }
 
@@ -265,10 +284,9 @@ namespace SoftwareEng
 
             newReservation.StartDate = startDate;
             newReservation.EndDate = endDate;
-            newReservation.ReservationType = new ReservationTypes()
-            {
-                Description = DetermineReservationType(dailyOccupancies, startDate).ToString()
-            };
+            newReservation.ReservationType = DetermineReservationType(dailyOccupancies, startDate);
+            newReservation.BaseRates = PreparedStatements.GetBaseRates(newReservation.StartDate, newReservation.EndDate);
+            newReservation.Price = CalculateReservationPrice(newReservation);
 
             try
             {
@@ -285,8 +303,32 @@ namespace SoftwareEng
         {
             try
             {
-                PreparedStatements.MarkReservationAsCanceled(FindReservation());
+                var reservation = FindReservation();
+
+                if((reservation.StartDate.Date - DateTime.Now.Date).Days < 3)
+                {
+                    if (reservation.ReservationType.Description == ReservationTypeCode.Conventional.ToString()
+                        || reservation.ReservationType.Description == ReservationTypeCode.Incentive.ToString())
+                    {
+                        reservation.Price = CalculateFirstDayPrice(reservation);
+                        if(!ProcessPayment("Charge for cancelling w/in 3 days", reservation))
+                        {
+                            Console.WriteLine("Error cancelling reservation: could not charge cancellation fee");
+                            return;
+                        }
+                        else
+                        {
+                            reservation.Paid = true;
+                            reservation.PaymentDate = DateTime.Now.Date;
+                            PreparedStatements.UpdateReservation(reservation);
+                        }
+                    }
+                }
+
+                PreparedStatements.MarkReservationAsCanceled(reservation);
                 Console.WriteLine("Reservation cancelled");
+
+
             }
             catch (Exception e)
             {
@@ -341,7 +383,8 @@ namespace SoftwareEng
                     reservation = results[0];
                     Console.WriteLine($"Guest:{reservation.FirstName} {reservation.LastName} ({reservation.Email})");
                     Console.WriteLine($"Dates:{reservation.StartDate}-{reservation.EndDate}");
-                    Console.WriteLine($"Credit Card:{reservation.Card.CardNum}");
+                    //Console.WriteLine($"Credit Card:{reservation.Card.CardNum}");
+                    Console.WriteLine("Credit Card: {0,16}", reservation.Card.CardNum.ToString("D16"));
                     Console.WriteLine("Is this the reservation you were looking for? Y/N");
 
                     if (Console.ReadLine().ToUpper() == "Y")
@@ -379,6 +422,57 @@ namespace SoftwareEng
 
         //}
 
+        /// <summary>
+        /// This funnction accepts a reservation or finds a reservation and "charges" the card associated with it.
+        /// </summary>
+        /// <param name="reservation"></param>
+        /// <param name="paymentDescription"></param>
+        /// <returns>bool indicating success or failure</returns>
+        public static bool ProcessPayment(string paymentDescription, Reservations reservation = null)
+        {
+            var payment = new Payments();
+
+            try
+            {
+                if (reservation == null)
+                {
+                    reservation = ReservationHandler.FindReservation();
+                }
+
+                payment.Reservation = reservation ?? throw new Exception("");
+                payment.PaymentDate = DateTime.Now.Date;
+                payment.Card = reservation.Card;
+                payment.Description = paymentDescription;
+                payment.Price = reservation.Price;
+
+                try
+                {
+                    PreparedStatements.AddPayment(payment);
+                    return true;
+                }
+                catch (Exception exception)
+                {
+                    throw new Exception("Could not add payment");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        public static void ChargeNoShowFees()
+        {
+            var reservations = PreparedStatements.GetNoShowReservations();
+
+            foreach (var res in reservations)
+            {
+                res.Price = CalculateFirstDayPrice(res);
+                ProcessPayment("No-show fee", res);
+            }
+        }
+
         private static ReservationTypes DetermineReservationType(List<int> dailyOccupancies, DateTime startDate)
         {
             var daysOut = (startDate - DateTime.Now).Days;
@@ -415,7 +509,7 @@ namespace SoftwareEng
             try
             {
                 var date = Convert.ToDateTime(input);
-                var curDate = DateTime.Now;
+                var curDate = DateTime.Now.Date;
 
                 if (date >= curDate)
                     return true;
@@ -474,20 +568,55 @@ namespace SoftwareEng
         {
             try
             {
+                var sum = 0.0;
                 var rates = reservation.BaseRates.ToList();
 
                 var reservationTypeInfo = PreparedStatements.GetReservationTypeDetails(reservation.ReservationType);
 
                 //Multiply each element by the percentage determined by the reservation type
-                rates.ForEach(r => r.Rate *= reservationTypeInfo.PercentOfBase / 100);
+                foreach (var rate in rates)
+                {
+                    sum += rate.Rate * reservationTypeInfo.PercentOfBase / 100;
+                }
 
                 //Return the sum of all the daily rates
-                return rates.Sum<BaseRates>(r => r.Rate);
+                return sum;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 return 0;
+            }
+        }
+
+        private static double CalculateFirstDayPrice(Reservations reservation)
+        {
+            var nextDay = reservation.StartDate.AddDays(1);
+            var firstBaseRate = PreparedStatements.GetBaseRates(reservation.StartDate, nextDay).First();
+            return firstBaseRate.Rate * PreparedStatements.GetReservationTypeDetails(reservation.ReservationType).PercentOfBase / 100;
+        }
+
+        /*This function adds a user with provided username, password, and role
+         * 
+         */
+        public static void CheckAvailability()
+        {
+            bool invalidStartDate = true;
+            string dateString;
+            DateTime startDate;
+            //loop until the start date is valid
+            while (invalidStartDate)
+            {
+                Console.WriteLine("Please enter the date you want to check:");
+                dateString = Console.ReadLine();
+
+                if (IsDateValid(dateString))
+                {
+                    startDate = Convert.ToDateTime(dateString);
+                    int emptyRoom = SoftwareEng.PreparedStatements.GetAvailability(startDate);
+                    Console.WriteLine(emptyRoom);
+                    invalidStartDate = false;
+                }
             }
         }
     }

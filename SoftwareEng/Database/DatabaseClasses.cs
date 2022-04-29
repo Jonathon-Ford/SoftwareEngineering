@@ -68,7 +68,7 @@ public class Payments
     public DateTime PaymentDate { get; set; }
     public string Description { get; set; }
     [Required]
-    public float Price { get; set; }// Not null
+    public double Price { get; set; }// Not null
     [Required]
     public CreditCards Card { get; set; }
 }
@@ -85,8 +85,10 @@ public class CreditCards
 {
     [Key, DatabaseGeneratedAttribute(DatabaseGeneratedOption.None)]
     public long CardNum { get; set; }// Key also Not null
+    [DisplayFormat(DataFormatString = "{0:000000000000000}")]
     [Required]
     public int CVVNum { get; set; }// Not null
+    [DisplayFormat(DataFormatString = "{0:000}")]
     [Required]
     [Column(TypeName = "Date")]
     public DateTime ExpiryDate { get; set; }// Not null
