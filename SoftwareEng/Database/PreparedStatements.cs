@@ -481,6 +481,25 @@ namespace SoftwareEng
 
         //******REPORT STATEMENTS******************************************************
 
+        /*
+         * 
+         */
+        public static List<Reservations> GetTodaysGuests()
+        {
+            using DatabaseContext db = new DatabaseContext();
+            var dailyArrivals = db
+                .Reservations
+                .Include("Card")
+                .Include("ReservationType")
+                .Where(r => r.StartDate == DateTime.Today)
+                .Where(r => r.IsCanceled == false)
+                .OrderBy(r => r.FirstName)
+                .ToList();
+
+            List<Reservations> result = dailyArrivals;
+            return result;
+        }
+
         /// <summary>
         /// Returns a list of reservations that are expected to arrive today
         /// </summary>
