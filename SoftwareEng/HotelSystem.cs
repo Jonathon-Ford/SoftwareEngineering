@@ -116,17 +116,17 @@ static void Main(Users currentUser)
         Console.WriteLine("7  - Check in guest");
         Console.WriteLine("8  - Check out guest");
         Console.WriteLine("9  - Generate daily emails");
-        Console.WriteLine("10 - Generate daily arivals report");
-        Console.WriteLine("11 - Generate daily occupancy report");
+        Console.WriteLine("10  - Add card info");
+        Console.WriteLine("11 - Generate daily arivals report");
+        Console.WriteLine("12 - Generate daily occupancy report");
         if (String.Equals(currentUser.RoleName, "Management") || (String.Equals(currentUser.RoleName, "management"))){
-            Console.WriteLine("12 - Generate 30 day occupancy report");
-            Console.WriteLine("13 - Generate 30 day expected income report");
-            Console.WriteLine("14 - Generate 30 day incentive loss report");
-            Console.WriteLine("15 - Set base rate");
-            Console.WriteLine("16 - Create new user");
-            Console.WriteLine("17 - Update old user");
-            Console.WriteLine("18 - Delete old user");
-            Console.WriteLine("19 - Configure base rate");
+            Console.WriteLine("13 - Generate 30 day occupancy report");
+            Console.WriteLine("14 - Generate 30 day expected income report");
+            Console.WriteLine("15 - Generate 30 day incentive loss report");
+            Console.WriteLine("16 - Configure base rate");
+            Console.WriteLine("17 - Create new user");
+            Console.WriteLine("18 - Update old user");
+            Console.WriteLine("19 - Delete old user");
         }
 
         command = Console.ReadLine();
@@ -160,55 +160,52 @@ static void Main(Users currentUser)
                 Email.GenerateDailyEmails();
                 break;
             case "10":
-                ReportGenerator.GenerateDailyArrivalsReport();
+                AddCardInfo();
                 break;
             case "11":
-                ReportGenerator.GenerateDailyOccupancyReport();
+                ReportGenerator.GenerateDailyArrivalsReport();
                 break;
             case "12":
+                ReportGenerator.GenerateDailyOccupancyReport();
+                break;
+            case "13":
                 if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
                 {
                     ReportGenerator.GenerateThirtyDayOccupancyReport();
                 }
                 break;
-            case "13":
+            case "14":
                 if (String.Equals(currentUser.RoleName, "Management")){
                     ReportGenerator.GenerateThirtyDayIncomeReport();
                 }
                 break;
-            case "14":
+            case "15":
                 if (String.Equals(currentUser.RoleName, "Management"))
                 {
                     ReportGenerator.GenerateIncentiveReport();
                 }
                 break;
-            case "15":
-                if (String.Equals(currentUser.RoleName, "Management")){
-                    //Set base rate
-                }
-                break;
             case "16":
-                if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
-                {
-                    AddUser();
+                if (String.Equals(currentUser.RoleName, "Management")){
+                    ConfigureBaseRate();
                 }
                 break;
             case "17":
                 if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
                 {
-                    UpdateUser();
+                    AddUser();
                 }
                 break;
             case "18":
                 if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
                 {
-                    DeleteUser();                    
+                    UpdateUser();
                 }
                 break;
             case "19":
                 if (String.Equals(currentUser.RoleName, "Management") || String.Equals(currentUser.RoleName, "management"))
                 {
-                    ConfigureBaseRate();
+                    DeleteUser();                    
                 }
                 break;
             case "q":
@@ -285,18 +282,97 @@ static void CheckInGuest()
             }
             else
             {
+                string command;
+                string email;
+                int cardNum;
                 List<Reservations> reservations = SoftwareEng.PreparedStatements.FindReservation(fname, lname);
-
-                for (int i = 0; i < reservations.Count; i++)
+                List<Reservations> reservationWithCard = new List<Reservations>();
+                List<Reservations> reservationWithEmail = new List<Reservations>();
+                if (reservations.Count > 1)
                 {
-                    Console.WriteLine("Reservation " + i);
-                    Console.WriteLine("Room number: " + reservations[i].RoomNum);
-                    Console.WriteLine("First name: " + reservations[i].FirstName);
-                    Console.WriteLine("Last name: " + reservations[i].LastName);
-                    Console.WriteLine("Email: " + reservations[i].Email);
-                    Console.WriteLine("Start date: " + reservations[i].StartDate);
-                    Console.WriteLine("Last date: " + reservations[i].EndDate);
-                }
+                    Console.WriteLine("Found " + reservations.Count + " reservations under your name");
+                    Console.WriteLine("Please provide more details.");
+                    Console.WriteLine("Press 1 to add card info. Press 2 to add email. (Default is email)");
+                    command = Console.ReadLine();
+
+                    if (String.Equals(command, "1"))
+                    {
+                        Console.WriteLine("Enter your card number");
+                        cardNum = int.Parse(Console.ReadLine());
+                        reservationWithCard = SoftwareEng.PreparedStatements.FindReservation(fname, lname, cardNum);
+                        Console.WriteLine("\n\nRoom number: " + reservationWithCard[0].RoomNum);
+                        Console.WriteLine("First name: " + reservationWithCard[0].FirstName);
+                        Console.WriteLine("Last name: " + reservationWithCard[0].LastName);
+                        Console.WriteLine("Email: " + reservationWithCard[0].Email);
+                        Console.WriteLine("Start date: " + reservationWithCard[0].StartDate);
+                        Console.WriteLine("Last date: " + reservationWithCard[0].EndDate);
+
+                        do
+                        {
+                            Console.WriteLine("Is this the correct reservation? Y or N");
+                            correct = Console.ReadLine();
+
+                            if (String.Equals(correct, "y") || String.Equals(correct, "Y"))
+                            {
+                                for (int i = 0; i < reservationWithCard.Count; i++)
+                                {
+                                    SoftwareEng.PreparedStatements.MarkReservationAsCheckedIn(reservationWithCard[i]);
+
+                                    Console.WriteLine("Successfully checked in. Enjoy your stay. Press any key to continue.");
+                                    ret = Console.ReadLine();
+
+                                    return;
+                                }
+                            }
+                            else if (String.Equals(correct, "n")  || String.Equals(correct, "N"))
+                            {
+                                break;
+                            }
+                        } while (String.Equals(correct, "n") != true || String.Equals(correct, "N") != true);
+                    } else
+                    {
+                        Console.WriteLine("Enter your email");
+                        email = Console.ReadLine();
+                        reservationWithEmail = SoftwareEng.PreparedStatements.FindReservation(fname, lname, null, email);
+                        Console.WriteLine("Room number: " + reservationWithEmail[0].RoomNum);
+                        Console.WriteLine("First name: " + reservationWithEmail[0].FirstName);
+                        Console.WriteLine("Last name: " + reservationWithEmail[0].LastName);
+                        Console.WriteLine("Email: " + reservationWithEmail[0].Email);
+                        Console.WriteLine("Start date: " + reservationWithEmail[0].StartDate);
+                        Console.WriteLine("Last date: \n\n" + reservationWithEmail[0].EndDate);
+
+                        do
+                        {
+                            Console.WriteLine("Is this the correct reservation? Y or N");
+                            correct = Console.ReadLine();
+
+                            if (String.Equals(correct, "y") || String.Equals(correct, "Y"))
+                            {
+                                for (int i = 0; i < reservationWithEmail.Count; i++)
+                                {
+                                    SoftwareEng.PreparedStatements.MarkReservationAsCheckedIn(reservationWithEmail[i]);
+
+                                    Console.WriteLine("Successfully checked in. Enjoy your stay. Press any key to continue.");
+                                    ret = Console.ReadLine();
+
+                                    return;
+                                }
+                            }
+                            else if (String.Equals(correct, "n")  || String.Equals(correct, "N"))
+                            {
+                                break;
+                            }
+                        } while (String.Equals(correct, "n") != true || String.Equals(correct, "N") != true);
+                    }
+                } else
+                {                    
+                    Console.WriteLine("Room number: " + reservations[0].RoomNum);
+                    Console.WriteLine("First name: " + reservations[0].FirstName);
+                    Console.WriteLine("Last name: " + reservations[0].LastName);
+                    Console.WriteLine("Email: " + reservations[0].Email);
+                    Console.WriteLine("Start date: " + reservations[0].StartDate);
+                    Console.WriteLine("Last date: \n\n" + reservations[0].EndDate);
+                }                
 
                 do
                 {
@@ -354,19 +430,98 @@ static void CheckOutGuest()
             }
             else
             {
+                string command;
+                string email;
+                int cardNum;
                 List<Reservations> reservations = SoftwareEng.PreparedStatements.FindReservation(fname, lname);
-
-                for (int i = 0; i < reservations.Count; i++)
+                List<Reservations> reservationWithCard = new List<Reservations>();
+                List<Reservations> reservationWithEmail = new List<Reservations>();
+                if (reservations.Count > 1)
                 {
-                    Console.WriteLine("Reservation " + i);
-                    Console.WriteLine("Room number: " + reservations[i].RoomNum);
-                    Console.WriteLine("Room number: " + reservations[i].ReservationType);
-                    Console.WriteLine("First name: " + reservations[i].FirstName);
-                    Console.WriteLine("Last name: " + reservations[i].LastName);
-                    Console.WriteLine("Email: " + reservations[i].Email);
-                    Console.WriteLine("Start date: " + reservations[i].StartDate);
-                    Console.WriteLine("Last date: " + reservations[i].EndDate);
-                    Console.WriteLine("Total price: " + reservations[i].Price);
+                    Console.WriteLine("Found " + reservations.Count + " reservations under your name");
+                    Console.WriteLine("Please provide more details.");
+                    Console.WriteLine("Press 1 to add card info. Press 2 to add email. (Default is email)");
+                    command = Console.ReadLine();
+
+                    if (String.Equals(command, "1"))
+                    {
+                        Console.WriteLine("Enter your card number");
+                        cardNum = int.Parse(Console.ReadLine());
+                        reservationWithCard = SoftwareEng.PreparedStatements.FindReservation(fname, lname, cardNum);
+                        Console.WriteLine("\n\nRoom number: " + reservationWithCard[0].RoomNum);
+                        Console.WriteLine("First name: " + reservationWithCard[0].FirstName);
+                        Console.WriteLine("Last name: " + reservationWithCard[0].LastName);
+                        Console.WriteLine("Email: " + reservationWithCard[0].Email);
+                        Console.WriteLine("Start date: " + reservationWithCard[0].StartDate);
+                        Console.WriteLine("Last date: " + reservationWithCard[0].EndDate);
+
+                        do
+                        {
+                            Console.WriteLine("Is this the correct reservation? Y or N");
+                            correct = Console.ReadLine();
+
+                            if (String.Equals(correct, "y") || String.Equals(correct, "Y"))
+                            {
+                                for (int i = 0; i < reservationWithCard.Count; i++)
+                                {
+                                    SoftwareEng.PreparedStatements.MarkReservationAsCheckedIn(reservationWithCard[i]);
+
+                                    Console.WriteLine("Successfully checked in. Enjoy your stay. Press any key to continue.");
+                                    ret = Console.ReadLine();
+
+                                    return;
+                                }
+                            }
+                            else if (String.Equals(correct, "n")  || String.Equals(correct, "N"))
+                            {
+                                break;
+                            }
+                        } while (String.Equals(correct, "n") != true || String.Equals(correct, "N") != true);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Enter your email");
+                        email = Console.ReadLine();
+                        reservationWithEmail = SoftwareEng.PreparedStatements.FindReservation(fname, lname, null, email);
+                        Console.WriteLine("Room number: " + reservationWithEmail[0].RoomNum);
+                        Console.WriteLine("First name: " + reservationWithEmail[0].FirstName);
+                        Console.WriteLine("Last name: " + reservationWithEmail[0].LastName);
+                        Console.WriteLine("Email: " + reservationWithEmail[0].Email);
+                        Console.WriteLine("Start date: " + reservationWithEmail[0].StartDate);
+                        Console.WriteLine("Last date: \n\n" + reservationWithEmail[0].EndDate);
+
+                        do
+                        {
+                            Console.WriteLine("Is this the correct reservation? Y or N");
+                            correct = Console.ReadLine();
+
+                            if (String.Equals(correct, "y") || String.Equals(correct, "Y"))
+                            {
+                                for (int i = 0; i < reservationWithEmail.Count; i++)
+                                {
+                                    SoftwareEng.PreparedStatements.MarkReservationAsCheckedIn(reservationWithEmail[i]);
+
+                                    Console.WriteLine("Successfully checked in. Enjoy your stay. Press any key to continue.");
+                                    ret = Console.ReadLine();
+
+                                    return;
+                                }
+                            }
+                            else if (String.Equals(correct, "n")  || String.Equals(correct, "N"))
+                            {
+                                break;
+                            }
+                        } while (String.Equals(correct, "n") != true || String.Equals(correct, "N") != true);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Room number: " + reservations[0].RoomNum);
+                    Console.WriteLine("First name: " + reservations[0].FirstName);
+                    Console.WriteLine("Last name: " + reservations[0].LastName);
+                    Console.WriteLine("Email: " + reservations[0].Email);
+                    Console.WriteLine("Start date: " + reservations[0].StartDate);
+                    Console.WriteLine("Last date: \n\n" + reservations[0].EndDate);
                 }
 
                 do
@@ -378,9 +533,10 @@ static void CheckOutGuest()
                     {
                         for (int i = 0; i < reservations.Count; i++)
                         {
-                            SoftwareEng.PreparedStatements.MarkReservationAsCheckedOut(reservations[i]);
+                            SoftwareEng.PreparedStatements.MarkReservationAsCheckedIn(reservations[i]);
 
-                            // generate bill here
+                            Console.WriteLine("Successfully checked in. Enjoy your stay. Press any key to continue.");
+                            ret = Console.ReadLine();
 
                             return;
                         }
@@ -574,6 +730,43 @@ static void ConfigureBaseRate()
         {
             Console.WriteLine("Could not set a base rate");
             return;
+        }
+    }
+}
+/*This function adds a card info for a customer
+ * 
+ */
+static void AddCardInfo()
+{
+    long cardNum;
+    int cvv;
+    string dateString;
+    bool invalid = true;
+    DateTime expiryDate;
+
+    Console.WriteLine("Please input card number");
+    cardNum = long.Parse(Console.ReadLine());
+    Console.WriteLine("Please input CVV number");
+    cvv = int.Parse(Console.ReadLine());
+
+    while (invalid)
+    {
+        Console.WriteLine("Please enter the expire date:");
+        dateString = Console.ReadLine();
+
+        if (DateTime.TryParse(dateString, out expiryDate))
+        {
+            expiryDate = Convert.ToDateTime(dateString);
+            CreditCards newCard = SoftwareEng.PreparedStatements.AddCardInfo(cardNum, cvv, expiryDate);
+
+            if (newCard == null)
+            {
+                Console.WriteLine("Cannot add new card. Please try again");
+            } else
+            {
+                Console.WriteLine("New card info is added");
+            }
+            invalid = false;
         }
     }
 }
