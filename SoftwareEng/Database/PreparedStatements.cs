@@ -1,5 +1,8 @@
 ﻿/* Author Jonathon Ford
  * 
+ * Created: 4/8/2022
+ * Finished: 4/29/2022
+ * 
  * This Class contains all communication between the database and the code
  * You can add and remove data using only these functions to insure that faulty data does not get put in the system
  * 

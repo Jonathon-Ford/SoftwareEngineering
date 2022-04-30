@@ -1,5 +1,8 @@
 ﻿/* Author Jonathon Ford
 * 
+* Created: 4/7/2022
+* Finished: 4/29/2022
+* 
 * This page contains all of the classes Entity Framework will use to model our database
 * These classes are also used for data manipulation within the code
 * 
