@@ -780,7 +780,7 @@ namespace SoftwareEng
                 AddBaseRate(toAdd);
             }
 
-            int numRes = r.Next(0, 45);
+            int numRes = r.Next(0, ReservationHandler.TOTAL_ROOMS);
 
             try
             {

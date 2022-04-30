@@ -355,7 +355,7 @@ namespace SoftwareEng
             int currentRoom = 1;
             while(todaysArrivals.Count > 0)
             {
-                for(int i = currentRoom; i <= 45; i++, currentRoom++)
+                for(int i = currentRoom; i <= ReservationHandler.TOTAL_ROOMS; i++, currentRoom++)
                 {
                     bool occupied = false;
                     for(int j = 0; j < currentOccupancies.Count; j++)
