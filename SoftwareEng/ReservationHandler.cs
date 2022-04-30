@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿//4/15/22
+//This class contains methods to add reservations and update various information about them. It also has some private helper functions to validate user input and calculate
+//reservation prices. Additionally, it contains an enum of the reservation types.
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace SoftwareEng
 {
     public static class ReservationHandler
     {
-        public const int TOTAL_ROOMS = 45;
+        public const int TOTAL_ROOMS = 45;      //Total number of rooms in the hotel
 
         public enum ReservationTypeCode
         {
@@ -19,10 +17,16 @@ namespace SoftwareEng
             Incentive = 4
         }
  
+        /// <summary>
+        /// This function asks the user for all the information necessary to make a new reservation. Then, it calls the appropriate function to add the new reservation
+        /// to the database. It makes sure that the hotel has availability and calculates the price based on the configured base rates. If it is not a 60-day reservation,
+        /// it requires payment information. If it is prepaid, it triggers payment processing.
+        /// </summary>
+        /// Author: AS
         public static void MakeReservation()
         {
-            bool invalidStartDate = true, invalidEndDate = true, invalidEmail = true, invalidcardNum = true, invalidCvv = true, full = true;
-            string dateString, emailString, cardNumString, cvvString;
+            bool invalidStartDate = true, invalidEndDate = true, invalidEmail = true, full = true;
+            string dateString, emailString, cardNumString, cvvString, input;
             long cardNum;
             int roomsLeft, cvv;
             DateTime startDate = new DateTime(), endDate = new DateTime();
@@ -75,6 +79,14 @@ namespace SoftwareEng
                             full = true;
                             Console.WriteLine("All rooms have been booked for " + i);
                         }
+                    }
+
+                    if(full)
+                    {
+                        Console.WriteLine("Would you like to try differnt dates? (Y/N)");
+                        input = Console.ReadLine();
+                        if (input != null && input.ToUpper() == "N")
+                            return;
                     }
                 }
                 catch(Exception e)
@@ -169,9 +181,9 @@ namespace SoftwareEng
                         }
                     }
 
-                    if(!IsCardValid(cardNum, cvv, newReservation.Card.ExpiryDate))
+                    if(!DoesCardExist(cardNum, cvv, newReservation.Card.ExpiryDate))
                     {
-                        CreditCards card = SoftwareEng.PreparedStatements.AddCardInfo(cardNum, cvv, newReservation.Card.ExpiryDate);
+                        CreditCards card = PreparedStatements.AddCardInfo(cardNum, cvv, newReservation.Card.ExpiryDate);
                         newReservation.Card.CardNum = card.CardNum;
                         newReservation.Card.CVVNum = card.CVVNum;
                         break;
@@ -189,6 +201,12 @@ namespace SoftwareEng
 
             try
             {
+                Console.WriteLine("Total for new reservation: $" + newReservation.Price);
+                Console.WriteLine("Confirm? Enter Y to make reservation or N to cancel");
+                input = Console.ReadLine();
+                if (input != null && input.ToUpper() == "N")
+                    return;
+
                 PreparedStatements.AddReservation(newReservation);
                 Console.WriteLine("Reservation added");
 
@@ -215,10 +233,15 @@ namespace SoftwareEng
             }
         }
 
+        /// <summary>
+        /// This function changes the date(s) for an existing reservation. It calls FindReservation to find the reservation then asks the user what the new start and end dates
+        /// should be. It makes sure that the hotel has availability and calculates the new price. Then, it calls the appropriate function to update the database.
+        /// </summary>
+        /// Author: AS
         public static void EditReservation()
         {
             bool full = true, invalidStartDate = true, invalidEndDate = true;
-            string dateString;
+            string dateString, input;
             int roomsLeft;
             List<int> dailyOccupancies = new List<int>();
             DateTime startDate = new DateTime(), endDate = new DateTime();
@@ -275,6 +298,14 @@ namespace SoftwareEng
                             Console.WriteLine("All rooms have been booked for " + i);
                         }
                     }
+
+                    if (full)
+                    {
+                        Console.WriteLine("Would you like to try differnt dates? (Y/N)");
+                        input = Console.ReadLine();
+                        if (input != null && input.ToUpper() == "N")
+                            return;
+                    }
                 }
                 catch(Exception e)
                 {
@@ -299,11 +330,19 @@ namespace SoftwareEng
             }
         }
 
+        /// <summary>
+        /// This function cancels an existing reservation. It calls FindReservation first to find the reservation. If the start date is less than 3 days away for a conventional
+        /// or incentive reservation, the guest gets charged for the first day. Then, the appropriate function is called to mark the reservation cancelled.
+        /// </summary>
+        /// Author: AS
         public static void CancelReservation()
         {
             try
             {
                 var reservation = FindReservation();
+
+                if (reservation == null)
+                    return;
 
                 if((reservation.StartDate.Date - DateTime.Now.Date).Days < 3)
                 {
@@ -336,9 +375,15 @@ namespace SoftwareEng
             }
         }
 
+        /// <summary>
+        /// This function is used by others to locate a reservation. It starts with the name of the guest then uses start date, email, and credit card to narrow down the
+        /// search results if necessary.
+        /// </summary>
+        /// Author: AS
+        /// <returns>Reservations</returns>
         public static Reservations FindReservation()
         {
-            string lastName, firstName, email;
+            string lastName, firstName, email, input;
             DateTime startDate;
             int cardLastFour;
             bool found = false;
@@ -357,6 +402,11 @@ namespace SoftwareEng
                     if (results.Count == 0)
                     {
                         Console.WriteLine("Found no reservations that matched the criteria");
+                        Console.WriteLine("Would you like to try again?");
+                        input = Console.ReadLine();
+
+                        if (input != null && input.ToUpper() == "N")
+                            return null;
                         continue;
                     }
                     else if (results.Count > 1)
@@ -402,11 +452,20 @@ namespace SoftwareEng
             }
         }
 
+        /// <summary>
+        /// This function calls FindReservation to find a reservation then confirms it to prevent a guest from being charged the no-show fee if they don't arrive on the 
+        /// start date. Then, it calls the appropriate function to update the database.
+        /// </summary>
+        /// Author: AS
         public static void ConfirmReservation()
         {
             try
             {
                 var reservation = FindReservation();
+
+                if (reservation == null)
+                    return;
+
                 reservation.Confirmed = true;
                 PreparedStatements.UpdateReservation(reservation);
                 Console.WriteLine("Reservation confirmed");
@@ -417,14 +476,10 @@ namespace SoftwareEng
             }
         }
 
-        //public static void CheckAvailability()
-        //{
-
-        //}
-
         /// <summary>
         /// This funnction accepts a reservation or finds a reservation and "charges" the card associated with it.
         /// </summary>
+        /// Author: AS
         /// <param name="reservation"></param>
         /// <param name="paymentDescription"></param>
         /// <returns>bool indicating success or failure</returns>
@@ -437,6 +492,9 @@ namespace SoftwareEng
                 if (reservation == null)
                 {
                     reservation = ReservationHandler.FindReservation();
+
+                    if (reservation == null)
+                        return false;
                 }
 
                 payment.Reservation = reservation ?? throw new Exception("");
@@ -462,6 +520,11 @@ namespace SoftwareEng
             }
         }
 
+        /// <summary>
+        /// This function gets all the reservations for which the guest did not show up or call to confirm their reservation on the start date. It calculates the price of the
+        /// first day for each and charges this amount to the associated credit card.
+        /// </summary>
+        /// Author: AS
         public static void ChargeNoShowFees()
         {
             var reservations = PreparedStatements.GetNoShowReservations();
@@ -470,6 +533,7 @@ namespace SoftwareEng
             {
                 res.Price = CalculateFirstDayPrice(res);
                 ProcessPayment("No-show fee", res);
+                PreparedStatements.MarkReservationAsCanceled(res);
             }
         }
         /* Allows a user to make a conventional reservation when other types are allowed
@@ -486,6 +550,13 @@ namespace SoftwareEng
                 return true;
         }
 
+        /// <summary>
+        /// This function accepts the daily occupancies and start date for a reservation and uses them to determine what type the reservation is.
+        /// </summary>
+        /// Author: AS
+        /// <param name="dailyOccupancies"></param>
+        /// <param name="startDate"></param>
+        /// <returns>ReservationTypes</returns>
         private static ReservationTypes DetermineReservationType(List<int> dailyOccupancies, DateTime startDate)
         {
             var daysOut = (startDate - DateTime.Now).Days;
@@ -512,7 +583,7 @@ namespace SoftwareEng
                     return type;
                 }
             }
-            else if(daysOut >= 30 && dailyOccupancies.Average()/TOTAL_ROOMS > 0.6)
+            else if(daysOut < 60 && dailyOccupancies.Average()/TOTAL_ROOMS > 0.6)
             {
                 type.ReservationID = (int)ReservationTypeCode.Conventional;
                 type.Description = ReservationTypeCode.Conventional.ToString();
@@ -530,6 +601,12 @@ namespace SoftwareEng
             return type;
         }
 
+        /// <summary>
+        /// This function accepts an input string, determines whether it can be converted to DateTime, and returns a bool indicating the result.
+        /// </summary>
+        /// Author: AS
+        /// <param name="input"></param>
+        /// <returns>bool</returns>
         private static bool IsDateValid(string input)
         {
             try
@@ -552,6 +629,12 @@ namespace SoftwareEng
             }
         }
 
+        /// <summary>
+        /// This function uses a regular expression to determine whether an email string is of valid format and returns a bool indicating the result.
+        /// </summary>
+        /// Author: AS
+        /// <param name="input"></param>
+        /// <returns>bool</returns>
         private static bool IsEmailValid(string input)
         {
             Regex emailPattern = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
@@ -565,7 +648,15 @@ namespace SoftwareEng
             }
         }
 
-        private static bool IsCardValid(long cardNum, int cvv, DateTime expiration)
+        /// <summary>
+        /// This function accepts credit card information and checks whether it exists in the database.
+        /// </summary>
+        /// Author: AS
+        /// <param name="cardNum"></param>
+        /// <param name="cvv"></param>
+        /// <param name="expiration"></param>
+        /// <returns>bool</returns>
+        private static bool DoesCardExist(long cardNum, int cvv, DateTime expiration)
         {
             try
             {
@@ -590,23 +681,53 @@ namespace SoftwareEng
             }
         }
 
+        /// <summary>
+        /// This function accepts a reservation object and calculates price based on previous versions of it, base rates, and its type.
+        /// </summary>
+        /// <param name="reservation"></param>
+        /// <returns></returns>
         private static double CalculateReservationPrice(Reservations reservation)
         {
             try
             {
-                var sum = 0.0;
+                double sum = 0.0, amtPaid = 0, newPrice = 0;
                 var rates = reservation.BaseRates.ToList();
+                var pastVersions = PreparedStatements.GetAllResosToBeBilled(reservation);
 
                 var reservationTypeInfo = PreparedStatements.GetReservationTypeDetails(reservation.ReservationType);
 
                 //Multiply each element by the percentage determined by the reservation type
                 foreach (var rate in rates)
                 {
-                    sum += rate.Rate * reservationTypeInfo.PercentOfBase / 100;
+                    sum += rate.Rate * reservationTypeInfo.PercentOfBase;
                 }
 
-                //Return the sum of all the daily rates
-                return sum;
+                if (pastVersions.Count > 1)
+                {
+                    foreach (var res in pastVersions)
+                    {
+                        if (res.Paid)
+                        {
+                            amtPaid += res.Price;
+                        }
+                    }
+
+                    if (pastVersions[1].ReservationType.ReservationID == (int)ReservationTypeCode.Prepaid
+                        || pastVersions[1].ReservationType.ReservationID == (int)ReservationTypeCode.SixtyDay)
+                    {
+                        newPrice = sum * 1.1;
+                    }
+
+                    newPrice = Math.Max(newPrice - amtPaid, 0);
+
+                }
+                else
+                {
+                    newPrice = sum;
+                }
+
+                //Return the price for the new reservation
+                return newPrice;
             }
             catch (Exception e)
             {
@@ -622,7 +743,7 @@ namespace SoftwareEng
             return firstBaseRate.Rate * PreparedStatements.GetReservationTypeDetails(reservation.ReservationType).PercentOfBase / 100;
         }
 
-        /*This function adds a user with provided username, password, and role
+        /*
          * 
          */
         public static void CheckAvailability()

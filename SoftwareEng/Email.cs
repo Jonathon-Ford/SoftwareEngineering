@@ -2,23 +2,28 @@
 using MailKit.Security;
 using MimeKit;
 using MimeKit.Text;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SoftwareEng
 {
     public static class Email
     {
         private static MailboxAddress _hotelEmailAddress = new MailboxAddress("Ophelia's Oasis", "opheliaoasis2022@gmail.com");
+        
+        /// <summary>
+        /// This function calls other functions to generate any emails that must be sent daily.
+        /// </summary>
+        /// Author: AS
         public static void GenerateDailyEmails()
         {
             GeneratePaymentReminder();
             GenerateCancellationNotification();
         }
 
+        /// <summary>
+        /// This function gets all the reservations that need to be sent a payment reminder, generates a customized email for each, and passes it to the appropriate function
+        /// to be sent.
+        /// </summary>
+        /// Author: AS
         private static void GeneratePaymentReminder()
         {
             var reservationsDue = PreparedStatements.GetReservationsForEmail();
@@ -27,14 +32,19 @@ namespace SoftwareEng
             foreach (var res in reservationsDue)
             {
                 subject = "Payment Due for Reservation at Ophelia's Oasis";
-                body = $"We are looking forward to your arrival on {res.StartDate}. In order to retain your reservation, please pay the " +
-                    $"full bill by {res.StartDate.AddDays(-30)}. Thank you for booking a stay with us!\n\n";
+                body = $"We are looking forward to your arrival on {res.StartDate:mm/dd/yyyy)}. In order to retain your reservation, please pay the " +
+                    $"full bill by {res.StartDate.AddDays(-30):mm/dd/yyyy}. Thank you for booking a stay with us!\n\n";
                 body += ReportGenerator.GenerateReservationHistory(PreparedStatements.GetAllResosToBeBilled(res));
 
                 SendEmail(MailboxAddress.Parse(res.Email), _hotelEmailAddress, subject, body);
             }
         }
 
+        /// <summary>
+        /// This function gets all the reservations that need to be cancelled because they missed the payment deadline, cancels them, and generates notification emails. It
+        /// passes each email to the appropriate function to be sent.
+        /// </summary>
+        /// Author: AS
         private static void GenerateCancellationNotification()
         {
             var reservationsOverdue = PreparedStatements.GetReservationsToCancelForEmail();
@@ -43,9 +53,10 @@ namespace SoftwareEng
             foreach (var res in reservationsOverdue)
             {
                 subject = "Unpaid Reservation Cancelled";
-                body = $"This message is being sent to inform you that your reservation beginning {res.StartDate} has been cancelled because it was not paid by the due date.";
+                body = $"This message is being sent to inform you that your reservation beginning {res.StartDate:mm/dd/yyyy} has been cancelled because it was not paid by the due date.";
 
                 SendEmail(MailboxAddress.Parse(res.Email), _hotelEmailAddress, subject, body);
+                PreparedStatements.MarkReservationAsCanceled(res);
             }
         }
 

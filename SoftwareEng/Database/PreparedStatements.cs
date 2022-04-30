@@ -388,7 +388,7 @@ namespace SoftwareEng
                 .Where(r => r.IsCanceled == false)
                 .Count();
 
-            return 45 - count;
+            return TOTAL_ROOMS - count;
         }
 
         /// <summary>
@@ -781,7 +781,7 @@ namespace SoftwareEng
                 AddBaseRate(toAdd);
             }
 
-            int numRes = r.Next(0, 45);
+            int numRes = r.Next(0, ReservationHandler.TOTAL_ROOMS);
 
             try
             {
