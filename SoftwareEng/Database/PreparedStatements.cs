@@ -387,7 +387,7 @@ namespace SoftwareEng
                 .Where(r => r.IsCanceled == false)
                 .Count();
 
-            return 45 - count;
+            return TOTAL_ROOMS - count;
         }
 
         /// <summary>

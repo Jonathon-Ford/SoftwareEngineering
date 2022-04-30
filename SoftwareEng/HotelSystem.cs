@@ -842,7 +842,7 @@ static void SystemTriggered()
     var tomorrow = now.AddDays(1);
     var durationUntilMidnight = tomorrow.Date - now;
 
-    var t = new Timer(o => { ReportGenerator.SetRoomNumbers(); /*Cancel 60 days and no shows */ SystemTriggered(); }, null, TimeSpan.Zero, durationUntilMidnight);
+    var t = new Timer(o => { ReportGenerator.SetRoomNumbers(); ReservationHandler.ChargeNoShowFees(); SystemTriggered(); }, null, TimeSpan.Zero, durationUntilMidnight);
 
 }
 
