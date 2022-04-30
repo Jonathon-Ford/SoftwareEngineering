@@ -25,7 +25,8 @@ namespace SoftwareEng
         /// Author: AS
         public static void MakeReservation()
         {
-            bool invalidStartDate = true, invalidEndDate = true, invalidEmail = true, full = true;
+            bool invalidStartDate = true, invalidEndDate = true, invalidEmail = true, invalidName = true, full = true;
+            string fname, lname;
             string dateString, emailString, cardNumString, cvvString, input;
             long cardNum;
             int roomsLeft, cvv;
@@ -114,10 +115,28 @@ namespace SoftwareEng
             if (newReservation.Price == 0)
                 return;
 
-            Console.WriteLine("Please enter the guest's information\nFirst name:");
-            newReservation.FirstName = Console.ReadLine();
-            Console.WriteLine("Last name:");
-            newReservation.LastName = Console.ReadLine();
+            while (invalidName) {
+                Console.WriteLine("Please enter the guest's information\nFirst name:");
+                fname = Console.ReadLine();
+                
+                if (IsLetters(fname)) {
+                    newReservation.FirstName = fname;
+                    invalidName = false   
+                } else {
+                    Console.WriteLine("Invalid name. Please try again");
+                }
+               
+                Console.WriteLine("Last name:");
+                lname = Console.ReadLine();
+                
+                if (IsLetters(lname)) {
+                    newReservation.LastName = lname;
+                    invalidName = false   
+                } else {
+                    Console.WriteLine("Invalid name. Please try again");
+                }
+            }
+            
 
             while (invalidEmail)
             {
@@ -767,6 +786,17 @@ namespace SoftwareEng
                     Console.WriteLine(emptyRoom);
                     invalidStartDate = false;
                 }
+            }
+        }
+        
+        public static bool IsLetters(string username) {
+            string pattern = "^[A-Za-z ]+$";
+            Regex regex = new Regex(pattern);
+            if (regex.IsMatch(username) == false)
+            {
+                return false;
+            } else {
+                return true;   
             }
         }
     }
