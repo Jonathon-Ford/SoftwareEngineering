@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineering\\SoftwareEng\\SoftwareEng.csproj": {}
+    "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineeringYes\\SoftwareEng\\SoftwareEng.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineering\\SoftwareEng\\SoftwareEng.csproj": {
+    "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineeringYes\\SoftwareEng\\SoftwareEng.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineering\\SoftwareEng\\SoftwareEng.csproj",
+        "projectUniqueName": "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineeringYes\\SoftwareEng\\SoftwareEng.csproj",
         "projectName": "SoftwareEng",
-        "projectPath": "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineering\\SoftwareEng\\SoftwareEng.csproj",
+        "projectPath": "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineeringYes\\SoftwareEng\\SoftwareEng.csproj",
         "packagesPath": "C:\\Users\\Jt4d\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineering\\SoftwareEng\\obj\\",
+        "outputPath": "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineeringYes\\SoftwareEng\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Jt4d\\AppData\\Roaming\\NuGet\\NuGet.Config",

@@ -11,7 +11,7 @@
  * GenerateIncentiveReport - Prints the incentive report and creates a text file with the information
  * GenerateThirtyDayOccupancyReport - Prints the 30 day occupancy report and creates a text file with the information
  * GenerateOccupancyReport - Prints the names and room numbers of everyone staying at the hotel
- * 
+ * SetRoomNumbers - called automatically by the child thread at midnight, gives room numbers to reservations in the system
  */
 
 using System;
@@ -177,7 +177,7 @@ namespace SoftwareEng
                     date = "";
                 }
 
-                if(dailyOccupancy[i].EndDate == DateTime.Now) // If they leave today add a * before their name
+                if(dailyOccupancy[i].EndDate == DateTime.Now.Date) // If they leave today add a * before their name
                 {
                     name = "*" + name;
                 }
@@ -294,7 +294,7 @@ namespace SoftwareEng
                 changeFee = true;
 
                 data += "Original reservation:\n";
-                for (int i = billableResos.Count - 1; i >= 1; i--)
+                for (int i = billableResos.Count - 1; i >= 1; i--)//The last reservation to be added is the oldest so this goes from the oldest reso to the newest
                 {
                     DateTime start = billableResos[i].StartDate;
                     DateTime end = billableResos[i].EndDate;
@@ -308,7 +308,7 @@ namespace SoftwareEng
                         + "----------------------------------------------\n";
                 }
             }
-
+            //if you are here you either had one reservation only or you printed all your old ones billableResos[0] is the most current reso
             data += "Final Reservation:\n";
             data += String.Format("{0,-20} {1,-20} {2,-20} {3,-20}\n",
                     "Date", "Base Rate", "Discount/Fee", "Price");

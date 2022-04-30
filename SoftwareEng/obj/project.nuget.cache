@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "BWuf+EbbVMz7i5ZmLV+cw+HVcEUumIf3Zg1NYESJq2MvkDoesPeBRONbCCYuEBXvf7MVeZAvF71W/n8WaYh4vw==",
+  "dgSpecHash": "TwrIA7e7+87PGQvPpr+wAf6UMQf6/2WAGPyTBMeBJlzFc0EUstIEVdAemzHYQB3faA6WG5p/qVVXhfxD4jsN5w==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineering\\SoftwareEng\\SoftwareEng.csproj",
+  "projectFilePath": "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineeringYes\\SoftwareEng\\SoftwareEng.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Jt4d\\.nuget\\packages\\entityframework\\5.0.0\\entityframework.5.0.0.nupkg.sha512",
     "C:\\Users\\Jt4d\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",

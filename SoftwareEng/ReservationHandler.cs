@@ -472,6 +472,19 @@ namespace SoftwareEng
                 ProcessPayment("No-show fee", res);
             }
         }
+        /* Allows a user to make a conventional reservation when other types are allowed
+         * 
+         */
+        private static bool MakeConventional()
+        {
+            Console.WriteLine("Would you like to pay now for a discount? y/n");
+            string input = Console.ReadLine();
+
+            if (input.Equals("y") | input.Equals("Y"))
+                return false;
+            else
+                return true;
+        }
 
         private static ReservationTypes DetermineReservationType(List<int> dailyOccupancies, DateTime startDate)
         {
@@ -480,15 +493,24 @@ namespace SoftwareEng
 
             if(daysOut >= 90)
             {
-                type.ReservationID = (int)ReservationTypeCode.Prepaid;
-                type.Description = ReservationTypeCode.Prepaid.ToString();
-                return type;
+                if (MakeConventional()) { }
+                else
+                {
+                    type.ReservationID = (int)ReservationTypeCode.Prepaid;
+                    type.Description = ReservationTypeCode.Prepaid.ToString();
+                    return type;
+                }
+
             }
             else if(daysOut >= 60)
             {
-                type.ReservationID = (int)ReservationTypeCode.SixtyDay;
-                type.Description = ReservationTypeCode.SixtyDay.ToString();
-                return type;
+                if (MakeConventional()) { }
+                else
+                {
+                    type.ReservationID = (int)ReservationTypeCode.SixtyDay;
+                    type.Description = ReservationTypeCode.SixtyDay.ToString();
+                    return type;
+                }
             }
             else if(daysOut >= 30 && dailyOccupancies.Average()/TOTAL_ROOMS > 0.6)
             {
@@ -502,6 +524,10 @@ namespace SoftwareEng
                 type.Description = ReservationTypeCode.Incentive.ToString();
                 return type;
             }
+
+            type.ReservationID = (int)ReservationTypeCode.Conventional;
+            type.Description = ReservationTypeCode.Conventional.ToString();
+            return type;
         }
 
         private static bool IsDateValid(string input)

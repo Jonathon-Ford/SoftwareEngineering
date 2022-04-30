@@ -3,7 +3,8 @@
  * This Class contains all communication between the database and the code
  * You can add and remove data using only these functions to insure that faulty data does not get put in the system
  * 
- * 
+ * This file is somewhat large, to navigate I reccomend ctrl + F what class you want to look for
+ * EX.) to find hotel sytem fucntion ctrl + F (Hotel system statements)
  * 
  */
 
@@ -824,7 +825,7 @@ namespace SoftwareEng
                     case 4: toAdd.ReservationType = new ReservationTypes() { Description = "Incentive", ReservationID = 4 }; break;
                 }
 
-                toAdd.Email = "fake@notreal.com";
+                toAdd.Email = "fake" + i + "@notreal.com";
                 toAdd.Card = new CreditCards () { CardNum = 1111111111111111, CVVNum = 123, ExpiryDate = DateTime.Now.AddYears(2) };
 
                 toAdd.BaseRates = GetBaseRates(toAdd.StartDate, toAdd.EndDate);
