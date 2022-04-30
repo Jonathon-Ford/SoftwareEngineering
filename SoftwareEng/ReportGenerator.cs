@@ -336,8 +336,8 @@ namespace SoftwareEng
                     dis_fee, price);
             }
 
-            data += "Total nights: " + billableResos[0].BaseRates.Count();
-            data += "Total: " + billableResos[0].Price;
+            data += "Total nights: " + billableResos[0].BaseRates.Count() + "\n";
+            data += "Total: " + billableResos[0].Price + "\n";
 
             if(billableResos[0].ReservationType.ReservationID == (int)ReservationHandler.ReservationTypeCode.SixtyDay)
             {
