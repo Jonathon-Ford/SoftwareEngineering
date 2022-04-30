@@ -2,7 +2,7 @@
  * Professor: Lawrence Thomas
  * Class: EECS 3550 Software Engineering
  * Dates: 04/29/2022
- * This program is a console app for a hotel database. Once ran you can run 15 different opperations which are as follows
+ * This program is a console app for a hotel database. Once ran you can run 18 different opperations which are as follows
  * 1.) Make Reservation (adds customer information and dates they want to book, as well as pricing)
  * 2.) Edit a Reservation (edits a reservation in the system)
  * 3.) Cancel a Reservation (cancles a reservation and charges a card if need be)
