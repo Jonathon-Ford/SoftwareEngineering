@@ -1,6 +1,9 @@
 ﻿/*
  * Author: Jonathon Ford
  * 
+ * Created: 4/9/2022
+ * Finished 4/29/2022
+ * 
  * This class contains all of the logic for generating reports for the hotel
  * 
  * Methods contained:
