@@ -96,12 +96,13 @@ namespace SoftwareEng
             PrintToConsoleAndSaveToDocs(data, "IncentiveReport");
         }
 
-        /* This function writes the 30 day expected occupancy report and saves it to a file
-         * 
-         * This report takes the form:
-         * Date     Prepaid     60 day      Conventional        Incentive       Total
-         * curdate  10          4           15                  12              41
-         */
+        ///<summary>
+        /// This function writes the 30 day expected occupancy report and saves it to a file
+        ///</summary>
+        ///
+        /// This report takes the form:
+        /// Date     Prepaid     60 day      Conventional        Incentive       Total
+        /// curdate  10          4           15                  12              41
         public static void GenerateThirtyDayOccupancyReport()
         {
             List<List<int>> occupancies = PreparedStatements.GetThirtyDayOccupancyInfo();
