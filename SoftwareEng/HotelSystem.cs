@@ -101,10 +101,10 @@ static void Main(Users currentUser)
             remainingAttempts--;
         }
 
-        if (remainingAttempts < 0)//If they made it here because of hitting the attempt limits, sleep for 5 min
+        if (remainingAttempts == 0)//If they made it here because of hitting the attempt limits, sleep for 5 min
         {
             Console.WriteLine("Too many attempts, locking for 5 min");
-            Thread.Sleep(300000);
+            Thread.Sleep(5000);
         }
         else//If they made it here its because of being a valid user
         {
@@ -155,7 +155,7 @@ static void Main(Users currentUser)
                 ReservationHandler.CancelReservation();
                 break;
             case "4":
-                ReservationHandler.FindReservation();
+                ReservationHandler.FindReservation(true);
                 break;
             case "5":
                 ReservationHandler.ConfirmReservation();
@@ -328,7 +328,7 @@ static void CheckInGuest()
                 DateTime startDate;
 
                 // general reservation - used when just 1 reservation under input information
-                List<Reservations> reservations = SoftwareEng.PreparedStatements.FindReservation(fname, lname);
+                List<Reservations> reservations = SoftwareEng.PreparedStatements.FindReservation(fname, lname).Where(r => !r.IsCanceled).ToList();
 
                 // reseravation list filter with last 4 digits of card - used when more than 1 reservation under input information
                 List<Reservations> reservationWithCard = new List<Reservations>();
@@ -352,7 +352,7 @@ static void CheckInGuest()
                     {
                         Console.WriteLine("Enter your card number");
                         cardNum = int.Parse(Console.ReadLine());
-                        reservationWithCard = SoftwareEng.PreparedStatements.FindReservation(fname, lname, cardNum, null, startDate);
+                        reservationWithCard = SoftwareEng.PreparedStatements.FindReservation(fname, lname, cardNum, null, startDate).Where(r => !r.IsCanceled).ToList();
                         Console.WriteLine("\n\nRoom number: " + reservationWithCard[0].RoomNum);
                         Console.WriteLine("First name: " + reservationWithCard[0].FirstName);
                         Console.WriteLine("Last name: " + reservationWithCard[0].LastName);
@@ -389,7 +389,7 @@ static void CheckInGuest()
                     {
                         Console.WriteLine("Enter your email");
                         email = Console.ReadLine();
-                        reservationWithEmail = SoftwareEng.PreparedStatements.FindReservation(fname, lname, null, email, startDate);
+                        reservationWithEmail = SoftwareEng.PreparedStatements.FindReservation(fname, lname, null, email, startDate).Where(r => !r.IsCanceled).ToList();
                         Console.WriteLine("Room number: " + reservationWithEmail[0].RoomNum);
                         Console.WriteLine("First name: " + reservationWithEmail[0].FirstName);
                         Console.WriteLine("Last name: " + reservationWithEmail[0].LastName);
@@ -497,7 +497,7 @@ static void CheckOutGuest()
                 int cardNum;
                 string dateString;
                 DateTime startDate;
-                List<Reservations> reservations = PreparedStatements.FindReservation(fname, lname);
+                List<Reservations> reservations = PreparedStatements.FindReservation(fname, lname).Where(r => !r.IsCanceled && r.CheckedIn).ToList();
                 List<Reservations> reservationWithCard = new List<Reservations>();
                 List<Reservations> reservationWithEmail = new List<Reservations>();
                 if (reservations.Count > 1)
@@ -517,7 +517,7 @@ static void CheckOutGuest()
                     {
                         Console.WriteLine("Enter your card number");
                         cardNum = int.Parse(Console.ReadLine());
-                        reservationWithCard = PreparedStatements.FindReservation(fname, lname, cardNum, null, startDate);
+                        reservationWithCard = PreparedStatements.FindReservation(fname, lname, cardNum, null, startDate).Where(r => !r.IsCanceled && r.CheckedIn).ToList();
                         Console.WriteLine("\n\nRoom number: " + reservationWithCard[0].RoomNum);
                         Console.WriteLine("First name: " + reservationWithCard[0].FirstName);
                         Console.WriteLine("Last name: " + reservationWithCard[0].LastName);
@@ -532,20 +532,20 @@ static void CheckOutGuest()
 
                             if (String.Equals(correct, "y") || String.Equals(correct, "Y"))
                             {
-                                for (int i = 0; i < reservations.Count; i++)
+                                for (int i = 0; i < reservationWithCard.Count; i++)
                                 {
-                                    PreparedStatements.MarkReservationAsCheckedOut(reservations[i]);
+                                    PreparedStatements.MarkReservationAsCheckedOut(reservationWithCard[i]);
 
-                                    ReportGenerator.GenerateBill(reservations[i]);
-                                    if (!ReservationHandler.ProcessPayment("Pay bill at checkout", reservations[i]))
+                                    ReportGenerator.GenerateBill(reservationWithCard[i]);
+                                    if (!ReservationHandler.ProcessPayment("Pay bill at checkout", reservationWithCard[i]))
                                     {
                                         Console.WriteLine("Error processing bill payment");
                                     }
                                     else
                                     {
-                                        reservations[i].Paid = true;
-                                        reservations[i].PaymentDate = DateTime.Now.Date;
-                                        PreparedStatements.UpdateReservation(reservations[i]);
+                                        reservationWithCard[i].Paid = true;
+                                        reservationWithCard[i].PaymentDate = DateTime.Now.Date;
+                                        PreparedStatements.UpdateReservation(reservationWithCard[i]);
                                         Console.WriteLine("Successfully checked out. Thank you for staying with us. Press any key to continue.");
                                         ret = Console.ReadLine();
                                     }
@@ -563,7 +563,7 @@ static void CheckOutGuest()
                     {
                         Console.WriteLine("Enter your email");
                         email = Console.ReadLine();
-                        reservationWithEmail = SoftwareEng.PreparedStatements.FindReservation(fname, lname, null, email, startDate);
+                        reservationWithEmail = SoftwareEng.PreparedStatements.FindReservation(fname, lname, null, email, startDate).Where(r => !r.IsCanceled && r.CheckedIn).ToList();
                         Console.WriteLine("Room number: " + reservationWithEmail[0].RoomNum);
                         Console.WriteLine("First name: " + reservationWithEmail[0].FirstName);
                         Console.WriteLine("Last name: " + reservationWithEmail[0].LastName);
@@ -578,20 +578,20 @@ static void CheckOutGuest()
 
                             if (String.Equals(correct, "y") || String.Equals(correct, "Y"))
                             {
-                                for (int i = 0; i < reservations.Count; i++)
+                                for (int i = 0; i < reservationWithEmail.Count; i++)
                                 {
-                                    PreparedStatements.MarkReservationAsCheckedOut(reservations[i]);
+                                    PreparedStatements.MarkReservationAsCheckedOut(reservationWithEmail[i]);
 
-                                    ReportGenerator.GenerateBill(reservations[i]);
-                                    if (!ReservationHandler.ProcessPayment("Pay bill at checkout", reservations[i]))
+                                    ReportGenerator.GenerateBill(reservationWithEmail[i]);
+                                    if (!ReservationHandler.ProcessPayment("Pay bill at checkout", reservationWithEmail[i]))
                                     {
                                         Console.WriteLine("Error processing bill payment");
                                     }
                                     else
                                     {
-                                        reservations[i].Paid = true;
-                                        reservations[i].PaymentDate = DateTime.Now.Date;
-                                        PreparedStatements.UpdateReservation(reservations[i]);
+                                        reservationWithEmail[i].Paid = true;
+                                        reservationWithEmail[i].PaymentDate = DateTime.Now.Date;
+                                        PreparedStatements.UpdateReservation(reservationWithEmail[i]);
                                         Console.WriteLine("Successfully checked out. Thank you for staying with us. Press any key to continue.");
                                         ret = Console.ReadLine();
                                     }

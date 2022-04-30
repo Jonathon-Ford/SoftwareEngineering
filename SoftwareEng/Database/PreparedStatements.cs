@@ -687,7 +687,7 @@ namespace SoftwareEng
                     .Include(ct => ct.OldReservation.BaseRates)
                     .Include(ct => ct.OldReservation.Card)
                     .Include(ct => ct.OldReservation.ReservationType)
-                    .Where(ct => ct.NewReservation == reservation)
+                    .Where(ct => ct.NewReservation.ReservationID == curResID)
                     .Select(ct => ct.OldReservation).SingleOrDefault();//find an old reservation that is linked to the current reservation
 
                     
@@ -714,13 +714,13 @@ namespace SoftwareEng
         {
             using DatabaseContext db = new DatabaseContext();
 
+            payment.Reservation.BaseRates.Clear();
             db.Payments.Add(payment);
             db.Entry(payment.Card).State = EntityState.Unchanged;
             db.Entry(payment.Reservation).State = EntityState.Unchanged;
             db.Entry(payment.Reservation.ReservationType).State = EntityState.Unchanged;
             db.Entry(payment.Reservation.Card).State = EntityState.Unchanged;
-            foreach (var rate in payment.Reservation.BaseRates)
-                db.Entry(rate).State = EntityState.Unchanged;
+            
 
             db.SaveChanges();
         }

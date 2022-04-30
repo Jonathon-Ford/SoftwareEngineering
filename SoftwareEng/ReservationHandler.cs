@@ -27,7 +27,7 @@ namespace SoftwareEng
         /// Author: AS
         public static void MakeReservation()
         {
-            bool invalidStartDate = true, invalidEndDate = true, invalidEmail = true, invalidName = true, full = true;
+            bool invalidStartDate = true, invalidEndDate = true, invalidEmail = true, invalidFName = true, invalidLName = true, full = true;
             string fname, lname;
             string dateString, emailString, cardNumString, cvvString, input;
             long cardNum;
@@ -117,24 +117,32 @@ namespace SoftwareEng
             if (newReservation.Price == 0)
                 return;
 
-            while (invalidName) {
+            while (invalidFName) {
                 Console.WriteLine("Please enter the guest's information\nFirst name:");
                 fname = Console.ReadLine();
                 
                 if (IsLetters(fname)) {
                     newReservation.FirstName = fname;
-                    invalidName = false;   
+                    invalidFName = false;   
                 } else {
                     Console.WriteLine("Invalid name. Please try again");
                 }
                
+                
+            }
+
+            while (invalidLName)
+            {
                 Console.WriteLine("Last name:");
                 lname = Console.ReadLine();
-                
-                if (IsLetters(lname)) {
+
+                if (IsLetters(lname))
+                {
                     newReservation.LastName = lname;
-                    invalidName = false;   
-                } else {
+                    invalidLName = false;
+                }
+                else
+                {
                     Console.WriteLine("Invalid name. Please try again");
                 }
             }
@@ -402,7 +410,7 @@ namespace SoftwareEng
         /// </summary>
         /// Author: AS
         /// <returns>Reservations</returns>
-        public static Reservations FindReservation()
+        public static Reservations FindReservation(bool includeCancelled = false)
         {
             string lastName, firstName, email, input;
             DateTime startDate;
@@ -418,7 +426,11 @@ namespace SoftwareEng
                     firstName = Console.ReadLine();
                     Console.WriteLine("Please enter the last name for the reservation:");
                     lastName = Console.ReadLine();
+
                     var results = PreparedStatements.FindReservation(firstName, lastName);
+                    
+                    if(!includeCancelled)
+                        results = results.Where(r => !r.IsCanceled).ToList();
 
                     if (results.Count == 0)
                     {

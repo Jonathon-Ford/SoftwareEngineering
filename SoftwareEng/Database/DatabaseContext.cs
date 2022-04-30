@@ -25,7 +25,6 @@ namespace SoftwareEng.DataModels
             string dataSource = @"134.228.35.6";
             string database = "Ophelia's Oasis";
             string connString = @"Data Source=" + dataSource + ";Initial Catalog=" + database + ";Integrated Security=False; Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;User=team14;Password=team14";
-            //connString = @"Data Source=(localdb)\MSSQLLocalDB;Database=Ophelia'sOasis;Trusted_Connection=True";
             options.UseSqlServer(connString);
         }
 

@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineeringYes\\SoftwareEng\\SoftwareEng.csproj": {}
+    "D:\\schaf\\source\\repos\\SoftwareEngineering\\SoftwareEng\\SoftwareEng.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineeringYes\\SoftwareEng\\SoftwareEng.csproj": {
+    "D:\\schaf\\source\\repos\\SoftwareEngineering\\SoftwareEng\\SoftwareEng.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineeringYes\\SoftwareEng\\SoftwareEng.csproj",
+        "projectUniqueName": "D:\\schaf\\source\\repos\\SoftwareEngineering\\SoftwareEng\\SoftwareEng.csproj",
         "projectName": "SoftwareEng",
-        "projectPath": "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineeringYes\\SoftwareEng\\SoftwareEng.csproj",
-        "packagesPath": "C:\\Users\\Jt4d\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Jt4d\\source\\repos\\SoftwareEngineeringYes\\SoftwareEng\\obj\\",
+        "projectPath": "D:\\schaf\\source\\repos\\SoftwareEngineering\\SoftwareEng\\SoftwareEng.csproj",
+        "packagesPath": "C:\\Users\\schaf\\.nuget\\packages\\",
+        "outputPath": "D:\\schaf\\source\\repos\\SoftwareEngineering\\SoftwareEng\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Jt4d\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\schaf\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -88,7 +92,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.104\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.202\\RuntimeIdentifierGraph.json"
         }
       }
     }
