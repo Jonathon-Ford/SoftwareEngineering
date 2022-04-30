@@ -1,7 +1,8 @@
 ﻿/*Authors: Jonathon Ford, Hoang Bao Duy Le, Anna Schafer
  * Professor: Lawrence Thomas
  * Class: EECS 3550 Software Engineering
- * Dates: 04/29/2022
+ * Created: 3/28/2022
+ * Finished: 04/29/2022
  * This program is a console app for a hotel database. Once ran you can run 18 different opperations which are as follows
  * 1.) Make Reservation (adds customer information and dates they want to book, as well as pricing)
  * 2.) Edit a Reservation (edits a reservation in the system)
@@ -269,6 +270,7 @@ static void Main(Users currentUser)
 
 /*This function queries the database for employees with given username and password, if it matches one it returns true
  * and sets the global user with the credentials
+ * Author: Duy Le
  */
 static bool LogInUser(string username, string password, Users currentUser)
 {
@@ -289,7 +291,7 @@ static bool LogInUser(string username, string password, Users currentUser)
     }
 }
 /*This function checks in a guest by updating the database
- * 
+ * Author: Duy Le
  */
 static void CheckInGuest()
 {
@@ -460,7 +462,7 @@ static void CheckInGuest()
 }
 /*This function checks out a guest at the end of their stay
  * Pretty similar to checkin guest but instead of marking checked in, we marked check out
- * 
+ * Author: Duy Le
  */
 static void CheckOutGuest()
 {
@@ -658,6 +660,7 @@ static void CheckOutGuest()
 }
 /*This function adds a user with provided username, password, and role
  * It will still add user with special character
+ * Author: Duy Le
  */
 static void AddUser()
 {
@@ -693,6 +696,7 @@ static void AddUser()
 
 /*This function updates a user with provided username, password, and role
  * It will not update anything if user inputs invalid information - means that program cannot find any user with provided input
+ * Author: Duy Le
  */
 static void UpdateUser()
 {
@@ -750,6 +754,7 @@ static void UpdateUser()
 }
 /*This function deletes a user with provided username
  * It will not delete any user if program cannot find any user with provided information
+ * Author: Duy Le
  */
 static void DeleteUser(string currentUsername)
 {
@@ -780,6 +785,7 @@ static void DeleteUser(string currentUsername)
 
 /*This function configures base rate
  * This will configure base rate with range - every date from effective start & end date will have provided base rate
+ * Author: Duy Le
  */
 static void ConfigureBaseRate()
 {

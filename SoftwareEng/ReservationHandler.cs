@@ -1,4 +1,6 @@
-﻿//4/15/22
+﻿//Created: 4/15/2022
+//Main development done 4/21/2022
+//Finished: 4/29/2022
 //This class contains methods to add reservations and update various information about them. It also has some private helper functions to validate user input and calculate
 //reservation prices. Additionally, it contains an enum of the reservation types.
 using System.Text.RegularExpressions;
