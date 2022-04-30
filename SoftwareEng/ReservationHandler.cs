@@ -544,10 +544,13 @@ namespace SoftwareEng
             Console.WriteLine("Would you like to pay now for a discount? y/n");
             string input = Console.ReadLine();
 
-            if (input.Equals("y") | input.Equals("Y"))
-                return false;
-            else
-                return true;
+            while (true)
+            {
+                if (input.Equals("y") | input.Equals("Y"))
+                    return false;
+                else if (input.Equals("n") | input.Equals("N"))
+                    return true;
+            }
         }
 
         /// <summary>
