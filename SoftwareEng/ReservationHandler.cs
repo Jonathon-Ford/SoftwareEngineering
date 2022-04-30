@@ -121,7 +121,7 @@ namespace SoftwareEng
                 
                 if (IsLetters(fname)) {
                     newReservation.FirstName = fname;
-                    invalidName = false   
+                    invalidName = false;   
                 } else {
                     Console.WriteLine("Invalid name. Please try again");
                 }
@@ -131,7 +131,7 @@ namespace SoftwareEng
                 
                 if (IsLetters(lname)) {
                     newReservation.LastName = lname;
-                    invalidName = false   
+                    invalidName = false;   
                 } else {
                     Console.WriteLine("Invalid name. Please try again");
                 }
