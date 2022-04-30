@@ -28,13 +28,17 @@ namespace SoftwareEng
 
         public static bool UpdateUser(String oldUsername, String username, String password, String role)
         {
+            // attempt to update current user with new information
             Users updateUser = SoftwareEng.PreparedStatements.UpdateUser(oldUsername, username, password, role);
 
+            // if success
             if (updateUser != null)
             {
+                // then return true 
                 return true;
             } else
             {
+                // if not return false
                 return false;
             }
         }
@@ -48,6 +52,7 @@ namespace SoftwareEng
 
         public static Users ValidateUser(String username, String password)
         {
+            // check if a provided information is matched with any user information
             Users validUser = SoftwareEng.PreparedStatements.ValidateUser(username, password);
             return validUser;
         }

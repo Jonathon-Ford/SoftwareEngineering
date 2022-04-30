@@ -1,5 +1,7 @@
 ﻿/*Authors: Jonathon Ford, Hoang Bao Duy Le, Anna Schafer
- * 
+ * Professor: Lawrence Thomas
+ * Class: EECS 3550 Software Engineering
+ * Dates: 04/29/2022
  * This program is a console app for a hotel database. Once ran you can run 15 different opperations which are as follows
  * 1.) Make Reservation (adds customer information and dates they want to book, as well as pricing)
  * 2.) Edit a Reservation (edits a reservation in the system)
@@ -78,6 +80,7 @@ static void Main(Users currentUser)
                 var key = Console.ReadKey(true);
                 if (key.Key == ConsoleKey.Enter)
                     break;
+                // allow backspace password instead of adding new character
                 else if (key.Key == ConsoleKey.Backspace)
                 {
                     if (password.Length == 0) { }//Do nothing
@@ -269,6 +272,7 @@ static void Main(Users currentUser)
  */
 static bool LogInUser(string username, string password, Users currentUser)
 {
+    // validate user if null then return to options
     Users user = SoftwareEng.UserFunctions.ValidateUser(username, password);
     if (user == null)
     {
@@ -320,8 +324,14 @@ static void CheckInGuest()
                 int cardNum;
                 string dateString;
                 DateTime startDate;
+
+                // general reservation - used when just 1 reservation under input information
                 List<Reservations> reservations = SoftwareEng.PreparedStatements.FindReservation(fname, lname);
+
+                // reseravation list filter with last 4 digits of card - used when more than 1 reservation under input information
                 List<Reservations> reservationWithCard = new List<Reservations>();
+
+                // reservation list filter with email - used when more than 1 reservation under input information
                 List<Reservations> reservationWithEmail = new List<Reservations>();
                 if (reservations.Count > 1)
                 {
@@ -353,6 +363,7 @@ static void CheckInGuest()
                             Console.WriteLine("Is this the correct reservation? Y or N");
                             correct = Console.ReadLine();
 
+                            // if this is a correct information, then mark this reservation as checked in 
                             if (String.Equals(correct, "y") || String.Equals(correct, "Y"))
                             {
                                 for (int i = 0; i < reservationWithCard.Count; i++)
@@ -365,6 +376,8 @@ static void CheckInGuest()
                                     return;
                                 }
                             }
+
+                            // if not, program keeps prompting the user to input information
                             else if (String.Equals(correct, "n")  || String.Equals(correct, "N"))
                             {
                                 break;
@@ -407,6 +420,7 @@ static void CheckInGuest()
                     }
                 } else if (reservations.Count == 0)
                 {
+                    // if there is no reservation under the input information 
                     Console.WriteLine("There is no reservation under this information");
                     return;
                 } else
@@ -445,6 +459,7 @@ static void CheckInGuest()
     } while (String.Equals(correct, "n") || String.Equals(correct, "N"));
 }
 /*This function checks out a guest at the end of their stay
+ * Pretty similar to checkin guest but instead of marking checked in, we marked check out
  * 
  */
 static void CheckOutGuest()
@@ -642,7 +657,7 @@ static void CheckOutGuest()
     } while (String.Equals(correct, "n") || String.Equals(correct, "N"));
 }
 /*This function adds a user with provided username, password, and role
- * 
+ * It will still add user with special character
  */
 static void AddUser()
 {
@@ -677,7 +692,7 @@ static void AddUser()
 }
 
 /*This function updates a user with provided username, password, and role
- * 
+ * It will not update anything if user inputs invalid information - means that program cannot find any user with provided input
  */
 static void UpdateUser()
 {
@@ -734,7 +749,7 @@ static void UpdateUser()
     
 }
 /*This function deletes a user with provided username
- * 
+ * It will not delete any user if program cannot find any user with provided information
  */
 static void DeleteUser(string currentUsername)
 {
@@ -764,7 +779,7 @@ static void DeleteUser(string currentUsername)
 }
 
 /*This function configures base rate
- * 
+ * This will configure base rate with range - every date from effective start & end date will have provided base rate
  */
 static void ConfigureBaseRate()
 {
