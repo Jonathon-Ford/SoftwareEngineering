@@ -600,7 +600,7 @@ namespace SoftwareEng
                     .ToList(); //join base rates with reservations via the many to many table base rates reservations, get the daily rate from the reservations that are for that day
 
                 float perDayTotal = 0;
-                //I am so sorry to any man, beast, celectial or otherwise that has to look upon my madness
+                //I am so sorry to any man, beast, celestial or otherwise that has to look upon my madness
                 for(int j = 0; j < resos.Count; j++)//For how many resos we got...
                 {
                     for(int k = 0; k < resos[j].BaseRates.Count; k++)//For how many base rates are in the reso we are looking at...
@@ -643,7 +643,7 @@ namespace SoftwareEng
                     .ToList(); //join base rates with reservations via the many to many table base rates reservations, get the daily rate from the reservations that are for that day
 
                 float perDayLoss = 0;
-                //I am so sorry to any man, beast, celectial or otherwise that has to look upon my madness
+                //I am so sorry to any man, beast, celestial or otherwise that has to look upon my madness
                 for (int j = 0; j < resos.Count; j++)//For how many resos we got...
                 {
                     for (int k = 0; k < resos[j].BaseRates.Count; k++)//For how many base rates are in the reso we are looking at...
@@ -685,17 +685,8 @@ namespace SoftwareEng
                     .Include(ct => ct.OldReservation.Card)
                     .Include(ct => ct.OldReservation.ReservationType)
                     .Where(ct => ct.NewReservation == reservation)
-                    .Select(ct => ct.OldReservation).SingleOrDefault();
+                    .Select(ct => ct.OldReservation).SingleOrDefault();//find an old reservation that is linked to the current reservation
 
-                    //(
-                    //from ct in db.ChangedTo
-                    //join r in db.Reservations on ct.OldReservation equals r
-                    //where ct.NewReservation.ReservationID == curResID
-                    //select r)
-                    //.Include(r => r.BaseRates)
-                    //.Include(r => r.Card)
-                    //.Include(r => r.ReservationType)
-                    //.SingleOrDefault();
                     
                 if(reso == null)
                 {
