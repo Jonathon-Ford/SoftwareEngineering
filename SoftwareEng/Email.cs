@@ -1,4 +1,10 @@
-﻿using MailKit.Net.Smtp;
+﻿//Created: 4/22/2022
+//Main development done 4/23/2022
+//Finished: 4/29/2022
+//Author: Anna Schafer
+//This class contains methods to add reservations and update various information about them. It also has some private helper functions to validate user input and calculate
+//reservation prices. Additionally, it contains an enum of the reservation types.
+using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
 using MimeKit.Text;
@@ -60,6 +66,13 @@ namespace SoftwareEng
             }
         }
 
+        /// <summary>
+        /// This function accepts the to and from addresses, subject, and body for the email and sends it.
+        /// </summary>
+        /// <param name="to"></param>
+        /// <param name="from"></param>
+        /// <param name="subject"></param>
+        /// <param name="body"></param>
         private static void SendEmail(MailboxAddress to, MailboxAddress from, string subject, string body)
         {            
             MimeMessage message = new MimeMessage();

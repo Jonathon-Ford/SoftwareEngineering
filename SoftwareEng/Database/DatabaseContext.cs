@@ -1,4 +1,5 @@
-﻿using System;
+﻿//This sets up the connection and tables for entity framework.
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
