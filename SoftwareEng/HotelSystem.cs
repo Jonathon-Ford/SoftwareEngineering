@@ -405,6 +405,10 @@ static void CheckInGuest()
                             }
                         } while (String.Equals(correct, "n") != true || String.Equals(correct, "N") != true);
                     }
+                } else if (reservations.Count == 0)
+                {
+                    Console.WriteLine("There is no reservation under this information");
+                    return;
                 } else
                 {                    
                     Console.WriteLine("Room number: " + reservations[0].RoomNum);
@@ -413,7 +417,7 @@ static void CheckInGuest()
                     Console.WriteLine("Email: " + reservations[0].Email);
                     Console.WriteLine("Start date: " + reservations[0].StartDate);
                     Console.WriteLine("Last date: " + reservations[0].EndDate);
-                }                
+                }             
 
                 do
                 {
@@ -584,6 +588,11 @@ static void CheckOutGuest()
                             }
                         } while (String.Equals(correct, "n") != true || String.Equals(correct, "N") != true);
                     }
+                }
+                else if (reservations.Count == 0)
+                {
+                    Console.WriteLine("There is no reservation under this information");
+                    return;
                 }
                 else
                 {
