@@ -172,7 +172,7 @@ namespace SoftwareEng
 
                 string date;
 
-                if(dailyOccupancy[i].StartDate < DateTime.Now) // If they stayed the night before print when they leave
+                if(dailyOccupancy[i].StartDate < DateTime.Now.Date) // If they stayed the night before print when they leave
                 {
                     date = dailyOccupancy[i].EndDate.ToString("dd/MM/yyyy");
                 }
@@ -210,7 +210,7 @@ namespace SoftwareEng
 
             for(int i = 0; i < reservations.Count; i++)
             {
-                string name = reservations[i].FirstName + reservations[i].LastName;
+                string name = reservations[i].FirstName + " " + reservations[i].LastName;
                 int resoType = reservations[i].ReservationType.ReservationID;
                 string reso;
                 switch (resoType)
@@ -222,7 +222,7 @@ namespace SoftwareEng
                     default: reso = "Error"; break;
                 }
                 int roomNum = reservations[i].RoomNum;
-                string endTime = reservations[i].EndDate.ToString("dd/MM/yyyy");
+                string endTime = reservations[i].EndDate.ToString("MM/dd/yyyy");
 
                 data += String.Format("{0,-50} {1,-20} {2,-15} {3, -15} \n",
                     name, reso, roomNum, endTime);
