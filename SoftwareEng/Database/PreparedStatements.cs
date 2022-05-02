@@ -1,9 +1,13 @@
 ﻿/* Author Jonathon Ford
  * 
+ * Created: 4/8/2022
+ * Finished: 4/29/2022
+ * 
  * This Class contains all communication between the database and the code
  * You can add and remove data using only these functions to insure that faulty data does not get put in the system
  * 
- * 
+ * This file is somewhat large, to navigate I reccomend ctrl + F what class you want to look for
+ * EX.) to find hotel sytem fucntion ctrl + F (Hotel system statements)
  * 
  */
 
@@ -387,7 +391,7 @@ namespace SoftwareEng
                 .Where(r => r.IsCanceled == false)
                 .Count();
 
-            return 45 - count;
+            return TOTAL_ROOMS - count;
         }
 
         /// <summary>
@@ -599,7 +603,7 @@ namespace SoftwareEng
                     .ToList(); //join base rates with reservations via the many to many table base rates reservations, get the daily rate from the reservations that are for that day
 
                 float perDayTotal = 0;
-                //I am so sorry to any man, beast, celectial or otherwise that has to look upon my madness
+                //I am so sorry to any man, beast, celestial or otherwise that has to look upon my madness
                 for(int j = 0; j < resos.Count; j++)//For how many resos we got...
                 {
                     for(int k = 0; k < resos[j].BaseRates.Count; k++)//For how many base rates are in the reso we are looking at...
@@ -642,7 +646,7 @@ namespace SoftwareEng
                     .ToList(); //join base rates with reservations via the many to many table base rates reservations, get the daily rate from the reservations that are for that day
 
                 float perDayLoss = 0;
-                //I am so sorry to any man, beast, celectial or otherwise that has to look upon my madness
+                //I am so sorry to any man, beast, celestial or otherwise that has to look upon my madness
                 for (int j = 0; j < resos.Count; j++)//For how many resos we got...
                 {
                     for (int k = 0; k < resos[j].BaseRates.Count; k++)//For how many base rates are in the reso we are looking at...
@@ -683,18 +687,9 @@ namespace SoftwareEng
                     .Include(ct => ct.OldReservation.BaseRates)
                     .Include(ct => ct.OldReservation.Card)
                     .Include(ct => ct.OldReservation.ReservationType)
-                    .Where(ct => ct.NewReservation == reservation)
-                    .Select(ct => ct.OldReservation).SingleOrDefault();
+                    .Where(ct => ct.NewReservation.ReservationID == curResID)
+                    .Select(ct => ct.OldReservation).SingleOrDefault();//find an old reservation that is linked to the current reservation
 
-                    //(
-                    //from ct in db.ChangedTo
-                    //join r in db.Reservations on ct.OldReservation equals r
-                    //where ct.NewReservation.ReservationID == curResID
-                    //select r)
-                    //.Include(r => r.BaseRates)
-                    //.Include(r => r.Card)
-                    //.Include(r => r.ReservationType)
-                    //.SingleOrDefault();
                     
                 if(reso == null)
                 {
@@ -719,13 +714,13 @@ namespace SoftwareEng
         {
             using DatabaseContext db = new DatabaseContext();
 
+            payment.Reservation.BaseRates.Clear();
             db.Payments.Add(payment);
             db.Entry(payment.Card).State = EntityState.Unchanged;
             db.Entry(payment.Reservation).State = EntityState.Unchanged;
             db.Entry(payment.Reservation.ReservationType).State = EntityState.Unchanged;
             db.Entry(payment.Reservation.Card).State = EntityState.Unchanged;
-            foreach (var rate in payment.Reservation.BaseRates)
-                db.Entry(rate).State = EntityState.Unchanged;
+            
 
             db.SaveChanges();
         }
@@ -766,7 +761,7 @@ namespace SoftwareEng
         }
 
         //*******TEST STATEMENTS********************************************************
-        public static void PopulateWithTestData()
+        public static void PopulateWithTestData(int numToAdd)
         {
             DateTime curDate = DateTime.Now.Date;
             Random r = new Random();
@@ -780,18 +775,64 @@ namespace SoftwareEng
                 AddBaseRate(toAdd);
             }
 
-            int numRes = r.Next(0, 45);
+            int numRes = r.Next(0, ReservationHandler.TOTAL_ROOMS);
 
-            
+            try
+            {
+                CreditCards dontNeed = AddCardInfo( 1111111111111111, 123, DateTime.Now.AddYears(2));
+            }
+            catch(Exception e) { }
 
-            for(int i = 0; i < 45; i++)
+            for(int i = 0; i < numToAdd; i++)
             {
                 int randDaysAway = r.Next(0, 40);
-                int randStayLen = r.Next(0, 10);
+                int randStayLen = r.Next(1, 10);
 
                 Reservations toAdd = new Reservations();
-                toAdd.StartDate = DateTime.Now.AddDays(randStayLen);
+                toAdd.StartDate = DateTime.Now.AddDays(randDaysAway);
+                toAdd.EndDate = DateTime.Now.AddDays(randDaysAway + randStayLen);
 
+                bool keepGoing = true;
+                for(int j = randDaysAway; j < randDaysAway + randStayLen; j++)
+                {
+                    int count = GetAvailability(DateTime.Now.AddDays(j));
+                    if(count == 0)
+                    {
+                        keepGoing = false;
+                        break;
+                    }
+                }
+                if (!keepGoing)
+                {
+                    continue;
+                }
+
+                toAdd.FirstName = "Test";
+                toAdd.LastName = "McTestface" + i;
+
+                int type = r.Next(1, 4);
+                switch (type)
+                {
+                    case 1: toAdd.ReservationType = new ReservationTypes() { Description = "Prepaid", ReservationID = 1};break;
+                    case 2: toAdd.ReservationType = new ReservationTypes() { Description = "SixtyDay", ReservationID = 2 }; break;
+                    case 3: toAdd.ReservationType = new ReservationTypes() { Description = "Conventional", ReservationID = 3 }; break;
+                    case 4: toAdd.ReservationType = new ReservationTypes() { Description = "Incentive", ReservationID = 4 }; break;
+                }
+
+                toAdd.Email = "fake" + i + "@notreal.com";
+                toAdd.Card = new CreditCards () { CardNum = 1111111111111111, CVVNum = 123, ExpiryDate = DateTime.Now.AddYears(2) };
+
+                toAdd.BaseRates = GetBaseRates(toAdd.StartDate, toAdd.EndDate);
+
+                float sum = 0;
+                for(int j = 0; j < toAdd.BaseRates.Count; j++)
+                {
+                    sum += toAdd.BaseRates.ToList()[j].Rate;
+                }
+
+                toAdd.Price = sum;
+
+                AddReservation(toAdd);
             }
         }
     }

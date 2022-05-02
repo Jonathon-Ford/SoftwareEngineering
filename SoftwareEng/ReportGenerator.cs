@@ -1,6 +1,9 @@
 ﻿/*
  * Author: Jonathon Ford
  * 
+ * Created: 4/9/2022
+ * Finished 4/29/2022
+ * 
  * This class contains all of the logic for generating reports for the hotel
  * 
  * Methods contained:
@@ -11,7 +14,7 @@
  * GenerateIncentiveReport - Prints the incentive report and creates a text file with the information
  * GenerateThirtyDayOccupancyReport - Prints the 30 day occupancy report and creates a text file with the information
  * GenerateOccupancyReport - Prints the names and room numbers of everyone staying at the hotel
- * 
+ * SetRoomNumbers - called automatically by the child thread at midnight, gives room numbers to reservations in the system
  */
 
 using System;
@@ -96,12 +99,13 @@ namespace SoftwareEng
             PrintToConsoleAndSaveToDocs(data, "IncentiveReport");
         }
 
-        /* This function writes the 30 day expected occupancy report and saves it to a file
-         * 
-         * This report takes the form:
-         * Date     Prepaid     60 day      Conventional        Incentive       Total
-         * curdate  10          4           15                  12              41
-         */
+        ///<summary>
+        /// This function writes the 30 day expected occupancy report and saves it to a file
+        ///</summary>
+        ///
+        /// This report takes the form:
+        /// Date     Prepaid     60 day      Conventional        Incentive       Total
+        /// curdate  10          4           15                  12              41
         public static void GenerateThirtyDayOccupancyReport()
         {
             List<List<int>> occupancies = PreparedStatements.GetThirtyDayOccupancyInfo();
@@ -177,7 +181,7 @@ namespace SoftwareEng
                     date = "";
                 }
 
-                if(dailyOccupancy[i].EndDate == DateTime.Now) // If they leave today add a * before their name
+                if(dailyOccupancy[i].EndDate == DateTime.Now.Date) // If they leave today add a * before their name
                 {
                     name = "*" + name;
                 }
@@ -278,8 +282,8 @@ namespace SoftwareEng
             data += "Duration: " + reservation.StartDate + " - " + reservation.EndDate + " (" + (reservation.EndDate - reservation.StartDate).Days + " nights)";
             data += "Room: " + reservation.RoomNum;
 
-            data += "Guest: " + payment.Reservation.FirstName + payment.Reservation.LastName + "\n";
-            data += "Room Number: " + payment.Reservation.RoomNum + "\n";
+            data += "Guest: " + reservation.FirstName + reservation.LastName + "\n";
+            data += "Room Number: " + reservation.RoomNum + "\n";
             data += GenerateReservationHistory(billableResos);            
 
             PrintToConsoleAndSaveToDocs(data, "MostRecentBill");
@@ -294,7 +298,7 @@ namespace SoftwareEng
                 changeFee = true;
 
                 data += "Original reservation:\n";
-                for (int i = billableResos.Count - 1; i >= 1; i--)
+                for (int i = billableResos.Count - 1; i >= 1; i--)//The last reservation to be added is the oldest so this goes from the oldest reso to the newest
                 {
                     DateTime start = billableResos[i].StartDate;
                     DateTime end = billableResos[i].EndDate;
@@ -308,7 +312,7 @@ namespace SoftwareEng
                         + "----------------------------------------------\n";
                 }
             }
-
+            //if you are here you either had one reservation only or you printed all your old ones billableResos[0] is the most current reso
             data += "Final Reservation:\n";
             data += String.Format("{0,-20} {1,-20} {2,-20} {3,-20}\n",
                     "Date", "Base Rate", "Discount/Fee", "Price");
@@ -332,8 +336,8 @@ namespace SoftwareEng
                     dis_fee, price);
             }
 
-            data += "Total nights: " + billableResos[0].BaseRates.Count();
-            data += "Total: " + billableResos[0].Price;
+            data += "Total nights: " + billableResos[0].BaseRates.Count() + "\n";
+            data += "Total: " + billableResos[0].Price + "\n";
 
             if(billableResos[0].ReservationType.ReservationID == (int)ReservationHandler.ReservationTypeCode.SixtyDay)
             {
@@ -355,7 +359,7 @@ namespace SoftwareEng
             int currentRoom = 1;
             while(todaysArrivals.Count > 0)
             {
-                for(int i = currentRoom; i <= 45; i++, currentRoom++)
+                for(int i = currentRoom; i <= ReservationHandler.TOTAL_ROOMS; i++, currentRoom++)
                 {
                     bool occupied = false;
                     for(int j = 0; j < currentOccupancies.Count; j++)
